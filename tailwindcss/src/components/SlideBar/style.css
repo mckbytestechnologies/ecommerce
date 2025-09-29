@@ -1,0 +1,42 @@
+.sidebar .scroll {
+    max-height: 250px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;               /* add some inner spacing */
+    border-radius: 8px;           /* rounded corners */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* subtle shadow */
+    background-color: #f9f9f9;    /* light background */
+    transition: all 0.3s ease;    /* smooth hover effects */
+}
+
+/* Optional: Style the scrollbar for modern look */
+.sidebar .scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar .scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar .scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 3px;
+}
+
+.sidebar .scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,0,0,0.4);
+}
+
+
+.ReactCollapse--collapse {
+  transition: height 500ms;
+}
+
+.range-slider {
+    height: 3px !important;
+}
+
+.range-slider .range-slider__thumb {
+    width: 14px !important;
+    height: 14px !important;
+}
