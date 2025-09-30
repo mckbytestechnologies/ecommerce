@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import ProductListing from "./pages/ProductListing";
 import Footer from "./components/Footer";
 import ProductDetails from "./pages/ProductDetails";
+import AuthPage from "./pages/AuthPage";
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
        <Route path={"/"} exact={true} element={<Home/>}/>
        <Route path={"/productlisting"} exact={true} element={<ProductListing/>}/>
        <Route path={"/productdetails/:id"} exact={true} element={<ProductDetails/>}/>
+       <Route path={"/auth"} exact={true} element={<AuthPage/>}/>
      </Routes>
      <Footer/>
      </BrowserRouter>

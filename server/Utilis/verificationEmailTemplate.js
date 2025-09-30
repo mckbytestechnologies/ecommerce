@@ -1,5 +1,5 @@
 // verificationEmail.js
-const VerificationEmail = (username, otp) => {
+export const verificationEmailTemplate = (username, otp) => {
   const preheader = `Your verification code is ${otp} — valid for 10 minutes.`;
 
   const html = `<!doctype html>
@@ -106,7 +106,7 @@ const VerificationEmail = (username, otp) => {
 </body>
 </html>`;
 
-  // Plain text alternative (useful for email clients or for sending text fallback)
+  // Plain text alternative
   const text = `Hi ${username || "there"},
 
 Your verification code is: ${otp}
@@ -116,7 +116,6 @@ If you didn't request this, please ignore this email.
 
 — Your Company`;
 
-  // Return an object with both versions (HTML + plain text)
   return { html, text };
 };
 
@@ -129,6 +128,3 @@ function escapeHtml(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
-module.exports = VerificationEmail;
-

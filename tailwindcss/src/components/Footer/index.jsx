@@ -6,7 +6,7 @@ const Footer = () => {
     return(
        <footer className="bg-[#fef9f4]">
       {/* Newsletter Section */}
-      <div className="bg-[#fcd9b6] py-10 px-6 md:px-12 rounded-lg mx-4 md:mx-10 -mt-10 shadow-md">
+      <div className="bg-[#fcd9b6] py-10 px-6 md:px-12 rounded-lg mx-4 md:mx-10 -mt-1 shadow-md">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Left Text */}
           <div className="flex-1 text-center md:text-left">

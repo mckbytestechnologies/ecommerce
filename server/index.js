@@ -9,6 +9,9 @@ import connectDb from "./config/connectDb.js";
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
+
 
 dotenv.config();
 const app = express();
@@ -24,11 +27,14 @@ app.get("/", (req, res) => {
   res.json({ message: "Server is running on port " + process.env.PORT });
 });
 
-// API Routes
-app.use("/api/users", userRoutes);
 
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/cart", cartRoutes);
+
+
 
 connectDb().then(() => {
   app.listen(process.env.PORT, () => {

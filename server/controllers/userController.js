@@ -1,64 +1,154 @@
-import UserModel from "../models/User";
+import UserModel from "../models/User.js";
 import bcryptjs from "bcryptjs";
-import jwt from 'jsonwebtoken'
-import { sendEmail } from "../config/emailService";
+import sendEmailFun from "../config/sendEmail.js";
+import { verificationEmailTemplate } from "../Utilis/verificationEmailTemplate.js";
 
-export async function registerUserController(request,response){
-  try{
-    const {name, email, password} = request.body;
-    if(!name || !email || !password){
+export async function registerUser(request, response) {
+  try {
+    const { name, email, password } = request.body;
+    
+    if (!name || !email || !password) {
       return response.status(400).json({
-        message : "provide email name password",
-        error : true,
-        sucess : false
-      })
+        message: "Provide email, name and password",
+        
+        error: true,
+        success: false
+      });
     }
-    const user =await UserModel.findOne({email:email})
-    if(user{
-      return response.json({
-        message:"already register email",
-        error : true,
-        sucess : false
 
-      })
+    const existingUser = await UserModel.findOne({ email: email });
+    if (existingUser) {
+      return response.status(400).json({
+        message: "Email already registered",
+        error: true,
+        success: false
+      });
+    }
+
+    const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
+
+    const user = new UserModel({
+      email: email,
+      password: hashedPassword,
+      name: name,
+      forgot_password_otp: verifyCode,
+      forgot_password_expiry: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
     });
 
-  }catch(error){
+    await user.save();
+
+    const verifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${user._id}`;
+    const emailTemplate = verificationEmailTemplate(name, verifyCode);
+
+    const emailSent = await sendEmailFun(
+      email,
+      "Verify Email - McKbytes",
+      emailTemplate.text,
+      emailTemplate.html
+    );
+
+    if (!emailSent) {
+      return response.status(500).json({
+        message: "Failed to send verification email",
+        error: true,
+        success: false
+      });
+    }
+
+    return response.status(201).json({
+      message: "User registered successfully. Verification email sent.",
+      success: true,
+      error: false,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
     return response.status(500).json({
-      message:error.message || error,
-      error:true,
-      sucess:false
-    })
+      message: error.message || error,
+      error: true,
+      success: false
+    });
   }
+}
 
-  const veifycode = Math.floor(10000 + Math.random() *900000).to String();
-  let user;
+export async function loginUser(request, response) {
+  try {
+    const { email, password } = request.body;
+    
+    if (!email || !password) {
+      return response.status(400).json({
+        message: "Provide email and password",
+        error: true,
+        success: false
+      });
+    }
 
-  const salt =await bcryptjs.genSalt(10);
-  const haspassword = await bcryptjs.hash(password,salt);
+    const user = await UserModel.findOne({ email: email });
+    if (!user) {
+      return response.status(400).json({
+        message: "Invalid email or password",
+        error: true,
+        success: false
+      });
+    }
 
-  
-  user = new UserModel({
-    email:email,
-    password: password,
-    name : name
-  });
+    const isPasswordValid = await bcryptjs.compare(password, user.password);
+    if (!isPasswordValid) {
+      return response.status(400).json({
+        message: "Invalid email or password",
+        error: true,
+        success: false
+      });
+    }
 
-  await user.save()
-  const resp = sendEmailFun(email ,"verify Email","", "your OTP is "+vrifycode);
+    // Update last login date
+    user.last_login_date = new Date();
+    await user.save();
 
-  const verifyEmail = await sendEmail({
-    sendTo : email,
-    subject : "Verify email form mckbytes"
-    html : verifyemailTemaplate({
-      name,
-      url : verifyEmailUrl 
-    })
-  })
+    return response.status(200).json({
+      message: "Login successful",
+      success: true,
+      error: false,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
 
+  } catch (error) {
+    return response.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false
+    });
+  }
+}
 
-  const VerifyEmailUrl = '${process.env.FRONTEND_URL}/verify-email?code=${save?._id}'
+export async function getUsers(request, response) {
+  try {
+    const users = await UserModel.find().select('-password -refresh_token');
+    
+    return response.status(200).json({
+      message: "Users fetched successfully",
+      success: true,
+      error: false,
+      data: users
+    });
 
-
-
+  } catch (error) {
+    return response.status(500).json({
+      message: error.message || error,
+      error: true,
+      success: false
+    });
+  }
 }
