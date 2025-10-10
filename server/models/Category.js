@@ -26,15 +26,6 @@ const categorySchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    seo: {
-      title: String,
-      description: String,
-      slug: {
-        type: String,
-        unique: true,
-        sparse: true,
-      },
-    },
     createdBy: {
       type: mongoose.Schema.ObjectId,
       ref: "User",

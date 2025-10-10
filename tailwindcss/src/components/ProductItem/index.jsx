@@ -1,9 +1,8 @@
 import React from "react";
-import "./style.css";
 import { Link } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import Button from "@mui/material/Button";
-import { FaRegHeart } from "react-icons/fa";
+import { FaRegHeart, FaShoppingBag } from "react-icons/fa";
 import { FaCodeCompare } from "react-icons/fa6";
 import { MdOutlineZoomOutMap } from "react-icons/md";
 
@@ -15,70 +14,115 @@ const ProductItem = ({
   rating = 0,
   oldPrice,
   newPrice,
+  badge
 }) => {
-  return (
-    <div className="flex gap-5 flex-wrap productitem relative rounded-xl overflow-hidden shadow-md bg-white hover:shadow-xl transition duration-300">
-      {/* Image Section */}
-      <div className="imgWrapper relative w-[220px] h-[280px] overflow-hidden group">
-        {/* Default Image */}
-        <img
-          src={imageFront}
-          alt="Product Front"
-          className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
-        />
+  const discount = oldPrice ? Math.round(((oldPrice - newPrice) / oldPrice) * 100) : 0;
 
-        {/* Hover Image */}
-        <img
-          src={imageBack}
-          alt="Product Back"
-          className="w-full h-full object-cover absolute top-0 left-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-        />
+  return (
+    <div className="group bg-white border border-gray-100 rounded-none hover:shadow-sm transition-all duration-300 h-full flex flex-col relative">
+      {/* Image Container */}
+      <div className="relative bg-gray-50 overflow-hidden aspect-square">
+        {/* Main Image */}
+        <div className="relative w-full h-full">
+          <img
+            src={imageFront}
+            alt="Product Front"
+            className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+          />
+          <img
+            src={imageBack}
+            alt="Product Back"
+            className="w-full h-full object-cover absolute top-0 left-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          />
+        </div>
+
+        {/* Badge */}
+        {badge && (
+          <div className="absolute top-4 left-4 z-10">
+            <span className="bg-black text-white px-3 py-1 text-xs font-medium tracking-wide">
+              {badge}
+            </span>
+          </div>
+        )}
 
         {/* Discount Badge */}
-        <span className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-md shadow">
-          -10%
-        </span>
+        {oldPrice && (
+          <div className="absolute top-4 left-4 z-10">
+            <span className="bg-red-600 text-white px-2 py-1 text-xs font-medium">
+              -{discount}%
+            </span>
+          </div>
+        )}
 
-        {/* Action Buttons */}
-        <div className="action absolute top-[15px] right-[5px] z-50 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button className="!w-[40px] !h-[40px] !min-w-[40px] !rounded-full !bg-white !text-gray-600 hover:!bg-orange-500 hover:!text-white shadow-md">
-            <FaRegHeart size={18} />
+        {/* Action Buttons - Fixed positioning */}
+        <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+          <Button 
+            className="!min-w-0 !w-8 !h-8 !p-0 !bg-white !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+            size="small"
+          >
+            <FaRegHeart size={12} />
           </Button>
+          <Button 
+            className="!min-w-0 !w-8 !h-8 !p-0 !bg-white !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-75"
+            size="small"
+          >
+            <FaCodeCompare size={12} />
+          </Button>
+          <Button 
+            className="!min-w-0 !w-8 !h-8 !p-0 !bg-white !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-100"
+            size="small"
+          >
+            <MdOutlineZoomOutMap size={12} />
+          </Button>
+        </div>
 
-          <Button className="!w-[40px] !h-[40px] !min-w-[40px] !rounded-full !bg-white !text-gray-600 hover:!bg-orange-500 hover:!text-white shadow-md">
-            <FaCodeCompare size={18} />
-          </Button>
-
-          <Button className="!w-[40px] !h-[40px] !min-w-[40px] !rounded-full !bg-white !text-gray-600 hover:!bg-orange-500 hover:!text-white shadow-md">
-            <MdOutlineZoomOutMap size={18} />
-          </Button>
+        {/* Quick Add Button */}
+        <div className="absolute bottom-4 left-4 right-4 z-20">
+          <button className="w-full bg-black text-white py-3 text-sm font-medium tracking-wide opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 delay-150 flex items-center justify-center gap-2 hover:bg-gray-800">
+            <FaShoppingBag size={12} />
+            Add to Cart
+          </button>
         </div>
       </div>
 
-      {/* Info Section */}
-      <div className="info p-4 bg-gray-50">
-        <h6 className="text-xs uppercase text-gray-500 tracking-wide">
-          <Link to="/" className="hover:text-orange-500 transition">
+      {/* Content */}
+      <div className="p-6 flex-1 flex flex-col">
+        <div className="mb-2">
+          <span className="text-xs text-gray-500 font-light tracking-wide uppercase">
             {category}
-          </Link>
-        </h6>
-        <h3 className="text-sm font-medium mt-1 text-gray-800">
-          <Link to="/" className="hover:text-orange-500 transition">
+          </span>
+        </div>
+        
+        <h3 className="text-lg font-light text-gray-900 mb-3 leading-tight tracking-tight line-clamp-2">
+          <Link to="/" className="hover:text-gray-600 transition-colors">
             {title}
           </Link>
         </h3>
 
-        {/* Rating */}
-        <div className="mt-2">
-          <Rating name="size-small" value={rating} size="small" readOnly />
-        </div>
+        <div className="mt-auto">
+          <div className="flex items-center space-x-1 mb-3">
+            <Rating 
+              value={rating} 
+              size="small" 
+              readOnly 
+              precision={0.1}
+              className="!text-sm"
+            />
+            <span className="text-xs text-gray-500">({rating})</span>
+          </div>
 
-        {/* Price */}
-        <div className="flex items-center gap-3 mt-2">
-          {oldPrice && (
-            <span className="line-through text-gray-400 text-sm">₹{oldPrice}</span>
-          )}
-          <span className="text-orange-500 font-semibold text-sm">₹{newPrice}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              {oldPrice && (
+                <span className="text-sm text-gray-400 line-through font-light">
+                  ₹{oldPrice}
+                </span>
+              )}
+              <span className="text-xl font-light text-gray-900">
+                ₹{newPrice}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -37,7 +37,7 @@ const Header = () => {
     <header className="w-full h-[50px] pl-64 pr-7 bg-gray-200  flex items-center justify-between">
       {/* Left Part */}
       <div className='part1'>
-            <Button className='!w-[40px] !h-[40px] !rounded-full  !min-w-[40px]'><RiMenu2Line className='text-[22px] text-[rgba(0,0,0,0.8)]' /></Button>
+            
 
         </div>
 

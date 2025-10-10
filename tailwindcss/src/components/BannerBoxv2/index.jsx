@@ -1,40 +1,36 @@
+/* BannerBoxv2.jsx */
 import React from "react";
 
 const BannerBoxv2 = () => {
+  const miniBanners = [
+    {
+      title: "Buy Men's Footwear",
+      price: "₹500",
+      imageUrl: "https://serviceapi.spicezgold.com/download/1741664665391_1741497254110_New_Project_50.jpg",
+    },
+    {
+      title: "Buy Apple iPhone",
+      price: "₹75,000",
+      imageUrl: "https://serviceapi.spicezgold.com/download/1757183705017_1737020250515_New_Project_47.jpg",
+    },
+  ];
+
   return (
-    <>
-      {/* Banner 1 */}
-      <div className="BannerBoxv2 relative rounded-lg overflow-hidden shadow-lg group cursor-pointer">
-        <img
-          src="https://serviceapi.spicezgold.com/download/1741664665391_1741497254110_New_Project_50.jpg"
-          className="w-full h-auto transform group-hover:scale-105 transition duration-500"
-          alt="Men's Footwear"
-        />
-
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col items-start justify-end p-5">
-          <h3 className="text-white text-lg font-medium">
-            Buy Men's Footwear with low price
-          </h3>
-          <span className="text-yellow-400 text-2xl font-bold">₹500</span>
+    <div className="flex flex-col gap-4">
+      {miniBanners.map((banner, index) => (
+        <div key={index} className="relative w-full h-40 rounded-xl overflow-hidden shadow-lg group cursor-pointer">
+          <img
+            src={banner.imageUrl}
+            alt={banner.title}
+            className="w-full h-full object-cover transform group-hover:scale-105 transition duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-4">
+            <h3 className="text-white text-lg">{banner.title}</h3>
+            <span className="text-yellow-400 text-xl font-bold">{banner.price}</span>
+          </div>
         </div>
-      </div>
-
-      {/* Banner 2 */}
-      <div className="BannerBoxv2 relative rounded-lg overflow-hidden shadow-lg group cursor-pointer mt-6">
-        <img
-          src="https://serviceapi.spicezgold.com/download/1757183705017_1737020250515_New_Project_47.jpg"
-          className="w-full h-auto transform group-hover:scale-105 transition duration-500"
-          alt="Apple iPhone"
-        />
-
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col items-start justify-end p-5">
-          <h3 className="text-white text-lg font-medium">Buy Apple iPhone</h3>
-          <span className="text-red-400 text-2xl font-bold">₹75,000</span>
-        </div>
-      </div>
-    </>
+      ))}
+    </div>
   );
 };
 

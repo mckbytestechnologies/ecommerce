@@ -1,81 +1,119 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Provide name"],
+      required: [true, "Name is required"],
+      trim: true,
+      maxLength: [50, "Name cannot exceed 50 characters"],
     },
     email: {
       type: String,
-      required: [true, "Provide email"],
+      required: [true, "Email is required"],
       unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, "Please enter a valid email"],
     },
     password: {
       type: String,
-      required: [true, "Provide password"],
+      required: [true, "Password is required"],
+      minlength: [6, "Password must be at least 6 characters"],
+      select: false,
     },
     avatar: {
-      type: String,
-      default: null,
+      public_id: String,
+      url: String,
     },
     mobile: {
-      type: Number,
-      default: null,
+      type: String,
+      match: [/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"],
+    },
+    date_of_birth: {
+      type: Date,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
     },
     refresh_token: {
       type: String,
-      default: null,
+      select: false,
     },
-    verify_email: {
+    email_verified: {
       type: Boolean,
       default: false,
     },
-    last_login_date: {
+    email_verification_token: String,
+    email_verification_expires: Date,
+    last_login: {
       type: Date,
-      default: null,
     },
     status: {
       type: String,
-      enum: ["Active", "Inactive", "Suspended"],
-      default: "Active",
-    },
-    address_details: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "address",
-      },
-    ],
-    shopping_cart: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "cartProduct",
-      },
-    ],
-    orderHistory: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "order",
-      },
-    ],
-    forgot_password_otp: {
-      type: String,
-      default: null,
-    },
-    forgot_password_expiry: {
-      type: Date,
-      default: null,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
     },
     role: {
       type: String,
-      enum: ["ADMIN", "USER"],
-      default: "USER",
+      enum: ["user", "vendor", "admin"],
+      default: "user",
+    },
+    preferences: {
+      newsletter: {
+        type: Boolean,
+        default: true,
+      },
+      notifications: {
+        type: Boolean,
+        default: true,
+      },
+    },
+    stats: {
+      total_orders: {
+        type: Number,
+        default: 0,
+      },
+      total_spent: {
+        type: Number,
+        default: 0,
+      },
     },
   },
   {
     timestamps: true,
   }
 );
+
+// Hash password before saving
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Match password method
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Remove sensitive information from JSON output
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+  delete user.password;
+  delete user.refresh_token;
+  delete user.email_verification_token;
+  delete user.email_verification_expires;
+  return user;
+};
 
 const UserModel = mongoose.model("User", userSchema);
 export default UserModel;

@@ -1,7 +1,15 @@
 import UserModel from "../models/User.js";
 import bcryptjs from "bcryptjs";
+import jwt from "jsonwebtoken"; // 🔥 ADD THIS
 import sendEmailFun from "../config/sendEmail.js";
 import { verificationEmailTemplate } from "../Utilis/verificationEmailTemplate.js";
+
+// 🔥 ADD TOKEN GENERATION FUNCTION
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'fallback_secret', {
+    expiresIn: "7d",
+  });
+};
 
 export async function registerUser(request, response) {
   try {
@@ -10,7 +18,6 @@ export async function registerUser(request, response) {
     if (!name || !email || !password) {
       return response.status(400).json({
         message: "Provide email, name and password",
-        
         error: true,
         success: false
       });
@@ -58,6 +65,9 @@ export async function registerUser(request, response) {
       });
     }
 
+    // 🔥 GENERATE TOKEN FOR REGISTRATION TOO
+    const token = generateToken(user._id);
+
     return response.status(201).json({
       message: "User registered successfully. Verification email sent.",
       success: true,
@@ -65,7 +75,9 @@ export async function registerUser(request, response) {
       data: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role,
+        token: token // 🔥 ADD TOKEN HERE
       }
     });
 
@@ -112,6 +124,9 @@ export async function loginUser(request, response) {
     user.last_login_date = new Date();
     await user.save();
 
+    // 🔥 GENERATE TOKEN
+    const token = generateToken(user._id);
+
     return response.status(200).json({
       message: "Login successful",
       success: true,
@@ -120,7 +135,8 @@ export async function loginUser(request, response) {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        token: token // 🔥 THIS IS WHAT YOU'RE MISSING
       }
     });
 

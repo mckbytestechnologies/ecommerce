@@ -28,12 +28,37 @@ export default function LoginPage({ onLogin }) {
 
     setLoading(true);
     try {
-      if (onLogin) {
-        await onLogin({ email, password, remember });
-      } else {
-        await new Promise((r) => setTimeout(r, 900));
-        if (email === "fail@example.com") throw new Error("Invalid credentials");
+      // ✅ API call to your backend
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid credentials");
       }
+
+      // ✅ Store token if provided
+      if (data.token) {
+        if (remember) {
+          localStorage.setItem("authToken", data.token);
+        } else {
+          sessionStorage.setItem("authToken", data.token);
+        }
+      }
+
+      // ✅ Call onLogin callback (if passed)
+      if (onLogin) {
+        onLogin(data);
+      } else {
+        console.log("Login successful:", data);
+      }
+
     } catch (err) {
       setError(err.message || "Login failed. Please try again.");
     } finally {

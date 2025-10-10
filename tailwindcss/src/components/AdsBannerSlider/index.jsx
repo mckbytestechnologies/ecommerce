@@ -1,56 +1,122 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/navigation";
-import "./swiper.css"; // your custom overrides
+import "swiper/css/autoplay";
+import "./swiper.css";
 
-import { Navigation, Pagination } from "swiper/modules";
+import { Pagination, Autoplay } from "swiper/modules";
 import Bannerbox from "../BannerBox";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const AdsBannerSlider = ({ items = 3 }) => {
-  return (
-    <div className="relative w-full">
-      <Swiper
-        slidesPerView={items}
-        spaceBetween={15}
-        pagination={{
-          clickable: true,
-        }}
-        navigation={{
-          nextEl: ".custom-next",
-          prevEl: ".custom-prev",
-        }}
-        modules={[Navigation, Pagination]}
-        className="mySwiper"
-      >
-        {/* Slides */}
-        {[
-          "/ad_banner/banner1.jpg",
-          "/ad_banner/banner2.jpg",
-          "/ad_banner/banner3.jpg",
-          "/ad_banner/banner4.jpg",
-          "/ad_banner/banner5.jpg",
-          "/ad_banner/banner6.jpg",
-          "/ad_banner/banner7.jpg",
-          "/ad_banner/banner8.jpg",
-        ].map((img, idx) => (
-          <SwiperSlide key={idx}>
-            <Bannerbox img={img} />
-          </SwiperSlide>
-        ))}
+  const banners = [
+    "/ad_banner/banner1.jpg",
+    "/ad_banner/banner2.jpg",
+    "/ad_banner/banner3.jpg",
+    "/ad_banner/banner4.jpg",
+    "/ad_banner/banner5.jpg",
+    "/ad_banner/banner6.jpg",
+    "/ad_banner/banner7.jpg",
+    "/ad_banner/banner8.jpg",
+  ];
 
-        {/* Custom Navigation Buttons */}
-        <div className="custom-prev absolute top-1/2 left-3 z-10 -translate-y-1/2 cursor-pointer p-3 bg-black/50 hover:bg-red-500 text-white rounded-full shadow-lg transition">
-          <FaArrowLeft size={18} />
+  return (
+    <div className="w-full bg-white py-8 sm:py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Minimal Header */}
+        <div className="text-center mb-8 lg:mb-12">
+          <h2 className="text-2xl lg:text-3xl font-light text-gray-900 tracking-tight">
+            Featured Collections
+          </h2>
+          <div className="w-16 h-0.5 bg-gray-300 mx-auto mt-4"></div>
         </div>
-        <div className="custom-next absolute top-1/2 right-3 z-10 -translate-y-1/2 cursor-pointer p-3 bg-black/50 hover:bg-red-500 text-white rounded-full shadow-lg transition">
-          <FaArrowRight size={18} />
+
+        {/* Slider Container */}
+        <div className="relative">
+          <Swiper
+            slidesPerView={1}
+            spaceBetween={16}
+            pagination={{
+              clickable: true,
+              dynamicBullets: true,
+              el: '.custom-pagination',
+              bulletClass: 'custom-bullet',
+              bulletActiveClass: 'custom-bullet-active',
+            }}
+            autoplay={{
+              delay: 4000,
+              disableOnInteraction: false,
+              pauseOnMouseEnter: true,
+            }}
+            modules={[Pagination, Autoplay]}
+            className="adsBannerSwiper"
+            breakpoints={{
+              // Mobile First - All banners same size
+              320: {
+                slidesPerView: 1.1,
+                spaceBetween: 16
+              },
+              480: {
+                slidesPerView: 1.5,
+                spaceBetween: 20
+              },
+              640: {
+                slidesPerView: 2.1,
+                spaceBetween: 24
+              },
+              768: {
+                slidesPerView: 2.5,
+                spaceBetween: 24
+              },
+              1024: {
+                slidesPerView: 3,
+                spaceBetween: 32
+              },
+              1280: {
+                slidesPerView: items,
+                spaceBetween: 32
+              },
+              1536: {
+                slidesPerView: Math.min(4, items),
+                spaceBetween: 32
+              }
+            }}
+            speed={800}
+            loop={true}
+            grabCursor={false}
+            centeredSlides={false}
+            slideToClickedSlide={false}
+          >
+            {banners.map((img, idx) => (
+              <SwiperSlide key={idx}>
+                <div className="h-full flex">
+                  <div className="w-full aspect-[4/3] bg-gray-100 overflow-hidden rounded-none shadow-sm hover:shadow-md transition-all duration-500 group">
+                    <Bannerbox 
+                      img={img} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    {/* Subtle overlay on hover */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/2 transition-all duration-300 pointer-events-none" />
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+
+          {/* Custom Minimal Pagination */}
+          <div className="custom-pagination flex justify-center gap-1.5 mt-8 lg:mt-12 !relative" />
         </div>
-      </Swiper>
+
+        {/* Progress Indicator */}
+        <div className="flex justify-center mt-6 lg:mt-8">
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span>Scroll to explore</span>
+            <div className="w-12 h-px bg-gray-300 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-3 h-px bg-gray-500 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

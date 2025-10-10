@@ -25,7 +25,7 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    if (user.status !== "Active") {
+    if (user.status !== "active") {
       return res.status(401).json({
         message: "Account is inactive or suspended.",
         error: true,

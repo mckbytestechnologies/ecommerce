@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import Button from "@mui/material/Button";
-import { FaRegHeart } from "react-icons/fa";
+import { FaRegHeart, FaShoppingBag } from "react-icons/fa";
 import { FaCodeCompare } from "react-icons/fa6";
 import { MdOutlineZoomOutMap } from "react-icons/md";
 
@@ -15,10 +15,12 @@ const LatestProductItem = ({
   oldPrice,
   newPrice,
 }) => {
+  const discount = oldPrice ? Math.round(((oldPrice - newPrice) / oldPrice) * 100) : 0;
+
   return (
-    <div className="flex gap-5 flex-wrap latestproductitem relative rounded-xl overflow-hidden shadow-md bg-white hover:shadow-xl transition duration-300">
+    <div className="group bg-white border border-gray-100 rounded-none hover:shadow-lg transition-all duration-300 h-full flex flex-col relative">
       {/* Image Section */}
-      <div className="imgWrapper relative w-[220px] h-[280px] overflow-hidden group">
+      <div className="relative bg-gray-50 overflow-hidden aspect-[4/5]">
         {/* Default Image */}
         <img
           src={imageFront}
@@ -34,50 +36,78 @@ const LatestProductItem = ({
         />
 
         {/* Discount Badge */}
-        <span className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-md shadow">
-          -10%
-        </span>
+        <div className="absolute top-3 left-3 z-10">
+          <span className="bg-red-600 text-white text-xs font-semibold px-3 py-1">
+            -{discount}%
+          </span>
+        </div>
 
         {/* Action Buttons */}
-        <div className="action absolute top-[15px] right-[5px] z-50 flex flex-col gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button className="!w-[40px] !h-[40px] !min-w-[40px] !rounded-full !bg-white !text-gray-600 hover:!bg-orange-500 hover:!text-white shadow-md">
-            <FaRegHeart size={18} />
+        <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
+          <Button 
+            className="!min-w-0 !w-10 !h-10 !p-0 !bg-white/90 !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+          >
+            <FaRegHeart size={16} />
           </Button>
 
-          <Button className="!w-[40px] !h-[40px] !min-w-[40px] !rounded-full !bg-white !text-gray-600 hover:!bg-orange-500 hover:!text-white shadow-md">
-            <FaCodeCompare size={18} />
+          <Button 
+            className="!min-w-0 !w-10 !h-10 !p-0 !bg-white/90 !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-75"
+          >
+            <FaCodeCompare size={16} />
           </Button>
 
-          <Button className="!w-[40px] !h-[40px] !min-w-[40px] !rounded-full !bg-white !text-gray-600 hover:!bg-orange-500 hover:!text-white shadow-md">
-            <MdOutlineZoomOutMap size={18} />
+          <Button 
+            className="!min-w-0 !w-10 !h-10 !p-0 !bg-white/90 !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-100"
+          >
+            <MdOutlineZoomOutMap size={16} />
           </Button>
+        </div>
+
+        {/* Quick Add Button */}
+        <div className="absolute bottom-4 left-4 right-4 z-20">
+          <button className="w-full bg-black text-white py-3 text-sm font-medium tracking-wide opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 delay-150 flex items-center justify-center gap-2 hover:bg-gray-800">
+            <FaShoppingBag size={14} />
+            Add to Cart
+          </button>
         </div>
       </div>
 
       {/* Info Section */}
-      <div className="info p-4 bg-gray-50">
-        <h6 className="text-xs uppercase text-gray-500 tracking-wide">
-          <Link to="/" className="hover:text-orange-500 transition">
+      <div className="p-6 flex-1 flex flex-col">
+        <h6 className="text-xs uppercase text-gray-500 tracking-wider font-medium mb-2">
+          <Link to="/" className="hover:text-orange-500 transition-colors">
             {category}
           </Link>
         </h6>
-        <h3 className="text-sm font-medium mt-1 text-gray-800">
-          <Link to="/" className="hover:text-orange-500 transition">
+        
+        <h3 className="text-lg font-light text-gray-900 mb-3 leading-tight tracking-tight line-clamp-2 flex-1">
+          <Link to="/" className="hover:text-gray-600 transition-colors">
             {title}
           </Link>
         </h3>
 
         {/* Rating */}
-        <div className="mt-2">
-          <Rating name="size-small" value={rating} size="small" readOnly />
+        <div className="flex items-center gap-2 mb-3">
+          <Rating 
+            name="size-small" 
+            value={rating} 
+            size="small" 
+            readOnly 
+            precision={0.1}
+          />
+          <span className="text-sm text-gray-500">({rating})</span>
         </div>
 
         {/* Price */}
-        <div className="flex items-center gap-3 mt-2">
+        <div className="flex items-center gap-3 mt-auto">
           {oldPrice && (
-            <span className="line-through text-gray-400 text-sm">₹{oldPrice}</span>
+            <span className="text-lg text-gray-400 line-through font-light">
+              ₹{oldPrice}
+            </span>
           )}
-          <span className="text-orange-500 font-semibold text-sm">₹{newPrice}</span>
+          <span className="text-xl font-light text-gray-900">
+            ₹{newPrice}
+          </span>
         </div>
       </div>
     </div>

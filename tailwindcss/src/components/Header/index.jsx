@@ -25,24 +25,24 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white w-full border-b border-gray-200">
+    <header className="bg-white w-full border-b border-wjite-200  top-0 z-50">
       {/* Top Strip */}
-      <div className="top-strip py-2 bg-primary w-full hidden sm:block">
-        <div className="flex items-center justify-between px-6">
+      <div className="top-strip py-2 bg-gradient-to-r from-white-600 to-white-600 w-full hidden sm:block">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6">
           <div className="col1">
-            <p className="text-[13px] font-medium text-white">
-              Get Up To 50% off new season styles, limited time only
+            <p className="text-[13px] font-medium text-black">
+              🎉 Get Up To 50% off new season styles, limited time only
             </p>
           </div>
           <div className="col2 flex items-center justify-end">
-            <ul className="flex items-center gap-5 text-white text-sm">
+            <ul className="flex items-center gap-5 text-black text-sm">
               <li>
-                <Link to="/help-center" className="hover:underline">
+                <Link to="/help-center" className="hover:underline transition-colors">
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link to="/order-tracking" className="hover:underline">
+                <Link to="/order-tracking" className="hover:underline transition-colors">
                   Order Tracking
                 </Link>
               </li>
@@ -52,100 +52,106 @@ const Header = () => {
       </div>
 
       {/* Main Header */}
-      <div className="py-4 px-4 sm:px-6 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto py-3 px-4 sm:px-6 flex items-center justify-between">
         {/* Left - Logo */}
-        <div className="flex items-center w-1/3 sm:w-1/4">
-          <Link to={"/"}>
-            <img src="/logo.jpg" alt="Logo" className="w-12 sm:w-14 h-auto" />
+        <div className="flex items-center w-1/4 lg:w-1/5">
+          <Link to={"/"} className="flex items-center gap-3">
+            <img src="/logo.jpg" alt="Logo" className="w-10 sm:w-12 h-auto rounded-lg" />
+            <span className="hidden sm:block text-xl font-bold text-gray-900">MCK-Bytes</span>
           </Link>
         </div>
 
         {/* Middle - Search (hidden on mobile) */}
-        <div className="hidden sm:flex flex-1 px-6">
+        <div className="hidden md:flex flex-1 max-w-2xl mx-6 lg:mx-8">
           <Search />
         </div>
 
         {/* Right - Actions */}
-        <div className="flex items-center gap-3 w-1/3 sm:w-1/4 justify-end">
+        <div className="flex items-center gap-3 lg:gap-4 w-1/4 lg:w-1/5 justify-end">
           {/* Desktop Auth */}
-          <div className="hidden sm:block">
-            <Link to="/auth" className="text-sm text-black font-medium">
+          <div className="hidden lg:flex items-center gap-2">
+            <Link to="/auth" className="text-sm text-gray-700 font-medium hover:text-blue-600 transition-colors">
               Log In
-            </Link>{" "}
-            |{" "}
-            <Link to="/auth" className="text-sm text-black font-medium">
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link to="/auth" className="text-sm text-gray-700 font-medium hover:text-blue-600 transition-colors">
               Register
             </Link>
           </div>
 
           {/* Desktop Icons */}
-          <div className="hidden sm:flex items-center gap-2">
-            <IconButton aria-label="compare">
-              <StyledBadge badgeContent={4} color="secondary">
-                <IoIosGitCompare size={22} />
+          <div className="hidden sm:flex items-center gap-1 lg:gap-2">
+            <IconButton aria-label="compare" className="!p-2 hover:bg-gray-100">
+              <StyledBadge badgeContent={4} color="error">
+                <IoIosGitCompare size={20} className="text-gray-600" />
               </StyledBadge>
             </IconButton>
-            <IconButton aria-label="wishlist">
-              <StyledBadge badgeContent={4} color="secondary">
-                <FaRegHeart size={22} />
+            <IconButton aria-label="wishlist" className="!p-2 hover:bg-gray-100">
+              <StyledBadge badgeContent={4} color="error">
+                <FaRegHeart size={20} className="text-gray-600" />
               </StyledBadge>
             </IconButton>
-            <IconButton aria-label="cart">
-              <StyledBadge badgeContent={4} color="secondary">
-                <MdShoppingCartCheckout size={22} />
+            <IconButton aria-label="cart" className="!p-2 hover:bg-gray-100">
+              <StyledBadge badgeContent={4} color="error">
+                <MdShoppingCartCheckout size={20} className="text-gray-600" />
               </StyledBadge>
             </IconButton>
           </div>
 
           {/* Mobile Hamburger */}
           <button
-            className="sm:hidden p-2 rounded-md border border-gray-300"
+            className="md:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <IoClose size={22} /> : <GiHamburgerMenu size={22} />}
+            {mobileMenuOpen ? <IoClose size={20} /> : <GiHamburgerMenu size={20} />}
           </button>
         </div>
       </div>
 
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="sm:hidden bg-white border-t border-gray-200 px-4 py-4 space-y-4">
-          <Search />
+        <div className="md:hidden bg-white border-t border-gray-200 px-4 py-4 space-y-4 shadow-lg">
+          {/* Mobile Search */}
+          <div className="pb-2">
+            <Search />
+          </div>
 
-          <div className="flex flex-col gap-3 text-sm">
-            <Link to="/auth" className="text-black font-medium">
+          {/* Mobile Navigation Links */}
+          <div className="flex flex-col gap-2 text-sm border-t border-gray-100 pt-3">
+            <Link to="/auth" className="text-gray-700 font-medium py-2 hover:text-blue-600 transition-colors">
               Log In / Register
             </Link>
-            <Link to="/help-center" className="text-black font-medium">
+            <Link to="/help-center" className="text-gray-700 font-medium py-2 hover:text-blue-600 transition-colors">
               Help Center
             </Link>
-            <Link to="/order-tracking" className="text-black font-medium">
+            <Link to="/order-tracking" className="text-gray-700 font-medium py-2 hover:text-blue-600 transition-colors">
               Order Tracking
             </Link>
           </div>
 
-          <div className="flex gap-4">
-            <IconButton aria-label="compare">
-              <StyledBadge badgeContent={2} color="secondary">
-                <IoIosGitCompare size={22} />
+          {/* Mobile Action Icons */}
+          <div className="flex gap-4 border-t border-gray-100 pt-3">
+            <IconButton aria-label="compare" className="!p-2 hover:bg-gray-100">
+              <StyledBadge badgeContent={2} color="error">
+                <IoIosGitCompare size={20} className="text-gray-600" />
               </StyledBadge>
             </IconButton>
-            <IconButton aria-label="wishlist">
-              <StyledBadge badgeContent={3} color="secondary">
-                <FaRegHeart size={22} />
+            <IconButton aria-label="wishlist" className="!p-2 hover:bg-gray-100">
+              <StyledBadge badgeContent={3} color="error">
+                <FaRegHeart size={20} className="text-gray-600" />
               </StyledBadge>
             </IconButton>
-            <IconButton aria-label="cart">
-              <StyledBadge badgeContent={1} color="secondary">
-                <MdShoppingCartCheckout size={22} />
+            <IconButton aria-label="cart" className="!p-2 hover:bg-gray-100">
+              <StyledBadge badgeContent={1} color="error">
+                <MdShoppingCartCheckout size={20} className="text-gray-600" />
               </StyledBadge>
             </IconButton>
           </div>
         </div>
       )}
 
-      {/* Navigation - always visible on desktop */}
-      <div className="hidden sm:block">
+      {/* Navigation - visible on all devices except mobile when menu is open */}
+      <div className={mobileMenuOpen ? "hidden md:block" : "block"}>
         <Navigation />
       </div>
     </header>
