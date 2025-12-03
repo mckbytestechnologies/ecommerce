@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Management Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--secondary-color);
+        }
+        
+        .sidebar {
+            background-color: var(--dark-color);
+            min-height: calc(100vh - 56px);
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .stats-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .action-btn {
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .payment-details-section {
+            background-color: white;
+            border-radius: 0.375rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .payment-details-section h5 {
+            color: var(--secondary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .payment-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .payment-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e9ecef;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.75rem;
+            top: 0.25rem;
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+        
+        .timeline-item.completed::before {
+            background-color: var(--success-color);
+            box-shadow: 0 0 0 2px var(--success-color);
+        }
+        
+        .timeline-item.failed::before {
+            background-color: var(--danger-color);
+            box-shadow: 0 0 0 2px var(--danger-color);
+        }
+        
+        .timeline-date {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        
+        .form-section {
+            background-color: white;
+            border-radius: 0.375rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .payment-method-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        .gateway-badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .amount-display {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-credit-card me-2"></i>
+                Payment Management Admin
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> Admin User
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item">
+                                    <a class="nav-link" href="index.html">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="users.html">
+                                        <i class="fas fa-users"></i>
+                                        Users
+                                    </a>
+                                </li>
+                                <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
+
+                                <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="orders.html">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Orders
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="payment.html">
+                                        <i class="fas fa-credit-card"></i>
+                                        Payments
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="fas fa-chart-bar"></i>
+                                        Analytics
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="fas fa-cog"></i>
+                                        Settings
+                                    </a>
+                                </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-credit-card"></i>
+                                Payments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-shopping-cart"></i>
+                                Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-users"></i>
+                                Customers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-bar"></i>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-cog"></i>
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-lg-10 col-md-9 ms-sm-auto px-md-4 py-4">
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Payment Management</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportPaymentsBtn">
+                                <i class="fas fa-download me-1"></i> Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="stats-value text-primary" id="totalPayments">0</div>
+                            <div class="stats-label">Total Payments</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="stats-value text-success" id="completedPayments">0</div>
+                            <div class="stats-label">Completed</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="stats-value text-warning" id="pendingPayments">0</div>
+                            <div class="stats-label">Pending</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card">
+                            <div class="stats-value text-danger" id="failedPayments">0</div>
+                            <div class="stats-label">Failed</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="statusFilter" class="form-label">Status</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="processing">Processing</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="failed">Failed</option>
+                                    <option value="refunded">Refunded</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="gatewayFilter" class="form-label">Gateway</label>
+                                <select class="form-select" id="gatewayFilter">
+                                    <option value="">All Gateways</option>
+                                    <option value="stripe">Stripe</option>
+                                    <option value="razorpay">Razorpay</option>
+                                    <option value="paypal">PayPal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateFrom" class="form-label">Date From</label>
+                                <input type="date" class="form-control" id="dateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateTo" class="form-label">Date To</label>
+                                <input type="date" class="form-control" id="dateTo">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search by payment ID, order ID, or customer...">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary w-100" id="applyFiltersBtn">
+                                    <i class="fas fa-filter me-1"></i> Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments Table -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">All Payments</h5>
+                        <div class="d-flex">
+                            <button class="btn btn-sm btn-outline-secondary me-2" id="refreshPaymentsBtn">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="autoRefreshToggle">
+                                <label class="form-check-label" for="autoRefreshToggle">Auto Refresh</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Payment ID</th>
+                                        <th>Order</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Gateway</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentsTableBody">
+                                    <!-- Payments will be populated here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <nav aria-label="Payment pagination">
+                            <ul class="pagination justify-content-end" id="paginationContainer">
+                                <!-- Pagination will be populated by JavaScript -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Payment Details Modal -->
+    <div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-labelledby="paymentDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentDetailsModalLabel">Payment Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <!-- Payment Information -->
+                            <div class="payment-details-section">
+                                <h5>Payment Information</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Payment ID:</strong>
+                                        <span id="detailPaymentId">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Gateway ID:</strong>
+                                        <span id="detailGatewayId">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Amount:</strong>
+                                        <span class="amount-display text-success" id="detailAmount">$0.00</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Currency:</strong>
+                                        <span id="detailCurrency">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Payment Method:</strong>
+                                        <span id="detailPaymentMethod">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Payment Gateway:</strong>
+                                        <span class="badge gateway-badge bg-secondary" id="detailPaymentGateway">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Status:</strong>
+                                        <span class="badge status-badge" id="detailStatus">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Captured At:</strong>
+                                        <span id="detailCapturedAt">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Order Information -->
+                            <div class="payment-details-section">
+                                <h5>Order Information</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Order ID:</strong>
+                                        <span id="detailOrderId">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Order Status:</strong>
+                                        <span class="badge status-badge" id="detailOrderStatus">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Order Amount:</strong>
+                                        <span id="detailOrderAmount">$0.00</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Payment Status:</strong>
+                                        <span class="badge status-badge" id="detailOrderPaymentStatus">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Gateway Response -->
+                            <div class="payment-details-section">
+                                <h5>Gateway Response</h5>
+                                <pre id="detailGatewayResponse" class="bg-light p-3 rounded" style="max-height: 200px; overflow-y: auto;"></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <!-- Customer Information -->
+                            <div class="payment-details-section">
+                                <h5>Customer Information</h5>
+                                <div class="mb-3">
+                                    <strong>Name:</strong>
+                                    <span id="detailCustomerName">-</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>Email:</strong>
+                                    <span id="detailCustomerEmail">-</span>
+                                </div>
+                                <div class="mb-3">
+                                    <strong>User ID:</strong>
+                                    <span id="detailCustomerId">-</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Payment Timeline -->
+                            <div class="payment-details-section">
+                                <h5>Payment Timeline</h5>
+                                <div class="payment-timeline" id="paymentTimeline">
+                                    <!-- Timeline items will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <!-- Refund Section -->
+                            <div class="payment-details-section" id="refundSection">
+                                <h5>Refund</h5>
+                                <div id="refundInfo">
+                                    <!-- Refund information will be populated by JavaScript -->
+                                </div>
+                                <form id="refundForm" class="mt-3">
+                                    <div class="mb-3">
+                                        <label for="refundAmount" class="form-label">Refund Amount</label>
+                                        <input type="number" class="form-control" id="refundAmount" step="0.01" min="0.01">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="refundReason" class="form-label">Reason</label>
+                                        <textarea class="form-control" id="refundReason" rows="2"></textarea>
+                                    </div>
+                                    <button type="button" class="btn btn-warning w-100" id="processRefundBtn">
+                                        <i class="fas fa-undo me-1"></i> Process Refund
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="refreshPaymentBtn">
+                        <i class="fas fa-sync-alt me-1"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let authToken = localStorage.getItem('adminAuthToken') || 'your-auth-token-here';
+
+        // Current state
+        let currentPayments = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentPayment = null;
+        let autoRefreshInterval = null;
+
+        // DOM elements
+        const paymentsTableBody = document.getElementById('paymentsTableBody');
+        const totalPaymentsEl = document.getElementById('totalPayments');
+        const completedPaymentsEl = document.getElementById('completedPayments');
+        const pendingPaymentsEl = document.getElementById('pendingPayments');
+        const failedPaymentsEl = document.getElementById('failedPayments');
+        const statusFilter = document.getElementById('statusFilter');
+        const gatewayFilter = document.getElementById('gatewayFilter');
+        const dateFrom = document.getElementById('dateFrom');
+        const dateTo = document.getElementById('dateTo');
+        const searchInput = document.getElementById('searchInput');
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        const refreshPaymentsBtn = document.getElementById('refreshPaymentsBtn');
+        const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const paymentDetailsModal = new bootstrap.Modal(document.getElementById('paymentDetailsModal'));
+        const exportPaymentsBtn = document.getElementById('exportPaymentsBtn');
+        const refreshPaymentBtn = document.getElementById('refreshPaymentBtn');
+        const processRefundBtn = document.getElementById('processRefundBtn');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPayments();
+            
+            // Event listeners
+            applyFiltersBtn.addEventListener('click', loadPayments);
+            refreshPaymentsBtn.addEventListener('click', loadPayments);
+            autoRefreshToggle.addEventListener('change', toggleAutoRefresh);
+            exportPaymentsBtn.addEventListener('click', exportPayments);
+            refreshPaymentBtn.addEventListener('click', refreshPaymentDetails);
+            processRefundBtn.addEventListener('click', processRefund);
+            
+            // Set default date range (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            dateFrom.valueAsDate = thirtyDaysAgo;
+            dateTo.valueAsDate = today;
+        });
+
+        // Load payments from API
+        async function loadPayments(page = 1) {
+            try {
+                showLoadingState();
+                
+                // Build query parameters
+                const params = new URLSearchParams({
+                    page: page,
+                    limit: 10
+                });
+                
+                if (statusFilter.value) params.append('status', statusFilter.value);
+                if (gatewayFilter.value) params.append('gateway', gatewayFilter.value);
+                if (dateFrom.value) params.append('dateFrom', dateFrom.value);
+                if (dateTo.value) params.append('dateTo', dateTo.value);
+                if (searchInput.value) params.append('search', searchInput.value);
+                
+                const response = await fetch(`${API_BASE_URL}/payments/admin/all-payments?${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPayments = data.data.payments || [];
+                    currentPage = data.data.currentPage || 1;
+                    totalPages = data.data.totalPages || 1;
+                    
+                    displayPayments();
+                    updateStats(data.data.stats || {});
+                    updatePagination();
+                } else {
+                    throw new Error(data.message || 'Failed to load payments');
+                }
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                showError('Failed to load payments: ' + error.message);
+            }
+        }
+
+        // Display payments in the table
+        function displayPayments() {
+            paymentsTableBody.innerHTML = '';
+            
+            if (currentPayments.length === 0) {
+                paymentsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-search fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No payments found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            currentPayments.forEach(payment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="fw-bold">${payment.payment_id || 'N/A'}</div>
+                        <small class="text-muted">${payment._id}</small>
+                    </td>
+                    <td>
+                        ${payment.order ? `
+                            <div class="fw-bold">${payment.order.order_id || 'N/A'}</div>
+                            <small class="text-muted">$${payment.order.total_amount ? payment.order.total_amount.toFixed(2) : '0.00'}</small>
+                        ` : 'N/A'}
+                    </td>
+                    <td>
+                        ${payment.user ? `
+                            <div class="fw-bold">${payment.user.name || 'Unknown'}</div>
+                            <small class="text-muted">${payment.user.email || 'N/A'}</small>
+                        ` : 'N/A'}
+                    </td>
+                    <td>
+                        <div class="fw-bold text-success">$${payment.amount ? payment.amount.toFixed(2) : '0.00'}</div>
+                        <small class="text-muted">${payment.currency || 'USD'}</small>
+                    </td>
+                    <td>
+                        <span class="badge gateway-badge ${getGatewayBadgeClass(payment.payment_gateway)}">
+                            ${payment.payment_gateway ? payment.payment_gateway.charAt(0).toUpperCase() + payment.payment_gateway.slice(1) : 'N/A'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="${getPaymentMethodIcon(payment.payment_method)} payment-method-icon"></i>
+                            <span>${payment.payment_method ? payment.payment_method.toUpperCase() : 'N/A'}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge status-badge ${getStatusBadgeClass(payment.status)}">
+                            ${payment.status ? payment.status.charAt(0).toUpperCase() + payment.status.slice(1) : 'N/A'}
+                        </span>
+                    </td>
+                    <td>
+                        <div>${payment.createdAt ? new Date(payment.createdAt).toLocaleDateString() : 'N/A'}</div>
+                        <small class="text-muted">${payment.createdAt ? new Date(payment.createdAt).toLocaleTimeString() : ''}</small>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary action-btn view-payment-btn" data-id="${payment._id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${payment.status === 'completed' ? `
+                            <button class="btn btn-sm btn-outline-warning action-btn refund-payment-btn" data-id="${payment._id}">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                        ` : ''}
+                    </td>
+                `;
+                
+                paymentsTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.view-payment-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const paymentId = this.getAttribute('data-id');
+                    viewPaymentDetails(paymentId);
+                });
+            });
+            
+            document.querySelectorAll('.refund-payment-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const paymentId = this.getAttribute('data-id');
+                    showRefundForm(paymentId);
+                });
+            });
+        }
+
+        // Update statistics
+        function updateStats(stats) {
+            totalPaymentsEl.textContent = stats.total || currentPayments.length;
+            completedPaymentsEl.textContent = stats.completed || currentPayments.filter(p => p.status === 'completed').length;
+            pendingPaymentsEl.textContent = stats.pending || currentPayments.filter(p => p.status === 'pending' || p.status === 'processing').length;
+            failedPaymentsEl.textContent = stats.failed || currentPayments.filter(p => p.status === 'failed').length;
+        }
+
+        // Update pagination
+        function updatePagination() {
+            paginationContainer.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `
+                <a class="page-link" href="#" aria-label="Previous" ${currentPage === 1 ? 'tabindex="-1" aria-disabled="true"' : ''}>
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            `;
+            if (currentPage > 1) {
+                prevLi.querySelector('.page-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadPayments(currentPage - 1);
+                });
+            }
+            paginationContainer.appendChild(prevLi);
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+                pageLi.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                
+                pageLi.querySelector('.page-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadPayments(i);
+                });
+                
+                paginationContainer.appendChild(pageLi);
+            }
+            
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `
+                <a class="page-link" href="#" aria-label="Next" ${currentPage === totalPages ? 'tabindex="-1" aria-disabled="true"' : ''}>
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            `;
+            if (currentPage < totalPages) {
+                nextLi.querySelector('.page-link').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loadPayments(currentPage + 1);
+                });
+            }
+            paginationContainer.appendChild(nextLi);
+        }
+
+        // View payment details
+        async function viewPaymentDetails(paymentId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/payments/${paymentId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPayment = data.data;
+                    displayPaymentDetails();
+                    paymentDetailsModal.show();
+                } else {
+                    throw new Error(data.message || 'Failed to load payment details');
+                }
+            } catch (error) {
+                console.error('Error loading payment details:', error);
+                showError('Failed to load payment details: ' + error.message);
+            }
+        }
+
+        // Display payment details in modal
+        function displayPaymentDetails() {
+            if (!currentPayment) return;
+            
+            // Payment Information
+            document.getElementById('detailPaymentId').textContent = currentPayment._id;
+            document.getElementById('detailGatewayId').textContent = currentPayment.payment_id || 'N/A';
+            document.getElementById('detailAmount').textContent = `$${currentPayment.amount ? currentPayment.amount.toFixed(2) : '0.00'}`;
+            document.getElementById('detailCurrency').textContent = currentPayment.currency || 'USD';
+            document.getElementById('detailPaymentMethod').textContent = currentPayment.payment_method ? currentPayment.payment_method.toUpperCase() : 'N/A';
+            document.getElementById('detailPaymentGateway').textContent = currentPayment.payment_gateway ? currentPayment.payment_gateway.charAt(0).toUpperCase() + currentPayment.payment_gateway.slice(1) : 'N/A';
+            document.getElementById('detailPaymentGateway').className = `badge gateway-badge ${getGatewayBadgeClass(currentPayment.payment_gateway)}`;
+            
+            document.getElementById('detailStatus').textContent = currentPayment.status ? currentPayment.status.charAt(0).toUpperCase() + currentPayment.status.slice(1) : 'N/A';
+            document.getElementById('detailStatus').className = `badge status-badge ${getStatusBadgeClass(currentPayment.status)}`;
+            
+            document.getElementById('detailCapturedAt').textContent = currentPayment.captured_at ? 
+                new Date(currentPayment.captured_at).toLocaleString() : 'Not captured';
+            
+            // Order Information
+            if (currentPayment.order) {
+                document.getElementById('detailOrderId').textContent = currentPayment.order.order_id || 'N/A';
+                document.getElementById('detailOrderStatus').textContent = currentPayment.order.order_status ? 
+                    currentPayment.order.order_status.charAt(0).toUpperCase() + currentPayment.order.order_status.slice(1) : 'N/A';
+                document.getElementById('detailOrderStatus').className = `badge status-badge ${getStatusBadgeClass(currentPayment.order.order_status)}`;
+                
+                document.getElementById('detailOrderAmount').textContent = `$${currentPayment.order.total_amount ? currentPayment.order.total_amount.toFixed(2) : '0.00'}`;
+                document.getElementById('detailOrderPaymentStatus').textContent = currentPayment.order.payment_status ? 
+                    currentPayment.order.payment_status.charAt(0).toUpperCase() + currentPayment.order.payment_status.slice(1) : 'N/A';
+                document.getElementById('detailOrderPaymentStatus').className = `badge status-badge ${getStatusBadgeClass(currentPayment.order.payment_status)}`;
+            } else {
+                document.getElementById('detailOrderId').textContent = 'N/A';
+                document.getElementById('detailOrderStatus').textContent = 'N/A';
+                document.getElementById('detailOrderAmount').textContent = '$0.00';
+                document.getElementById('detailOrderPaymentStatus').textContent = 'N/A';
+            }
+            
+            // Customer Information
+            if (currentPayment.user) {
+                document.getElementById('detailCustomerName').textContent = currentPayment.user.name || 'Unknown';
+                document.getElementById('detailCustomerEmail').textContent = currentPayment.user.email || 'N/A';
+                document.getElementById('detailCustomerId').textContent = currentPayment.user._id || 'N/A';
+            } else {
+                document.getElementById('detailCustomerName').textContent = 'N/A';
+                document.getElementById('detailCustomerEmail').textContent = 'N/A';
+                document.getElementById('detailCustomerId').textContent = 'N/A';
+            }
+            
+            // Gateway Response
+            document.getElementById('detailGatewayResponse').textContent = 
+                JSON.stringify(currentPayment.gateway_response, null, 2) || 'No response data';
+            
+            // Payment Timeline
+            updatePaymentTimeline();
+            
+            // Refund Section
+            updateRefundSection();
+        }
+
+        // Update payment timeline
+        function updatePaymentTimeline() {
+            const paymentTimeline = document.getElementById('paymentTimeline');
+            paymentTimeline.innerHTML = '';
+            
+            if (!currentPayment) return;
+            
+            const events = [
+                {
+                    label: 'Payment Created',
+                    date: currentPayment.createdAt,
+                    status: 'completed'
+                },
+                {
+                    label: 'Payment Processed',
+                    date: currentPayment.status === 'completed' || currentPayment.status === 'failed' ? 
+                        currentPayment.updatedAt : null,
+                    status: currentPayment.status === 'completed' ? 'completed' : 
+                           currentPayment.status === 'failed' ? 'failed' : 'pending'
+                },
+                {
+                    label: 'Payment Captured',
+                    date: currentPayment.captured_at,
+                    status: currentPayment.captured_at ? 'completed' : 'pending'
+                }
+            ];
+            
+            if (currentPayment.refund_amount > 0) {
+                events.push({
+                    label: 'Payment Refunded',
+                    date: currentPayment.updatedAt, // In a real app, you'd have a refund date field
+                    status: 'completed'
+                });
+            }
+            
+            events.forEach(event => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+                
+                if (event.date) {
+                    timelineItem.classList.add(event.status);
+                }
+                
+                timelineItem.innerHTML = `
+                    <div class="fw-bold">${event.label}</div>
+                    <div class="timeline-date">${event.date ? new Date(event.date).toLocaleString() : 'Pending'}</div>
+                `;
+                
+                paymentTimeline.appendChild(timelineItem);
+            });
+        }
+
+        // Update refund section
+        function updateRefundSection() {
+            const refundSection = document.getElementById('refundSection');
+            const refundInfo = document.getElementById('refundInfo');
+            const refundForm = document.getElementById('refundForm');
+            const refundAmount = document.getElementById('refundAmount');
+            
+            if (!currentPayment) return;
+            
+            // Set max refund amount
+            refundAmount.max = currentPayment.amount - (currentPayment.refund_amount || 0);
+            refundAmount.value = refundAmount.max;
+            
+            if (currentPayment.status !== 'completed') {
+                refundSection.style.display = 'none';
+                return;
+            }
+            
+            refundSection.style.display = 'block';
+            
+            if (currentPayment.refund_amount > 0) {
+                refundInfo.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Refund Processed</strong>
+                        <div>Amount: $${currentPayment.refund_amount.toFixed(2)}</div>
+                        ${currentPayment.refund_reason ? `<div>Reason: ${currentPayment.refund_reason}</div>` : ''}
+                    </div>
+                `;
+                refundForm.style.display = 'none';
+                processRefundBtn.style.display = 'none';
+            } else {
+                refundInfo.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        No refunds processed for this payment.
+                    </div>
+                `;
+                refundForm.style.display = 'block';
+                processRefundBtn.style.display = 'block';
+            }
+        }
+
+        // Process refund
+        async function processRefund() {
+            if (!currentPayment) return;
+            
+            const refundAmount = parseFloat(document.getElementById('refundAmount').value);
+            const refundReason = document.getElementById('refundReason').value;
+            
+            if (!refundAmount || refundAmount <= 0) {
+                showError('Please enter a valid refund amount');
+                return;
+            }
+            
+            if (refundAmount > currentPayment.amount) {
+                showError('Refund amount cannot exceed payment amount');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to refund $${refundAmount.toFixed(2)} for payment ${currentPayment.payment_id}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/payments/${currentPayment._id}/refund`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: refundAmount,
+                        reason: refundReason
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Refund processed successfully');
+                    paymentDetailsModal.hide();
+                    loadPayments(currentPage);
+                } else {
+                    throw new Error(data.message || 'Failed to process refund');
+                }
+            } catch (error) {
+                console.error('Error processing refund:', error);
+                showError('Failed to process refund: ' + error.message);
+            }
+        }
+
+        // Show refund form
+        function showRefundForm(paymentId) {
+            viewPaymentDetails(paymentId);
+            setTimeout(() => {
+                document.getElementById('refundAmount').focus();
+            }, 500);
+        }
+
+        // Refresh payment details
+        function refreshPaymentDetails() {
+            if (currentPayment) {
+                viewPaymentDetails(currentPayment._id);
+            }
+        }
+
+        // Export payments
+        function exportPayments() {
+            // In a real application, this would call an export API endpoint
+            alert('Export functionality would be implemented here. This would typically generate a CSV or Excel file with all filtered payments.');
+        }
+
+        // Toggle auto refresh
+        function toggleAutoRefresh() {
+            if (autoRefreshToggle.checked) {
+                autoRefreshInterval = setInterval(() => {
+                    loadPayments(currentPage);
+                }, 30000); // Refresh every 30 seconds
+            } else {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        // Utility functions
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'pending': return 'bg-secondary';
+                case 'processing': return 'bg-info';
+                case 'completed': return 'bg-success';
+                case 'failed': return 'bg-danger';
+                case 'refunded': return 'bg-warning';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function getGatewayBadgeClass(gateway) {
+            switch(gateway) {
+                case 'stripe': return 'bg-primary';
+                case 'razorpay': return 'bg-info';
+                case 'paypal': return 'bg-success';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function getPaymentMethodIcon(method) {
+            switch(method) {
+                case 'card': return 'fas fa-credit-card';
+                case 'upi': return 'fas fa-mobile-alt';
+                case 'netbanking': return 'fas fa-university';
+                case 'cod': return 'fas fa-money-bill-wave';
+                case 'wallet': return 'fas fa-wallet';
+                default: return 'fas fa-credit-card';
+            }
+        }
+
+        function showLoadingState() {
+            paymentsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading payments...</p>
+                    </td>
+                </tr>
+            `;
+        }
+
+        function showError(message) {
+            // In a real application, you'd use a more sophisticated notification system
+            alert('Error: ' + message);
+        }
+
+        function showSuccess(message) {
+            // In a real application, you'd use a more sophisticated notification system
+            alert('Success: ' + message);
+        }
+    </script>
+</body>
+</html>

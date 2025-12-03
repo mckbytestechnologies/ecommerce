@@ -120,7 +120,7 @@ const Home = () => {
       <br />
 
       {/* Latest Product Section */}
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
             <div className='leftsec'>
@@ -131,7 +131,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
           </div>
@@ -139,7 +139,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
           </div>
@@ -147,7 +147,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
           </div>
@@ -155,7 +155,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
           </div>
@@ -163,7 +163,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
           </div>
@@ -171,7 +171,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
           </div>
@@ -179,7 +179,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white py-8 mt-8 relative z-[1]">
+      <section className="bg-white  mt-8 relative z-[1]">
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
           </div>

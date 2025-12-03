@@ -155,22 +155,10 @@ const LatestProductSlider = ({ items = 5 }) => {
             spaceBetween={24}
             slidesPerView={1}
             breakpoints={{
-              480: {
-                slidesPerView: 2,
-                spaceBetween: 20
-              },
-              768: {
-                slidesPerView: 3,
-                spaceBetween: 24
-              },
-              1024: {
-                slidesPerView: 4,
-                spaceBetween: 24
-              },
-              1280: {
-                slidesPerView: 5,
-                spaceBetween: 24
-              }
+    640: { slidesPerView: 2, spaceBetween: 20 },
+    768: { slidesPerView: 3, spaceBetween: 24 },
+    1024: { slidesPerView: 4, spaceBetween: 24 }, // max 4 slides
+    1280: { slidesPerView: 4, spaceBetween: 24 },
             }}
             className="!pb-12"
           >

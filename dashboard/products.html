@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; }
+    #sidebar { width: 250px; }
+    #wrapper { display: flex; }
+    .nav-link:hover { background-color: rgba(255,255,255,0.1); }
+    .product-card { transition: transform 0.2s; }
+    .product-card:hover { transform: translateY(-2px); }
+    .status-badge { font-size: 0.75rem; }
+    .image-thumbnail { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+    .feature-badge { font-size: 0.7rem; }
+    .tab-pane { padding: 1rem 0; }
+    .btn-group-sm .btn { padding: 0.25rem 0.5rem; }
+    :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--secondary-color);
+        }
+        
+        .sidebar {
+            background-color: var(--dark-color);
+            min-height: calc(100vh - 56px);
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+  </style>
+</head>
+<body>
+  <div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
+                        <div class="position-sticky pt-3">
+                            <ul class="nav flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="index.html">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="users.html">
+                                        <i class="fas fa-users"></i>
+                                        Users
+                                    </a>
+                                </li>
+                                <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
+
+                                <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="orders.html">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Orders
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="payment.html">
+                                        <i class="fas fa-credit-card"></i>
+                                        Payments
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="fas fa-chart-bar"></i>
+                                        Analytics
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="fas fa-cog"></i>
+                                        Settings
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid p-4" id="page-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="mb-1">📦 Product Management</h2>
+          <p class="text-muted mb-0">Manage your product catalog and inventory</p>
+        </div>
+        <button class="btn btn-primary" id="addProductBtn">
+          <i class="fas fa-plus me-2"></i>Add Product
+        </button>
+      </div>
+
+      <!-- Alert Box -->
+      <div id="alertBox"></div>
+
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="categoryFilter">
+                <option value="">All Categories</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Featured</label>
+              <select class="form-select" id="featuredFilter">
+                <option value="">All Products</option>
+                <option value="featured">Featured Only</option>
+                <option value="not-featured">Not Featured</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Stock Status</label>
+              <select class="form-select" id="stockFilter">
+                <option value="">All Stock</option>
+                <option value="in-stock">In Stock</option>
+                <option value="out-of-stock">Out of Stock</option>
+                <option value="low-stock">Low Stock (< 10)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Table -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Products List</h5>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="showInactiveToggle">
+            <label class="form-check-label" for="showInactiveToggle">Show Inactive</label>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>Image</th>
+                  <th>Name</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Rating</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productsTable">
+                <tr>
+                  <td colspan="8" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Add Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="productForm">
+            <input type="hidden" id="productId">
+            
+            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">Basic Info</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pricing-tab" data-bs-toggle="tab" data-bs-target="#pricing" type="button" role="tab">Pricing & Inventory</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media" type="button" role="tab">Media</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">Shipping</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo" type="button" role="tab">SEO</button>
+              </li>
+            </ul>
+
+            <div class="tab-content mt-3" id="productTabContent">
+              <!-- Basic Info Tab -->
+              <div class="tab-pane fade show active" id="basic" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Product Name <span class="text-danger">*</span></label>
+                    <input type="text" id="name" class="form-control" required maxlength="200">
+                    <div class="form-text">Maximum 200 characters</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Brand</label>
+                    <input type="text" id="brand" class="form-control" maxlength="100">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Category <span class="text-danger">*</span></label>
+                    <select id="category" class="form-select" required>
+                      <option value="">Select Category</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Subcategory</label>
+                    <input type="text" id="subCategory" class="form-control" maxlength="100">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Description <span class="text-danger">*</span></label>
+                    <textarea id="description" class="form-control" rows="4" required maxlength="2000"></textarea>
+                    <div class="form-text">Maximum 2000 characters</div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">SKU</label>
+                    <input type="text" id="sku" class="form-control" placeholder="Auto-generated if empty">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Tags</label>
+                    <input type="text" id="tags" class="form-control" placeholder="Comma separated tags">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pricing & Inventory Tab -->
+              <div class="tab-pane fade" id="pricing" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Price <span class="text-danger">*</span></label>
+                    <input type="number" id="price" class="form-control" step="0.01" min="0" required>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Compare Price</label>
+                    <input type="number" id="comparePrice" class="form-control" step="0.01" min="0">
+                    <div class="form-text">Original price for showing discounts</div>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Stock <span class="text-danger">*</span></label>
+                    <input type="number" id="stock" class="form-control" min="0" required>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Features</label>
+                    <textarea id="features" class="form-control" rows="3" placeholder="One feature per line"></textarea>
+                    <div class="form-text">Enter each feature on a new line</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Specifications</label>
+                    <div id="specificationsContainer">
+                      <!-- Specifications will be added dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addSpecification">
+                      <i class="fas fa-plus me-1"></i>Add Specification
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Media Tab -->
+              <div class="tab-pane fade" id="media" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label">Product Images</label>
+                    <div id="imagesContainer" class="mb-3">
+                      <!-- Images will be added here dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-outline-primary" id="addImageBtn">
+                      <i class="fas fa-plus me-1"></i>Add Image
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="isFeatured">
+                      <label class="form-check-label" for="isFeatured">Featured Product</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="isDigital">
+                      <label class="form-check-label" for="isDigital">Digital Product</label>
+                    </div>
+                  </div>
+                  <div class="col-12" id="digitalFileSection" style="display: none;">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label">Digital File URL</label>
+                        <input type="url" id="digitalFileUrl" class="form-control">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">File Name</label>
+                        <input type="text" id="digitalFileName" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shipping Tab -->
+              <div class="tab-pane fade" id="shipping" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Weight (kg)</label>
+                    <input type="number" id="weight" class="form-control" step="0.01" min="0">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Dimensions - Length (cm)</label>
+                    <input type="number" id="dimensionsLength" class="form-control" step="0.1" min="0">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Dimensions - Width (cm)</label>
+                    <input type="number" id="dimensionsWidth" class="form-control" step="0.1" min="0">
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Dimensions - Height (cm)</label>
+                    <input type="number" id="dimensionsHeight" class="form-control" step="0.1" min="0">
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label">Warranty</label>
+                    <input type="text" id="warranty" class="form-control" value="No warranty">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Return Policy</label>
+                    <textarea id="returnPolicy" class="form-control" rows="2">30 days return policy</textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SEO Tab -->
+              <div class="tab-pane fade" id="seo" role="tabpanel">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label">SEO Title</label>
+                    <input type="text" id="seoTitle" class="form-control" maxlength="60">
+                    <div class="form-text">Recommended: 50-60 characters</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">SEO Description</label>
+                    <textarea id="seoDescription" class="form-control" rows="3" maxlength="160"></textarea>
+                    <div class="form-text">Recommended: 150-160 characters</div>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">SEO Keywords</label>
+                    <input type="text" id="seoKeywords" class="form-control" placeholder="Comma separated keywords">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="saveProductBtn">
+            <i class="fas fa-save me-2"></i>Save Product
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // API Configuration
+    const API_BASE = "http://localhost:5000/api";
+    const PRODUCTS_API = `${API_BASE}/products`;
+    const CATEGORIES_API = `${API_BASE}/categories`;
+
+    // Global Variables
+    let currentProducts = [];
+
+    // DOM Elements
+    const productsTable = document.getElementById('productsTable');
+    const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+    const addProductBtn = document.getElementById('addProductBtn');
+    const saveProductBtn = document.getElementById('saveProductBtn');
+    const showInactiveToggle = document.getElementById('showInactiveToggle');
+    const alertBox = document.getElementById('alertBox');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const featuredFilter = document.getElementById('featuredFilter');
+    const stockFilter = document.getElementById('stockFilter');
+
+    // Authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    const authHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    // Load Products
+    async function loadProducts(filters = {}) {
+      try {
+        showLoading();
+        const queryParams = new URLSearchParams();
+        
+        // Add filters
+        if (filters.category) queryParams.append('category', filters.category);
+        if (filters.status === 'active') queryParams.append('isActive', 'true');
+        if (filters.status === 'inactive') queryParams.append('isActive', 'false');
+        if (filters.featured === 'featured') queryParams.append('featured', 'true');
+        if (filters.featured === 'not-featured') queryParams.append('featured', 'false');
+        if (filters.stock === 'in-stock') queryParams.append('inStock', 'true');
+        if (filters.stock === 'out-of-stock') queryParams.append('inStock', 'false');
+        
+        // Remove active filter if showing inactive products
+        if (showInactiveToggle.checked) {
+          queryParams.delete('isActive');
+        }
+
+        const url = `${PRODUCTS_API}?${queryParams.toString()}`;
+        console.log('Loading products from:', url);
+        
+        const res = await fetch(url, { headers: authHeaders });
+
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const data = await res.json();
+        console.log('Products response:', data);
+
+        if (data.success) {
+          // Handle different response structures
+          let products = data.data?.products || data.data || [];
+          currentProducts = products;
+          
+          // Apply low stock filter on frontend if needed
+          if (filters.stock === 'low-stock') {
+            products = products.filter(p => p.stock > 0 && p.stock < 10);
+          }
+          
+          renderProducts(products);
+        } else {
+          showAlert(data.message || 'Failed to load products', 'danger');
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        showAlert('Error loading products: ' + error.message, 'danger');
+      }
+    }
+
+    // Show loading state
+    function showLoading() {
+      productsTable.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    // Render Products Table
+    function renderProducts(products) {
+      if (!products || products.length === 0) {
+        productsTable.innerHTML = `
+          <tr>
+            <td colspan="8" class="text-center py-5">
+              <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No products found</h5>
+              <p class="text-muted">Get started by creating your first product</p>
+              <button class="btn btn-primary" onclick="openAddProductModal()">
+                <i class="fas fa-plus me-2"></i>Create Product
+              </button>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      let html = '';
+      products.forEach(product => {
+        const mainImage = product.images && product.images.length > 0 ? product.images[0].url : null;
+        const stockStatus = product.stock === 0 ? 'out-of-stock' : product.stock < 10 ? 'low-stock' : 'in-stock';
+        const stockBadgeClass = product.stock === 0 ? 'bg-danger' : product.stock < 10 ? 'bg-warning' : 'bg-success';
+        
+        html += `
+          <tr>
+            <td>
+              ${mainImage ? 
+                `<img src="${mainImage}" alt="${product.name}" class="image-thumbnail">` : 
+                `<div class="image-thumbnail bg-light d-flex align-items-center justify-content-center">
+                  <i class="fas fa-image text-muted"></i>
+                </div>`
+              }
+            </td>
+            <td>
+              <div class="fw-bold">${product.name}</div>
+              <small class="text-muted">${product.brand || 'No brand'}</small>
+              <div class="mt-1">
+                ${product.isFeatured ? '<span class="badge bg-primary feature-badge me-1">Featured</span>' : ''}
+                ${product.isDigital ? '<span class="badge bg-info feature-badge">Digital</span>' : ''}
+              </div>
+            </td>
+            <td>${product.category?.name || 'N/A'}</td>
+            <td>
+              <strong>$${product.price?.toFixed(2) || '0.00'}</strong>
+              ${product.comparePrice ? `<br><small class="text-muted text-decoration-line-through">$${product.comparePrice.toFixed(2)}</small>` : ''}
+            </td>
+            <td>
+              <span class="badge ${stockBadgeClass}">${product.stock}</span>
+            </td>
+            <td>
+              <span class="badge ${product.isActive ? 'bg-success' : 'bg-danger'}">
+                ${product.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <span class="text-warning me-1">
+                  <i class="fas fa-star"></i> ${product.averageRating || 0}
+                </span>
+                <small class="text-muted">(${product.reviewCount || 0})</small>
+              </div>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-warning" onclick="editProduct('${product._id}')">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" onclick="deleteProduct('${product._id}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+                <button class="btn btn-outline-${product.isActive ? 'secondary' : 'success'}" onclick="toggleProductStatus('${product._id}', ${!product.isActive})">
+                  <i class="fas fa-power-off"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      productsTable.innerHTML = html;
+    }
+
+    // Load Categories for Dropdown
+    async function loadCategories() {
+      try {
+        const res = await fetch(CATEGORIES_API, { headers: authHeaders });
+        const data = await res.json();
+        
+        const categorySelect = document.getElementById('category');
+        const categoryFilterSelect = document.getElementById('categoryFilter');
+        
+        categorySelect.innerHTML = '<option value="">Select Category</option>';
+        categoryFilterSelect.innerHTML = '<option value="">All Categories</option>';
+        
+        if (data.success) {
+          const categories = data.data || [];
+          categories.forEach(cat => {
+            if (cat.isActive) {
+              categorySelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
+              categoryFilterSelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        showAlert('Error loading categories', 'danger');
+      }
+    }
+
+    // Open Add Product Modal
+    function openAddProductModal() {
+      document.getElementById('modalTitle').textContent = 'Add Product';
+      document.getElementById('productForm').reset();
+      document.getElementById('productId').value = '';
+      document.getElementById('isActive').checked = true;
+      document.getElementById('isFeatured').checked = false;
+      document.getElementById('isDigital').checked = false;
+      
+      // Reset dynamic fields
+      document.getElementById('imagesContainer').innerHTML = '';
+      document.getElementById('specificationsContainer').innerHTML = '';
+      addSpecificationRow(); // Add one empty specification row
+      
+      loadCategories();
+      productModal.show();
+    }
+
+    // Edit Product
+    window.editProduct = async (productId) => {
+      try {
+        showAlert('Loading product data...', 'info');
+        const res = await fetch(`${PRODUCTS_API}/${productId}`, { headers: authHeaders });
+        const data = await res.json();
+        
+        if (data.success) {
+          const product = data.data;
+          
+          document.getElementById('modalTitle').textContent = 'Edit Product';
+          document.getElementById('productId').value = product._id;
+          document.getElementById('name').value = product.name;
+          document.getElementById('description').value = product.description;
+          document.getElementById('brand').value = product.brand || '';
+          document.getElementById('subCategory').value = product.subCategory || '';
+          document.getElementById('sku').value = product.sku || '';
+          document.getElementById('price').value = product.price;
+          document.getElementById('comparePrice').value = product.comparePrice || '';
+          document.getElementById('stock').value = product.stock;
+          document.getElementById('weight').value = product.weight || '';
+          document.getElementById('warranty').value = product.warranty || 'No warranty';
+          document.getElementById('returnPolicy').value = product.returnPolicy || '30 days return policy';
+          document.getElementById('isActive').checked = product.isActive !== false;
+          document.getElementById('isFeatured').checked = product.isFeatured || false;
+          document.getElementById('isDigital').checked = product.isDigital || false;
+          document.getElementById('tags').value = product.tags ? product.tags.join(', ') : '';
+          
+          // Features
+          document.getElementById('features').value = product.features ? product.features.join('\n') : '';
+          
+          // SEO
+          document.getElementById('seoTitle').value = product.seo?.title || '';
+          document.getElementById('seoDescription').value = product.seo?.description || '';
+          document.getElementById('seoKeywords').value = product.seo?.keywords ? product.seo.keywords.join(', ') : '';
+          
+          // Dimensions
+          document.getElementById('dimensionsLength').value = product.dimensions?.length || '';
+          document.getElementById('dimensionsWidth').value = product.dimensions?.width || '';
+          document.getElementById('dimensionsHeight').value = product.dimensions?.height || '';
+          
+          // Digital file
+          document.getElementById('digitalFileUrl').value = product.digitalFile?.url || '';
+          document.getElementById('digitalFileName').value = product.digitalFile?.fileName || '';
+          
+          await loadCategories();
+          document.getElementById('category').value = product.category?._id || product.category;
+          
+          // Render images
+          renderImages(product.images || []);
+          
+          // Render specifications
+          renderSpecifications(product.specifications || {});
+          
+          // Toggle digital file section
+          toggleDigitalFileSection(product.isDigital);
+          
+          productModal.show();
+          showAlert('Product data loaded successfully', 'success');
+        } else {
+          showAlert(data.message || 'Failed to load product data', 'danger');
+        }
+      } catch (error) {
+        console.error('Error loading product:', error);
+        showAlert('Error loading product: ' + error.message, 'danger');
+      }
+    };
+
+    // Render Images
+    function renderImages(images) {
+      const container = document.getElementById('imagesContainer');
+      container.innerHTML = '';
+      
+      if (images.length === 0) {
+        addImageRow();
+      } else {
+        images.forEach((image, index) => {
+          container.innerHTML += `
+            <div class="image-row row g-2 mb-2 align-items-center">
+              <div class="col-md-5">
+                <input type="text" class="form-control image-public-id" value="${image.public_id}" placeholder="Public ID" required>
+              </div>
+              <div class="col-md-5">
+                <input type="url" class="form-control image-url" value="${image.url}" placeholder="Image URL" required>
+              </div>
+              <div class="col-md-2">
+                <button type="button" class="btn btn-sm btn-danger w-100 remove-image">×</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+      
+      // Add event listeners for remove buttons
+      container.querySelectorAll('.remove-image').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.closest('.image-row').remove();
+        });
+      });
+    }
+
+    // Add Image Row
+    function addImageRow() {
+      const container = document.getElementById('imagesContainer');
+      container.innerHTML += `
+        <div class="image-row row g-2 mb-2 align-items-center">
+          <div class="col-md-5">
+            <input type="text" class="form-control image-public-id" placeholder="Public ID" required>
+          </div>
+          <div class="col-md-5">
+            <input type="url" class="form-control image-url" placeholder="Image URL" required>
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-sm btn-danger w-100 remove-image">×</button>
+          </div>
+        </div>
+      `;
+      
+      // Add event listener for the new remove button
+      container.querySelector('.image-row:last-child .remove-image').addEventListener('click', function() {
+        this.closest('.image-row').remove();
+      });
+    }
+
+    // Render Specifications
+    function renderSpecifications(specs) {
+      const container = document.getElementById('specificationsContainer');
+      container.innerHTML = '';
+      
+      if (Object.keys(specs).length === 0) {
+        addSpecificationRow();
+      } else {
+        Object.entries(specs).forEach(([key, value]) => {
+          container.innerHTML += `
+            <div class="specification-row row g-2 mb-2">
+              <div class="col-md-5">
+                <input type="text" class="form-control specification-key" value="${key}" placeholder="Key">
+              </div>
+              <div class="col-md-5">
+                <input type="text" class="form-control specification-value" value="${value}" placeholder="Value">
+              </div>
+              <div class="col-md-2">
+                <button type="button" class="btn btn-sm btn-danger w-100 remove-specification">×</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+      
+      // Add event listeners for remove buttons
+      container.querySelectorAll('.remove-specification').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.closest('.specification-row').remove();
+        });
+      });
+    }
+
+    // Add Specification Row
+    function addSpecificationRow() {
+      const container = document.getElementById('specificationsContainer');
+      container.innerHTML += `
+        <div class="specification-row row g-2 mb-2">
+          <div class="col-md-5">
+            <input type="text" class="form-control specification-key" placeholder="Key">
+          </div>
+          <div class="col-md-5">
+            <input type="text" class="form-control specification-value" placeholder="Value">
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-sm btn-danger w-100 remove-specification">×</button>
+          </div>
+        </div>
+      `;
+      
+      // Add event listener for the new remove button
+      container.querySelector('.specification-row:last-child .remove-specification').addEventListener('click', function() {
+        this.closest('.specification-row').remove();
+      });
+    }
+
+    // Toggle Digital File Section
+    function toggleDigitalFileSection(isDigital) {
+      const section = document.getElementById('digitalFileSection');
+      section.style.display = isDigital ? 'block' : 'none';
+    }
+
+    // Save Product
+    saveProductBtn.addEventListener('click', async () => {
+      const productId = document.getElementById('productId').value;
+      
+      // Basic product data
+      const productData = {
+        name: document.getElementById('name').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        price: parseFloat(document.getElementById('price').value),
+        comparePrice: document.getElementById('comparePrice').value ? parseFloat(document.getElementById('comparePrice').value) : null,
+        category: document.getElementById('category').value,
+        subCategory: document.getElementById('subCategory').value.trim() || undefined,
+        brand: document.getElementById('brand').value.trim() || undefined,
+        sku: document.getElementById('sku').value.trim() || undefined,
+        stock: parseInt(document.getElementById('stock').value),
+        weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : undefined,
+        warranty: document.getElementById('warranty').value.trim(),
+        returnPolicy: document.getElementById('returnPolicy').value.trim(),
+        isActive: document.getElementById('isActive').checked,
+        isFeatured: document.getElementById('isFeatured').checked,
+        isDigital: document.getElementById('isDigital').checked,
+      };
+
+      // Handle tags
+      const tagsInput = document.getElementById('tags').value;
+      if (tagsInput) {
+        productData.tags = JSON.stringify(tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag));
+      }
+
+      // Handle features
+      const featuresInput = document.getElementById('features').value;
+      if (featuresInput) {
+        productData.features = JSON.stringify(featuresInput.split('\n').map(feature => feature.trim()).filter(feature => feature));
+      }
+
+      // Dimensions
+      const length = document.getElementById('dimensionsLength').value;
+      const width = document.getElementById('dimensionsWidth').value;
+      const height = document.getElementById('dimensionsHeight').value;
+      if (length || width || height) {
+        productData.dimensions = JSON.stringify({
+          length: length ? parseFloat(length) : undefined,
+          width: width ? parseFloat(width) : undefined,
+          height: height ? parseFloat(height) : undefined
+        });
+      }
+
+      // SEO Data
+      const seoTitle = document.getElementById('seoTitle').value.trim();
+      const seoDescription = document.getElementById('seoDescription').value.trim();
+      const seoKeywords = document.getElementById('seoKeywords').value.split(',').map(kw => kw.trim()).filter(kw => kw);
+      
+      if (seoTitle || seoDescription || seoKeywords.length > 0) {
+        productData.seo = JSON.stringify({
+          title: seoTitle || undefined,
+          description: seoDescription || undefined,
+          keywords: seoKeywords.length > 0 ? seoKeywords : undefined
+        });
+      }
+
+      // Digital File
+      if (productData.isDigital) {
+        const digitalFileUrl = document.getElementById('digitalFileUrl').value.trim();
+        const digitalFileName = document.getElementById('digitalFileName').value.trim();
+        if (digitalFileUrl) {
+          productData.digitalFile = JSON.stringify({
+            url: digitalFileUrl,
+            fileName: digitalFileName || 'digital-file'
+          });
+        }
+      }
+
+      // Images
+      const imageRows = document.querySelectorAll('.image-row');
+      const images = [];
+      imageRows.forEach(row => {
+        const publicId = row.querySelector('.image-public-id').value.trim();
+        const url = row.querySelector('.image-url').value.trim();
+        if (publicId && url) {
+          images.push({ public_id: publicId, url });
+        }
+      });
+      
+      if (images.length > 0) {
+        productData.images = images;
+      }
+
+      // Specifications
+      const specRows = document.querySelectorAll('.specification-row');
+      const specifications = {};
+      specRows.forEach(row => {
+        const key = row.querySelector('.specification-key').value.trim();
+        const value = row.querySelector('.specification-value').value.trim();
+        if (key && value) {
+          specifications[key] = value;
+        }
+      });
+      
+      if (Object.keys(specifications).length > 0) {
+        productData.specifications = JSON.stringify(specifications);
+      }
+
+      // Validation
+      if (!productData.name || !productData.description || !productData.price || !productData.category || isNaN(productData.stock)) {
+        showAlert('Please fill in all required fields (Name, Description, Price, Category, Stock)', 'warning');
+        return;
+      }
+
+      if (productData.price < 0) {
+        showAlert('Price cannot be negative', 'warning');
+        return;
+      }
+
+      if (productData.stock < 0) {
+        showAlert('Stock cannot be negative', 'warning');
+        return;
+      }
+
+      try {
+        const url = productId ? `${PRODUCTS_API}/${productId}` : PRODUCTS_API;
+        const method = productId ? 'PUT' : 'POST';
+
+        console.log('Saving product:', productData);
+
+        const res = await fetch(url, {
+          method,
+          headers: authHeaders,
+          body: JSON.stringify(productData)
+        });
+
+        const data = await res.json();
+        console.log('Save response:', data);
+
+        if (res.ok && data.success) {
+          showAlert(
+            productId ? 'Product updated successfully!' : 'Product created successfully!',
+            'success'
+          );
+          productModal.hide();
+          loadProducts(getCurrentFilters());
+        } else {
+          const errorMsg = data.message || (data.errors ? data.errors.map(e => e.message).join(', ') : 'Operation failed');
+          showAlert(errorMsg, 'danger');
+        }
+      } catch (error) {
+        console.error('Error saving product:', error);
+        showAlert('Error saving product: ' + error.message, 'danger');
+      }
+    });
+
+    // Delete Product
+    window.deleteProduct = async (productId) => {
+      if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        showAlert('Deleting product...', 'info');
+        const res = await fetch(`${PRODUCTS_API}/${productId}`, {
+          method: 'DELETE',
+          headers: authHeaders
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showAlert('Product deleted successfully!', 'success');
+          loadProducts(getCurrentFilters());
+        } else {
+          showAlert(data.message || 'Delete failed', 'danger');
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        showAlert('Error deleting product: ' + error.message, 'danger');
+      }
+    };
+
+    // Toggle Product Status
+    window.toggleProductStatus = async (productId, newStatus) => {
+      try {
+        showAlert('Updating product status...', 'info');
+        const res = await fetch(`${PRODUCTS_API}/${productId}`, {
+          method: 'PUT',
+          headers: authHeaders,
+          body: JSON.stringify({ isActive: newStatus })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showAlert(`Product ${newStatus ? 'activated' : 'deactivated'} successfully!`, 'success');
+          loadProducts(getCurrentFilters());
+        } else {
+          showAlert(data.message || 'Status update failed', 'danger');
+        }
+      } catch (error) {
+        console.error('Error updating product status:', error);
+        showAlert('Error updating product status: ' + error.message, 'danger');
+      }
+    };
+
+    // Get Current Filters
+    function getCurrentFilters() {
+      return {
+        category: categoryFilter.value,
+        status: statusFilter.value,
+        featured: featuredFilter.value,
+        stock: stockFilter.value
+      };
+    }
+
+    // Show Alert
+    function showAlert(message, type) {
+      alertBox.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+      
+      // Auto remove success/info alerts after 5 seconds
+      if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+          const alert = alertBox.querySelector('.alert');
+          if (alert) {
+            alert.remove();
+          }
+        }, 5000);
+      }
+    }
+
+    // Event Listeners
+    addProductBtn.addEventListener('click', openAddProductModal);
+    
+    showInactiveToggle.addEventListener('change', () => {
+      loadProducts(getCurrentFilters());
+    });
+
+    // Filter event listeners
+    [categoryFilter, statusFilter, featuredFilter, stockFilter].forEach(filter => {
+      filter.addEventListener('change', () => {
+        loadProducts(getCurrentFilters());
+      });
+    });
+
+    // Add image button
+    document.getElementById('addImageBtn').addEventListener('click', addImageRow);
+
+    // Add specification button
+    document.getElementById('addSpecification').addEventListener('click', addSpecificationRow);
+
+    // Digital product toggle
+    document.getElementById('isDigital').addEventListener('change', function() {
+      toggleDigitalFileSection(this.checked);
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProducts();
+      loadCategories();
+    });
+  </script>
+</body>
+</html>

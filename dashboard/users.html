@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            background-color: var(--secondary-color);
+        }
+        
+        .sidebar {
+            background-color: var(--dark-color);
+            min-height: calc(100vh - 56px);
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            font-weight: 600;
+        }
+        
+        .status-badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+        }
+        
+        .stats-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .action-btn {
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .user-details-section {
+            background-color: white;
+            border-radius: 0.375rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .user-details-section h5 {
+            color: var(--secondary-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary-color);
+        }
+        
+        .user-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-card .avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--success-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .role-badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .form-section {
+            background-color: white;
+            border-radius: 0.375rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .last-active {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+        
+        .user-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+                margin-bottom: 1rem;
+            }
+            
+            .user-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-users me-2"></i>
+                User Management Admin
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> Admin User
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li class="nav-item">
+                                    <a class="nav-link" href="index.html">
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="users.html">
+                                        <i class="fas fa-users"></i>
+                                        Users
+                                    </a>
+                                </li>
+                                <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
+
+                                <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="orders.html">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        Orders
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="payment.html">
+                                        <i class="fas fa-credit-card"></i>
+                                        Payments
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="fas fa-chart-bar"></i>
+                                        Analytics
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#">
+                                        <i class="fas fa-cog"></i>
+                                        Settings
+                                    </a>
+                                </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-tachometer-alt"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#">
+                                <i class="fas fa-users"></i>
+                                Users
+                            </a>
+                        </li>
+                        <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
+
+                        <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-shopping-cart"></i>
+                                Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-credit-card"></i>
+                                Payments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-bar"></i>
+                                Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-cog"></i>
+                                Settings
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="col-lg-10 col-md-9 ms-sm-auto px-md-4 py-4">
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">User Management</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportUsersBtn">
+                                <i class="fas fa-download me-1"></i> Export
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="refreshUsersBtn">
+                                <i class="fas fa-sync-alt me-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card bg-[#34495e] text-black">
+                            <div class="stats-value" id="totalUsers">0</div>
+                            <div class="stats-label">Total Users</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card bg text-black">
+                            <div class="stats-value" id="activeUsers">0</div>
+                            <div class="stats-label">Active Users</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card bg text-black">
+                            <div class="stats-value" id="adminUsers">0</div>
+                            <div class="stats-label">Admin Users</div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card stats-card bg text-black">
+                            <div class="stats-value" id="newUsers">0</div>
+                            <div class="stats-label">New This Month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="roleFilter" class="form-label">Role</label>
+                                <select class="form-select" id="roleFilter">
+                                    <option value="">All Roles</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="user">User</option>
+                                    <option value="customer">Customer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="statusFilter" class="form-label">Status</label>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="sortBy" class="form-label">Sort By</label>
+                                <select class="form-select" id="sortBy">
+                                    <option value="newest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="name">Name (A-Z)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="searchInput" placeholder="Search by name, email, or phone...">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary w-100" id="applyFiltersBtn">
+                                    <i class="fas fa-filter me-1"></i> Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- View Toggle -->
+                <div class="d-flex justify-content-end mb-3">
+                    <div class="btn-group" role="group">
+                        <input type="radio" class="btn-check" name="viewMode" id="gridView" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="gridView">
+                            <i class="fas fa-th-large me-1"></i> Grid
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="viewMode" id="listView" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="listView">
+                            <i class="fas fa-list me-1"></i> List
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Users Grid View -->
+                <div class="user-grid" id="usersGridView">
+                    <!-- Users will be populated here by JavaScript -->
+                </div>
+
+                <!-- Users Table View -->
+                <div class="card d-none" id="usersListView">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">All Users</h5>
+                        <span class="badge bg-primary" id="usersCount">0 users</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Contact</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    <!-- Users will be populated here by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <nav aria-label="User pagination">
+                            <ul class="pagination justify-content-end" id="paginationContainer">
+                                <!-- Pagination will be populated by JavaScript -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div class="avatar mx-auto mb-3" id="detailUserAvatar">
+                                <!-- Avatar will be populated by JavaScript -->
+                            </div>
+                            <h4 id="detailUserName">-</h4>
+                            <div class="mb-3">
+                                <span class="badge role-badge bg-primary" id="detailUserRole">-</span>
+                                <span class="badge status-badge bg-success" id="detailUserStatus">-</span>
+                            </div>
+                            <div class="user-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="detailUserOrders">0</div>
+                                    <div class="stat-label">Orders</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="detailUserPayments">0</div>
+                                    <div class="stat-label">Payments</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="detailUserTotal">$0</div>
+                                    <div class="stat-label">Total Spent</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <!-- User Information -->
+                            <div class="user-details-section">
+                                <h5>User Information</h5>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Email:</strong>
+                                        <span id="detailUserEmail">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Phone:</strong>
+                                        <span id="detailUserPhone">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>User ID:</strong>
+                                        <span id="detailUserId">-</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Joined:</strong>
+                                        <span id="detailUserJoined">-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <strong>Last Active:</strong>
+                                        <span id="detailUserLastActive">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Address Information -->
+                            <div class="user-details-section">
+                                <h5>Address Information</h5>
+                                <div id="detailUserAddresses">
+                                    <!-- Addresses will be populated by JavaScript -->
+                                </div>
+                            </div>
+                            
+                            <!-- Additional Information -->
+                            <div class="user-details-section">
+                                <h5>Additional Information</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-2">
+                                            <strong>Email Verified:</strong>
+                                            <span class="badge bg-success" id="detailEmailVerified">Yes</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-2">
+                                            <strong>Newsletter:</strong>
+                                            <span class="badge bg-info" id="detailNewsletter">Subscribed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="refreshUserBtn">
+                        <i class="fas fa-sync-alt me-1"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:5000/api';
+        let authToken = localStorage.getItem('adminAuthToken') || 'your-auth-token-here';
+
+        // Current state
+        let currentUsers = [];
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentUser = null;
+        let viewMode = 'grid'; // 'grid' or 'list'
+
+        // DOM elements
+        const usersGridView = document.getElementById('usersGridView');
+        const usersListView = document.getElementById('usersListView');
+        const usersTableBody = document.getElementById('usersTableBody');
+        const totalUsersEl = document.getElementById('totalUsers');
+        const activeUsersEl = document.getElementById('activeUsers');
+        const adminUsersEl = document.getElementById('adminUsers');
+        const newUsersEl = document.getElementById('newUsers');
+        const roleFilter = document.getElementById('roleFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const sortBy = document.getElementById('sortBy');
+        const searchInput = document.getElementById('searchInput');
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        const refreshUsersBtn = document.getElementById('refreshUsersBtn');
+        const paginationContainer = document.getElementById('paginationContainer');
+        const userDetailsModal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+        const exportUsersBtn = document.getElementById('exportUsersBtn');
+        const refreshUserBtn = document.getElementById('refreshUserBtn');
+        const gridViewRadio = document.getElementById('gridView');
+        const listViewRadio = document.getElementById('listView');
+        const usersCount = document.getElementById('usersCount');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            
+            // Event listeners
+            applyFiltersBtn.addEventListener('click', loadUsers);
+            refreshUsersBtn.addEventListener('click', loadUsers);
+            exportUsersBtn.addEventListener('click', exportUsers);
+            refreshUserBtn.addEventListener('click', refreshUserDetails);
+            
+            // View mode toggle
+            gridViewRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    viewMode = 'grid';
+                    toggleViewMode();
+                }
+            });
+            
+            listViewRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    viewMode = 'list';
+                    toggleViewMode();
+                }
+            });
+        });
+
+        // Load users from API
+        async function loadUsers(page = 1) {
+            try {
+                showLoadingState();
+                
+                const response = await fetch(`${API_BASE_URL}/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUsers = data.data || [];
+                    currentPage = page;
+                    
+                    // Apply filters
+                    applyFilters();
+                    
+                    displayUsers();
+                    updateStats();
+                } else {
+                    throw new Error(data.message || 'Failed to load users');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showError('Failed to load users: ' + error.message);
+            }
+        }
+
+        // Apply filters to users
+        function applyFilters() {
+            let filteredUsers = [...currentUsers];
+            
+            // Role filter
+            if (roleFilter.value) {
+                filteredUsers = filteredUsers.filter(user => 
+                    user.role && user.role.toLowerCase() === roleFilter.value.toLowerCase()
+                );
+            }
+            
+            // Status filter
+            if (statusFilter.value) {
+                filteredUsers = filteredUsers.filter(user => 
+                    user.status && user.status.toLowerCase() === statusFilter.value.toLowerCase()
+                );
+            }
+            
+            // Search filter
+            if (searchInput.value) {
+                const searchTerm = searchInput.value.toLowerCase();
+                filteredUsers = filteredUsers.filter(user => 
+                    (user.name && user.name.toLowerCase().includes(searchTerm)) ||
+                    (user.email && user.email.toLowerCase().includes(searchTerm)) ||
+                    (user.phone && user.phone.includes(searchTerm))
+                );
+            }
+            
+            // Sort users
+            switch(sortBy.value) {
+                case 'newest':
+                    filteredUsers.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                    break;
+                case 'oldest':
+                    filteredUsers.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+                    break;
+                case 'name':
+                    filteredUsers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                    break;
+            }
+            
+            currentUsers = filteredUsers;
+        }
+
+        // Display users based on view mode
+        function displayUsers() {
+            if (viewMode === 'grid') {
+                displayUsersGrid();
+            } else {
+                displayUsersList();
+            }
+            
+            usersCount.textContent = `${currentUsers.length} users`;
+        }
+
+        // Display users in grid view
+        function displayUsersGrid() {
+            usersGridView.innerHTML = '';
+            
+            if (currentUsers.length === 0) {
+                usersGridView.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No users found</h4>
+                        <p class="text-muted">Try adjusting your filters or search criteria</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            currentUsers.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'card user-card';
+                userCard.innerHTML = `
+                    <div class="avatar">${getInitials(user.name || 'Unknown User')}</div>
+                    <h5 class="card-title">${user.name || 'Unknown User'}</h5>
+                    <p class="card-text text-muted">${user.email || 'No email'}</p>
+                    <div class="mb-2">
+                        <span class="badge role-badge ${getRoleBadgeClass(user.role)}">
+                            ${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
+                        </span>
+                        <span class="badge status-badge ${getStatusBadgeClass(user.status)}">
+                            ${user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Active'}
+                        </span>
+                    </div>
+                    <p class="last-active">
+                        <i class="fas fa-clock me-1"></i>
+                        Joined ${user.createdAt ? formatDate(user.createdAt) : 'Unknown'}
+                    </p>
+                    <button class="btn btn-outline-primary btn-sm view-user-btn" data-id="${user._id}">
+                        <i class="fas fa-eye me-1"></i> View Details
+                    </button>
+                `;
+                
+                usersGridView.appendChild(userCard);
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-user-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    viewUserDetails(userId);
+                });
+            });
+        }
+
+        // Display users in list view
+        function displayUsersList() {
+            usersTableBody.innerHTML = '';
+            
+            if (currentUsers.length === 0) {
+                usersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-search fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">No users found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            currentUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm me-3">${getInitials(user.name || 'Unknown User')}</div>
+                            <div>
+                                <div class="fw-bold">${user.name || 'Unknown User'}</div>
+                                <small class="text-muted">ID: ${user._id || 'N/A'}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div>${user.email || 'No email'}</div>
+                        <small class="text-muted">${user.phone || 'No phone'}</small>
+                    </td>
+                    <td>
+                        <span class="badge role-badge ${getRoleBadgeClass(user.role)}">
+                            ${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge status-badge ${getStatusBadgeClass(user.status)}">
+                            ${user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Active'}
+                        </span>
+                    </td>
+                    <td>
+                        <div>${user.createdAt ? formatDate(user.createdAt) : 'Unknown'}</div>
+                        <small class="text-muted">${user.createdAt ? formatTime(user.createdAt) : ''}</small>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary action-btn view-user-btn" data-id="${user._id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                
+                usersTableBody.appendChild(row);
+            });
+            
+            // Add event listeners to view buttons
+            document.querySelectorAll('.view-user-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = this.getAttribute('data-id');
+                    viewUserDetails(userId);
+                });
+            });
+        }
+
+        // Toggle between grid and list view
+        function toggleViewMode() {
+            if (viewMode === 'grid') {
+                usersGridView.classList.remove('d-none');
+                usersListView.classList.add('d-none');
+            } else {
+                usersGridView.classList.add('d-none');
+                usersListView.classList.remove('d-none');
+            }
+            displayUsers();
+        }
+
+        // Update statistics
+        function updateStats() {
+            totalUsersEl.textContent = currentUsers.length;
+            activeUsersEl.textContent = currentUsers.filter(user => !user.status || user.status === 'active').length;
+            adminUsersEl.textContent = currentUsers.filter(user => user.role === 'admin').length;
+            
+            // Calculate new users this month (for demo, we'll use a simple count)
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const newThisMonth = currentUsers.filter(user => {
+                if (!user.createdAt) return false;
+                const userDate = new Date(user.createdAt);
+                return userDate.getMonth() === currentMonth && userDate.getFullYear() === currentYear;
+            }).length;
+            
+            newUsersEl.textContent = newThisMonth;
+        }
+
+        // View user details
+        async function viewUserDetails(userId) {
+            try {
+                // For now, we'll use the user data we already have
+                // In a real app, you might want to fetch detailed user info
+                currentUser = currentUsers.find(user => user._id === userId);
+                
+                if (currentUser) {
+                    displayUserDetails();
+                    userDetailsModal.show();
+                } else {
+                    throw new Error('User not found');
+                }
+            } catch (error) {
+                console.error('Error loading user details:', error);
+                showError('Failed to load user details: ' + error.message);
+            }
+        }
+
+        // Display user details in modal
+        function displayUserDetails() {
+            if (!currentUser) return;
+            
+            // User avatar
+            const avatarEl = document.getElementById('detailUserAvatar');
+            avatarEl.innerHTML = getInitials(currentUser.name || 'Unknown User');
+            avatarEl.style.background = getAvatarGradient(currentUser._id);
+            
+            // User information
+            document.getElementById('detailUserName').textContent = currentUser.name || 'Unknown User';
+            document.getElementById('detailUserRole').textContent = currentUser.role ? 
+                currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) : 'User';
+            document.getElementById('detailUserRole').className = `badge role-badge ${getRoleBadgeClass(currentUser.role)}`;
+            
+            document.getElementById('detailUserStatus').textContent = currentUser.status ? 
+                currentUser.status.charAt(0).toUpperCase() + currentUser.status.slice(1) : 'Active';
+            document.getElementById('detailUserStatus').className = `badge status-badge ${getStatusBadgeClass(currentUser.status)}`;
+            
+            document.getElementById('detailUserEmail').textContent = currentUser.email || 'No email';
+            document.getElementById('detailUserPhone').textContent = currentUser.phone || 'No phone';
+            document.getElementById('detailUserId').textContent = currentUser._id || 'N/A';
+            document.getElementById('detailUserJoined').textContent = currentUser.createdAt ? 
+                formatDate(currentUser.createdAt) : 'Unknown';
+            document.getElementById('detailUserLastActive').textContent = currentUser.updatedAt ? 
+                `${formatDate(currentUser.updatedAt)} at ${formatTime(currentUser.updatedAt)}` : 'Unknown';
+            
+            // User stats (for demo, we'll use random numbers)
+            document.getElementById('detailUserOrders').textContent = Math.floor(Math.random() * 50);
+            document.getElementById('detailUserPayments').textContent = Math.floor(Math.random() * 30);
+            document.getElementById('detailUserTotal').textContent = `$${(Math.random() * 1000).toFixed(2)}`;
+            
+            // Address information
+            const addressesEl = document.getElementById('detailUserAddresses');
+            if (currentUser.addresses && currentUser.addresses.length > 0) {
+                addressesEl.innerHTML = currentUser.addresses.map(address => `
+                    <div class="mb-2 p-2 border rounded">
+                        <strong>${address.type || 'Address'}:</strong> 
+                        ${address.street || ''}, ${address.city || ''}, ${address.state || ''} ${address.zipCode || ''}
+                    </div>
+                `).join('');
+            } else {
+                addressesEl.innerHTML = '<p class="text-muted">No address information available</p>';
+            }
+            
+            // Additional information
+            document.getElementById('detailEmailVerified').textContent = 
+                currentUser.email_verified ? 'Yes' : 'No';
+            document.getElementById('detailEmailVerified').className = 
+                `badge ${currentUser.email_verified ? 'bg-success' : 'bg-warning'}`;
+            
+            document.getElementById('detailNewsletter').textContent = 
+                currentUser.newsletter_subscribed ? 'Subscribed' : 'Not Subscribed';
+            document.getElementById('detailNewsletter').className = 
+                `badge ${currentUser.newsletter_subscribed ? 'bg-info' : 'bg-secondary'}`;
+        }
+
+        // Refresh user details
+        function refreshUserDetails() {
+            if (currentUser) {
+                loadUsers(currentPage);
+                userDetailsModal.hide();
+            }
+        }
+
+        // Export users
+        function exportUsers() {
+            // In a real application, this would call an export API endpoint
+            alert('Export functionality would be implemented here. This would typically generate a CSV or Excel file with all filtered users.');
+        }
+
+        // Utility functions
+        function getInitials(name) {
+            return name.split(' ').map(part => part[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function getAvatarGradient(id) {
+            // Create a consistent gradient based on user ID
+            const colors = [
+                'linear-gradient(45deg, #3498db, #2ecc71)',
+                'linear-gradient(45deg, #e74c3c, #f39c12)',
+                'linear-gradient(45deg, #9b59b6, #3498db)',
+                'linear-gradient(45deg, #1abc9c, #2ecc71)',
+                'linear-gradient(45deg, #34495e, #7f8c8d)'
+            ];
+            
+            // Simple hash function to get consistent color for user ID
+            let hash = 0;
+            for (let i = 0; i < (id || '').length; i++) {
+                hash = id.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        function getRoleBadgeClass(role) {
+            switch(role) {
+                case 'admin': return 'bg-danger';
+                case 'moderator': return 'bg-warning';
+                case 'user': return 'bg-primary';
+                case 'customer': return 'bg-info';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'active': return 'bg-success';
+                case 'inactive': return 'bg-secondary';
+                case 'suspended': return 'bg-danger';
+                case 'pending': return 'bg-warning';
+                default: return 'bg-success';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function showLoadingState() {
+            if (viewMode === 'grid') {
+                usersGridView.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Loading users...</p>
+                    </div>
+                `;
+            } else {
+                usersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2 text-muted">Loading users...</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function showError(message) {
+            // In a real application, you'd use a more sophisticated notification system
+            alert('Error: ' + message);
+        }
+    </script>
+</body>
+</html>

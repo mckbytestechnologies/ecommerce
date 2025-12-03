@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import ReactImageMagnify from "react-image-magnify";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 const ProductZoom = () => {
   const product = {
@@ -44,47 +45,35 @@ const ProductZoom = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-10">
-      {/* Left: Image Gallery */}
+      {/* LEFT SECTION - IMAGES */}
       <div className="flex gap-4">
         {/* Thumbnails */}
         <div className="flex flex-col gap-3">
-          {product.images.map((img, idx) => (
+          {product.images.map((img, index) => (
             <img
-              key={idx}
+              key={index}
               src={img}
-              alt={`Thumbnail ${idx + 1}`}
-              className={`w-20 h-20 object-cover border rounded-md cursor-pointer hover:border-orange-500 ${
-                selectedImage === img ? "border-orange-500" : ""
-              }`}
+              alt="Thumbnail"
+              className={`w-20 h-20 object-cover rounded-md cursor-pointer border 
+                ${selectedImage === img ? "border-orange-500" : "border-gray-300"}`}
               onClick={() => setSelectedImage(img)}
             />
           ))}
         </div>
 
-        {/* Main Image with Zoom */}
+        {/* Main Zoom Image */}
         <div className="flex-1">
-          <ReactImageMagnify
-            {...{
-              smallImage: {
-                alt: product.name,
-                isFluidWidth: true,
-                src: selectedImage,
-              },
-              largeImage: {
-                src: selectedImage,
-                width: 1200,
-                height: 1200,
-              },
-              enlargedImageContainerDimensions: {
-                width: "150%",
-                height: "150%",
-              },
-            }}
-          />
+          <Zoom>
+            <img
+              src={selectedImage}
+              alt={product.name}
+              className="rounded-lg w-full max-h-[450px] object-cover shadow-md cursor-zoom-in"
+            />
+          </Zoom>
         </div>
       </div>
 
-      {/* Right: Product Details */}
+      {/* RIGHT SECTION – PRODUCT DETAILS */}
       <div>
         <h2 className="text-sm text-gray-500 uppercase tracking-wide">
           {product.brand}
@@ -93,14 +82,14 @@ const ProductZoom = () => {
 
         {/* Rating */}
         <div className="flex items-center mt-2">
-          <div className="flex text-yellow-400">
+          <div className="flex text-yellow-400 text-lg">
             {Array.from({ length: 5 }).map((_, i) => (
               <span key={i}>
                 {i < Math.round(product.rating) ? "★" : "☆"}
               </span>
             ))}
           </div>
-          <span className="ml-2 text-gray-600">
+          <span className="ml-2 text-gray-600 text-sm">
             {product.rating} / 5 ({product.reviews.length} reviews)
           </span>
         </div>
@@ -112,10 +101,10 @@ const ProductZoom = () => {
 
         {/* Buttons */}
         <div className="mt-6 flex gap-4">
-          <button className="bg-orange-500 text-white px-6 py-3 rounded-md text-lg font-medium shadow hover:bg-orange-600 transition-all">
+          <button className="bg-orange-500 text-white px-6 py-3 rounded-md text-lg font-medium hover:bg-orange-600 shadow-md transition">
             Add to Cart
           </button>
-          <button className="bg-gray-200 text-gray-800 px-6 py-3 rounded-md text-lg font-medium hover:bg-gray-300 transition-all">
+          <button className="bg-gray-200 text-gray-800 px-6 py-3 rounded-md text-lg font-medium hover:bg-gray-300 transition">
             Buy Now
           </button>
         </div>
@@ -133,6 +122,7 @@ const ProductZoom = () => {
             >
               Description
             </button>
+
             <button
               onClick={() => setActiveTab("reviews")}
               className={`px-4 py-2 font-medium ${
@@ -145,38 +135,33 @@ const ProductZoom = () => {
             </button>
           </div>
 
-          {/* Tab Content */}
+          {/* Description Tab */}
           {activeTab === "description" && (
             <div className="mt-4">
-              <p className="text-gray-700 leading-relaxed">
-                {product.description}
-              </p>
+              <p className="text-gray-700">{product.description}</p>
+
               <h3 className="font-semibold mt-6 mb-2">Highlights:</h3>
-              <ul className="list-disc list-inside text-gray-600 space-y-2">
-                {product.highlights.map((h, i) => (
-                  <li key={i}>{h}</li>
+              <ul className="list-disc ml-5 text-gray-700 space-y-1">
+                {product.highlights.map((item, i) => (
+                  <li key={i}>{item}</li>
                 ))}
               </ul>
             </div>
           )}
 
+          {/* Reviews Tab */}
           {activeTab === "reviews" && (
             <div className="mt-4 space-y-4">
               {product.reviews.map((review, i) => (
-                <div
-                  key={i}
-                  className="border p-4 rounded-md bg-gray-50 shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-semibold text-gray-800">
-                      {review.name}
-                    </h4>
+                <div key={i} className="border p-4 rounded-md bg-gray-50 shadow-sm">
+                  <div className="flex justify-between">
+                    <h4 className="font-semibold text-gray-900">{review.name}</h4>
                     <span className="text-yellow-400">
-                      {"★".repeat(review.rating)}{" "}
+                      {"★".repeat(review.rating)}
                       {"☆".repeat(5 - review.rating)}
                     </span>
                   </div>
-                  <p className="text-gray-600 mt-2">{review.comment}</p>
+                  <p className="text-gray-700 mt-2">{review.comment}</p>
                 </div>
               ))}
             </div>
@@ -188,5 +173,3 @@ const ProductZoom = () => {
 };
 
 export default ProductZoom;
-
-

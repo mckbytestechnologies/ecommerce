@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { RiMenu2Fill } from "react-icons/ri";
 import { TfiAngleDown, TfiAngleUp } from "react-icons/tfi";
@@ -17,6 +16,7 @@ const Navigation = () => {
   };
 
   const toggleMegaMenu = (index) => {
+    // Closes if the same one is clicked, opens otherwise
     setActiveMegaMenu(activeMegaMenu === index ? null : index);
   };
 
@@ -29,7 +29,6 @@ const Navigation = () => {
     {
       name: "FASHION",
       type: "mega",
-    
       background: "/nav/fashion-banner.jpg",
       columns: [
         {
@@ -44,10 +43,6 @@ const Navigation = () => {
           title: "Kids",
           items: ["Boys", "Girls", "Shoes", "Accessories"]
         },
-        {
-          title: "Featured",
-          description: "Check out our latest collections!"
-        }
       ]
     },
     {
@@ -67,10 +62,6 @@ const Navigation = () => {
           title: "Wallets",
           items: ["Leather Wallets", "Card Holders"]
         },
-        {
-          title: "Featured",
-          description: "Shop premium bags collection!"
-        }
       ]
     },
     {
@@ -90,10 +81,6 @@ const Navigation = () => {
           title: "Kids",
           items: ["Boys", "Girls"]
         },
-        {
-          title: "Featured",
-          description: "Discover new arrivals!"
-        }
       ]
     },
     {
@@ -130,12 +117,13 @@ const Navigation = () => {
     }
   };
 
-  // Desktop Mega Menu Component
+  // 1. DESKTOP Mega Menu Component (from previous response)
   const DesktopMegaMenu = ({ item }) => (
-    <div className="absolute top-full left-0 w-[800px] shadow-2xl p-8 hidden group-hover:grid grid-cols-4 gap-6 z-50 bg-white border border-gray-200 rounded-xl backdrop-blur-sm bg-white/95">
+    <div className="absolute top-full left-0 w-[650px] shadow-2xl p-6 hidden group-hover:grid grid-cols-4 gap-6 z-50 bg-white border border-gray-200 rounded-xl backdrop-blur-sm bg-white/95">
+      {/* Content Columns (First three columns) */}
       {item.columns.map((column, colIndex) => (
         <div key={colIndex} className="space-y-3">
-          <h4 className="font-semibold text-gray-900 text-lg border-b border-gray-100 pb-2">{column.title}</h4>
+          <h4 className="font-bold text-gray-900 text-lg border-b border-gray-100 pb-2">{column.title}</h4>
           {column.items ? (
             <ul className="space-y-2">
               {column.items.map((subItem, subIndex) => (
@@ -154,14 +142,68 @@ const Navigation = () => {
           )}
         </div>
       ))}
+      
+      {/* IMAGE COLUMN (Fourth column) */}
+      {item.background && (
+        <div className="col-span-1 overflow-hidden rounded-lg shadow-md">
+          <img
+            src={item.background}
+            alt={`${item.name} promotion`}
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+      )}
     </div>
   );
+
+  // 2. NEW: Mobile Mega Menu Component
+  const MobileMegaMenu = ({ item }) => (
+    <div className="mt-2 p-4 bg-white border border-gray-200 shadow-lg rounded-xl transition-all duration-300 overflow-hidden">
+      {/* Background Image Banner */}
+      {item.background && (
+        <div className="w-full h-24 overflow-hidden mb-4 rounded-lg">
+          <img
+            src={item.background}
+            alt={`${item.name} promotion`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
+      {/* Content Columns (2 columns layout for mobile) */}
+      <div className="grid grid-cols-2 gap-4">
+        {item.columns.map((column, colIndex) => (
+          <div key={colIndex} className="space-y-2">
+            <h4 className="font-bold text-gray-900 text-sm border-b border-gray-100 pb-1">{column.title}</h4>
+            {column.items && (
+              <ul className="space-y-1">
+                {column.items.map((subItem, subIndex) => (
+                  <li key={subIndex}>
+                    <Link 
+                      to="/" 
+                      className="text-gray-600 hover:text-blue-600 transition-colors text-xs block"
+                    >
+                      {subItem}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Get the active item for the mobile menu
+  const activeItem = activeMegaMenu !== null ? menuItems[activeMegaMenu] : null;
+
 
   return (
     <>
       <nav className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto">
-          {/* Desktop & Tablet Layout */}
+          {/* Desktop & Tablet Layout (No change) */}
           <div className="hidden lg:block">
             <div className="flex items-center justify-between px-6 py-3">
               {/* Left: Categories */}
@@ -182,7 +224,7 @@ const Navigation = () => {
                     <li key={index} className="relative group">
                       {item.type === "mega" ? (
                         <>
-                          <button className="flex items-center gap-1 text-sm font-semibold text-gray-800 hover:text-blue-600 transition-colors py-2 group-hover:bg-blue-50 px-3 rounded-lg">
+                          <button className="flex items-center gap-1 text-sm font-semibold text-gray-800 hover:text-blue-600 transition-colors py-2 group-hover:bg-blue-50 px-3 rounded-lg group-hover:text-blue-600">
                             {item.name} <TfiAngleDown size={12} className="group-hover:rotate-180 transition-transform" />
                           </button>
                           <DesktopMegaMenu item={item} />
@@ -229,7 +271,7 @@ const Navigation = () => {
                 </p>
               </div>
 
-              {/* Navigation Slider - ONLY THIS PART FOR MOBILE */}
+              {/* Navigation Slider */}
               <div className="flex items-center gap-2">
                 {/* Left Arrow */}
                 <button
@@ -258,7 +300,12 @@ const Navigation = () => {
                         ) : (
                           <button 
                             onClick={() => toggleMegaMenu(index)}
-                            className="text-xs font-semibold text-gray-700 hover:text-blue-600 whitespace-nowrap transition-colors px-3 py-2 rounded-lg hover:bg-blue-50 flex items-center gap-1 border border-transparent hover:border-blue-200"
+                            // Highlight the active button
+                            className={`text-xs font-semibold whitespace-nowrap transition-colors px-3 py-2 rounded-lg flex items-center gap-1 border border-transparent 
+                                ${activeMegaMenu === index 
+                                  ? 'bg-blue-100 text-blue-700 border-blue-300' 
+                                  : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200'
+                                }`}
                           >
                             {item.name} 
                             {activeMegaMenu === index ? 
@@ -281,7 +328,10 @@ const Navigation = () => {
                 </button>
               </div>
 
-              {/* REMOVED: Extra Mega Menu Sections - This was causing duplication */}
+              {/* 3. CONDITIONAL RENDERING OF MOBILE MEGA MENU */}
+              {activeItem && activeItem.type === 'mega' && (
+                <MobileMegaMenu item={activeItem} />
+              )}
             </div>
           </div>
         </div>

@@ -75,7 +75,7 @@ const Footwareslider = ({ items = 5 }) => {
 
 
   return (
-    <div className="bg-white py-16">
+    <div className="bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 border-b border-gray-100 pb-6">
@@ -125,10 +125,11 @@ const Footwareslider = ({ items = 5 }) => {
             spaceBetween={24}
             slidesPerView={1}
             breakpoints={{
-              480: { slidesPerView: 2, spaceBetween: 20 },
+                        
+          640: { slidesPerView: 2, spaceBetween: 20 },
               768: { slidesPerView: 3, spaceBetween: 24 },
-              1024: { slidesPerView: 4, spaceBetween: 24 },
-              1280: { slidesPerView: 5, spaceBetween: 24 },
+              1024: { slidesPerView: 4, spaceBetween: 24 }, // max 4 slides
+              1280: { slidesPerView: 4, spaceBetween: 24 },
             }}
             className="!pb-12"
           >

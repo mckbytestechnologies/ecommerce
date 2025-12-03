@@ -22,7 +22,7 @@ router.get("/:id", getCategory);
 router.post(
   "/",
   authenticate,
-  authorize("ADMIN"),
+  authorize("admin"),
   upload.single("image"),
   validateCategory,
   createCategory
@@ -31,12 +31,12 @@ router.post(
 router.put(
   "/:id",
   authenticate,
-  authorize("ADMIN"),
+  authorize("admin"),
   upload.single("image"),
   validateCategory,
   updateCategory
 );
 
-router.delete("/:id", authenticate, authorize("ADMIN"), deleteCategory);
+router.delete("/:id", authenticate, authorize("admin"), deleteCategory);
 
 export default router;

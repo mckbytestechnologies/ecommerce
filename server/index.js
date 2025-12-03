@@ -24,21 +24,38 @@ import paymentRoutes from "./routes/paymentRoutes.js";
 dotenv.config();
 const app = express();
 
-// Security middleware - simplified for Express 5 compatibility
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Origin:', req.headers.origin);
+  console.log('Headers:', req.headers);
+  next();
+});
+
+// Security middleware
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
-  // Remove contentSecurityPolicy for now to avoid conflicts
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+    },
+  },
 }));
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Increased limit for testing
+  max: 1000,
   message: {
     error: true,
     message: "Too many requests from this IP, please try again later.",
   },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
+
 app.use("/api", limiter);
 
 // Body parsing middleware
@@ -46,28 +63,52 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// ✅ REMOVED: Problematic middleware for Express 5
-// app.use(mongoSanitize()); // Causes compatibility issues
-// app.use(xss());          // Causes compatibility issues  
-// app.use(hpp());          // Causes compatibility issues
-
 // Compression
 app.use(compression());
 
-// CORS - more permissive for development
+// CORS Configuration
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:5500',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  exposedHeaders: ["Set-Cookie"]
+}));
+
+// Handle preflight requests
+app.options('*', cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 }));
 
 // Logging
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-} else {
-  app.use(morgan("combined"));
-}
+app.use(morgan(":method :url :status :response-time ms - :res[content-length]"));
 
 // Serve uploaded files
 app.use("/uploads", express.static("uploads"));
@@ -79,7 +120,8 @@ app.get("/api/health", (req, res) => {
     message: "E-commerce API is running 🚀",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    version: "1.0.0"
+    version: "1.0.0",
+    allowedOrigins: allowedOrigins
   });
 });
 
@@ -95,6 +137,15 @@ app.use("/api/addresses", addressRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
+
+// Test route for CORS
+app.options("/api/auth/login", (req, res) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.status(200).send();
+});
 
 // 404 handler
 app.use((req, res) => {
@@ -162,6 +213,15 @@ app.use((error, req, res, next) => {
     });
   }
 
+  // CORS errors
+  if (error.message && error.message.includes('CORS')) {
+    return res.status(403).json({
+      success: false,
+      error: true,
+      message: error.message,
+    });
+  }
+
   // Default error
   res.status(error.statusCode || 500).json({
     success: false,
@@ -179,6 +239,7 @@ connectDb()
       console.log(`✅ Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
       console.log(`📍 Health Check: http://localhost:${PORT}/api/health`);
       console.log(`🚀 API Ready for testing!`);
+      console.log(`🌐 Allowed Origins:`, allowedOrigins);
     });
 
     // Handle unhandled promise rejections
@@ -201,4 +262,4 @@ connectDb()
     process.exit(1);
   });
 
-export default app;
+export default app;  

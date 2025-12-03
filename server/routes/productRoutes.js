@@ -25,7 +25,7 @@ router.get("/:id/related", getRelatedProducts);
 router.post(
   "/",
   authenticate,
-  authorize("ADMIN"),
+  authorize("admin"),
   upload.array("images", 5), // Max 5 images
   validateProduct,
   createProduct
@@ -34,7 +34,7 @@ router.post(
 router.put(
   "/:id",
   authenticate,
-  authorize("ADMIN"),
+  authorize("admin"),
   upload.array("images", 5),
   validateProduct,
   updateProduct
@@ -43,14 +43,14 @@ router.put(
 router.delete(
   "/:id",
   authenticate,
-  authorize("ADMIN"),
+  authorize("admin"),
   deleteProduct
 );
 
 router.delete(
   "/:id/images/:imageId",
   authenticate,
-  authorize("ADMIN"),
+  authorize("admin"),
   deleteProductImage
 );
 

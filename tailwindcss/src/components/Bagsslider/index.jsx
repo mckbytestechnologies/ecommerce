@@ -75,7 +75,7 @@ const Bagsslider = ({ items = 5 }) => {
 
 
   return (
-    <div className="bg-white py-16">
+    <div className="bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 border-b border-gray-100 pb-6">
@@ -105,41 +105,43 @@ const Bagsslider = ({ items = 5 }) => {
 
         {/* Slider */}
         <div className="relative">
-          <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
-            navigation={{
-              nextEl: ".custom-next",
-              prevEl: ".custom-prev",
-            }}
-            pagination={{
-              clickable: true,
-              el: ".custom-pagination",
-              bulletClass: "custom-bullet",
-              bulletActiveClass: "custom-bullet-active",
-            }}
-            autoplay={{
-              delay: 5000,
-              disableOnInteraction: false,
-            }}
-            speed={600}
-            spaceBetween={24}
-            slidesPerView={1}
-            breakpoints={{
-              480: { slidesPerView: 2, spaceBetween: 20 },
-              768: { slidesPerView: 3, spaceBetween: 24 },
-              1024: { slidesPerView: 4, spaceBetween: 24 },
-              1280: { slidesPerView: 5, spaceBetween: 24 },
-            }}
-            className="!pb-12"
-          >
-            {products.map((product, index) => (
-              <SwiperSlide key={index} className="!h-auto">
-                <div className="h-full px-1 py-2">
-                  <Bagsitem {...product} />
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <div className="pb-12">   {/* Only this slider gets bottom spacing */}
+  <Swiper
+    modules={[Navigation, Pagination, Autoplay]}
+    navigation={{
+      nextEl: ".custom-next-bags",
+      prevEl: ".custom-prev-bags",
+    }}
+    pagination={{
+      clickable: true,
+      el: ".custom-pagination-bags",
+      bulletClass: "custom-bullet",
+      bulletActiveClass: "custom-bullet-active",
+    }}
+    autoplay={{
+      delay: 5000,
+      disableOnInteraction: false,
+    }}
+    speed={600}
+    spaceBetween={24}
+    slidesPerView={1}
+    breakpoints={{
+      640: { slidesPerView: 2, spaceBetween: 20 },
+      768: { slidesPerView: 3, spaceBetween: 24 },
+      1024: { slidesPerView: 4, spaceBetween: 24 },
+      1280: { slidesPerView: 4, spaceBetween: 24 },
+    }}
+  >
+    {products.map((product, index) => (
+      <SwiperSlide key={index} className="!h-auto">
+        <div className="h-full px-1 py-2">
+          <Bagsitem {...product} />
+        </div>
+      </SwiperSlide>
+    ))}
+  </Swiper>
+</div>
+
 
           {/* Custom Pagination */}
           <div className="custom-pagination flex justify-center gap-2 mt-8 !relative" />

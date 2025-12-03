@@ -73,43 +73,56 @@ const LatestProductItem = ({
       </div>
 
       {/* Info Section */}
-      <div className="p-6 flex-1 flex flex-col">
-        <h6 className="text-xs uppercase text-gray-500 tracking-wider font-medium mb-2">
-          <Link to="/" className="hover:text-orange-500 transition-colors">
-            {category}
-          </Link>
-        </h6>
-        
-        <h3 className="text-lg font-light text-gray-900 mb-3 leading-tight tracking-tight line-clamp-2 flex-1">
-          <Link to="/" className="hover:text-gray-600 transition-colors">
-            {title}
-          </Link>
-        </h3>
+       <div className="p-4 flex flex-col">
 
-        {/* Rating */}
-        <div className="flex items-center gap-2 mb-3">
-          <Rating 
-            name="size-small" 
-            value={rating} 
-            size="small" 
-            readOnly 
-            precision={0.1}
-          />
-          <span className="text-sm text-gray-500">({rating})</span>
+        {/* Top Red Label */}
+        <div className="bg-red-600 text-white text-xs font-semibold px-3 py-1 inline-block mb-3 rounded-full">
+          {category}
         </div>
 
-        {/* Price */}
-        <div className="flex items-center gap-3 mt-auto">
+        {/* Title */}
+        <h3 className="text-[15px] font-semibold text-gray-900 mb-1 leading-tight line-clamp-2">
+          {title}
+        </h3>
+
+        {/* Subtitle */}
+        <p className="text-xs text-gray-500 mb-3">
+          15W Wireless Output | 22.5W Wired
+        </p>
+
+        {/* Price Section */}
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[22px] font-semibold text-black">
+            ₹{newPrice}
+          </span>
+
           {oldPrice && (
-            <span className="text-lg text-gray-400 line-through font-light">
+            <span className="text-sm text-gray-400 line-through">
               ₹{oldPrice}
             </span>
           )}
-          <span className="text-xl font-light text-gray-900">
-            ₹{newPrice}
+
+          {/* Discount Badge */}
+          <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+            {discount}% OFF
           </span>
         </div>
+
+        {/* EMI Line */}
+        <p className="text-[13px] text-gray-700 mb-4">
+          or Rs. <span className="font-semibold">383</span> /Month
+          <span className="text-green-600 ml-1 font-medium cursor-pointer">
+            Buy on EMI ›
+          </span>
+        </p>
+
+        {/* Add to Cart Button */}
+        <button className="w-full bg-black text-white py-3 text-sm font-semibold tracking-wide rounded-md hover:bg-gray-800 transition">
+          Buy Now
+        </button>
+
       </div>
+
     </div>
   );
 };

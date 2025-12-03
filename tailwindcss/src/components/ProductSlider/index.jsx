@@ -89,11 +89,10 @@ const ProductSlider = () => {
         pagination={{ clickable: true }}
         modules={[Pagination]}
         breakpoints={{
-          0: { slidesPerView: 1 },
-          480: { slidesPerView: 2 },
-          768: { slidesPerView: 3 },
-          1024: { slidesPerView: 4 },
-          1280: { slidesPerView: 5 },
+        640: { slidesPerView: 2, spaceBetween: 20 },
+        768: { slidesPerView: 3, spaceBetween: 24 },
+        1024: { slidesPerView: 4, spaceBetween: 24 }, // max 4 slides
+        1280: { slidesPerView: 4, spaceBetween: 24 },
         }}
         className="mySwiper"
       >

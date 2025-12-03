@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Tester Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      padding: 20px;
+      max-width: 700px;
+    }
+    button {
+      background: #3498db;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+      max-height: 300px;
+    }
+    .status {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧠 API Tester</h1>
+
+  <!-- Get All Products -->
+  <div class="card">
+    <h3>GET: All Products</h3>
+    <button onclick="getProducts()">Fetch Products</button>
+    <div class="status" id="getProductsStatus"></div>
+    <pre id="getProductsResult"></pre>
+  </div>
+
+  <!-- Get Product by ID -->
+  <div class="card">
+    <h3>GET: Product by ID</h3>
+    <input id="productId" placeholder="Enter product ID (e.g. 68dd509546f80a245a740eaa)" />
+    <button onclick="getProductById()">Fetch Product</button>
+    <div class="status" id="getProductStatus"></div>
+    <pre id="getProductResult"></pre>
+  </div>
+
+  <!-- Create Product -->
+  <div class="card">
+    <h3>POST: Create Product (Admin)</h3>
+    <input id="token" placeholder="Enter JWT Token (Bearer ...)" />
+    <textarea id="productData" placeholder='{
+  "name": "Sample Product",
+  "description": "This is a test product",
+  "price": 99.99,
+  "category": "68dd507246f80a245a740ea6"
+}'></textarea>
+    <button onclick="createProduct()">Create Product</button>
+    <div class="status" id="createProductStatus"></div>
+    <pre id="createProductResult"></pre>
+  </div>
+
+  <!-- Delete Product -->
+  <div class="card">
+    <h3>DELETE: Product by ID (Admin)</h3>
+    <input id="deleteId" placeholder="Enter product ID" />
+    <input id="deleteToken" placeholder="Enter JWT Token" />
+    <button onclick="deleteProduct()">Delete Product</button>
+    <div class="status" id="deleteProductStatus"></div>
+    <pre id="deleteProductResult"></pre>
+  </div>
+
+  <script>
+    const baseURL = "http://localhost:5000/api/products";
+
+    async function safeFetch(url, options = {}, statusId, resultId) {
+      document.getElementById(statusId).textContent = "⏳ Loading...";
+      try {
+        const res = await fetch(url, options);
+        const data = await res.json();
+        document.getElementById(statusId).textContent = `✅ Status: ${res.status}`;
+        document.getElementById(resultId).textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById(statusId).textContent = "❌ Request failed";
+        document.getElementById(resultId).textContent = err.message;
+      }
+    }
+
+    async function getProducts() {
+      await safeFetch(baseURL, {}, "getProductsStatus", "getProductsResult");
+    }
+
+    async function getProductById() {
+      const id = document.getElementById("productId").value.trim();
+      if (!id) return alert("Please enter a product ID");
+      await safeFetch(`${baseURL}/${id}`, {}, "getProductStatus", "getProductResult");
+    }
+
+    async function createProduct() {
+      const token = document.getElementById("token").value.trim();
+      const body = document.getElementById("productData").value;
+      if (!token || !body) return alert("Token and product data required");
+      await safeFetch(
+        baseURL,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: body,
+        },
+        "createProductStatus",
+        "createProductResult"
+      );
+    }
+
+    async function deleteProduct() {
+      const id = document.getElementById("deleteId").value.trim();
+      const token = document.getElementById("deleteToken").value.trim();
+      if (!id || !token) return alert("Product ID and token required");
+      await safeFetch(
+        `${baseURL}/${id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+        "deleteProductStatus",
+        "deleteProductResult"
+      );
+    }
+  </script>
+</body>
+</html>

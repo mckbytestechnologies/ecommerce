@@ -12,7 +12,7 @@ import { validateOrder } from "../middleware/validation.js";
 
 const router = express.Router();
 
-// All routes require authentication
+// ✅ All routes require authentication
 router.use(authenticate);
 
 // User routes
@@ -21,9 +21,8 @@ router.get("/", getOrders);
 router.get("/:id", getOrder);
 router.put("/:id/cancel", cancelOrder);
 
-// Admin routes
-router.use(authorize("admin"));
-router.put("/:id/status", updateOrderStatus);
-router.get("/stats", getOrderStats);
+// Admin routes - only admins can update status or get stats
+router.put("/:id/status", authorize("admin"), updateOrderStatus);
+router.get("/stats", authorize("admin"), getOrderStats);
 
 export default router;

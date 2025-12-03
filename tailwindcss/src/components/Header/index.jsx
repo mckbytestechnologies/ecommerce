@@ -74,7 +74,7 @@ const Header = () => {
               Log In
             </Link>
             <span className="text-gray-300">|</span>
-            <Link to="/auth" className="text-sm text-gray-700 font-medium hover:text-blue-600 transition-colors">
+            <Link to="/register" className="text-sm text-gray-700 font-medium hover:text-blue-600 transition-colors">
               Register
             </Link>
           </div>
