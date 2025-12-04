@@ -26,82 +26,28 @@ const Navigation = () => {
       type: "simple",
       link: "/"
     },
+   
+    
+  
     {
-      name: "FASHION",
-      type: "mega",
-      background: "/nav/fashion-banner.jpg",
-      columns: [
-        {
-          title: "Men",
-          items: ["Shirts", "T-Shirts", "Jeans", "Shoes"]
-        },
-        {
-          title: "Women",
-          items: ["Dresses", "Tops", "Skirts", "Handbags"]
-        },
-        {
-          title: "Kids",
-          items: ["Boys", "Girls", "Shoes", "Accessories"]
-        },
-      ]
-    },
-    {
-      name: "BAGS",
-      type: "mega",
-      background: "/nav/bags-banner.jpg",
-      columns: [
-        {
-          title: "Handbags",
-          items: ["Crossbody", "Totes", "Clutches", "Travel Bags"]
-        },
-        {
-          title: "Backpacks",
-          items: ["Casual", "Laptop", "Sports"]
-        },
-        {
-          title: "Wallets",
-          items: ["Leather Wallets", "Card Holders"]
-        },
-      ]
-    },
-    {
-      name: "FOOTWEAR",
-      type: "mega",
-      background: "/nav/footwear-banner.jpg",
-      columns: [
-        {
-          title: "Men",
-          items: ["Sneakers", "Sports Shoes", "Formal Shoes"]
-        },
-        {
-          title: "Women",
-          items: ["Heels", "Flats", "Boots"]
-        },
-        {
-          title: "Kids",
-          items: ["Boys", "Girls"]
-        },
-      ]
-    },
-    {
-      name: "GROCERIES",
+      name: "ABOUT",
       type: "simple",
-      link: "/groceries"
+      link: "/about"
     },
     {
-      name: "BEAUTY",
+      name: "CORPORATING GIFTING",
       type: "simple",
-      link: "/beauty"
+      link: "/corporating-gifting"
     },
     {
-      name: "WELLNESS",
+      name: "WARENTY",
       type: "simple",
-      link: "/wellness"
+      link: "/warranty"
     },
     {
-      name: "JEWELLERY",
+      name: "CONTACT",
       type: "simple",
-      link: "/jewellery"
+      link: "/contact"
     }
   ];
 
@@ -130,7 +76,7 @@ const Navigation = () => {
                 <li key={subIndex}>
                   <Link 
                     to="/" 
-                    className="text-gray-600 hover:text-blue-600 transition-colors text-sm block py-1 hover:translate-x-1 transform transition-transform"
+                    className="text-gray-600 hover:text-red-600 transition-colors text-sm block py-1 hover:translate-x-1 transform transition-transform"
                   >
                     {subItem}
                   </Link>
@@ -181,7 +127,7 @@ const Navigation = () => {
                   <li key={subIndex}>
                     <Link 
                       to="/" 
-                      className="text-gray-600 hover:text-blue-600 transition-colors text-xs block"
+                      className="text-gray-600 hover:text-red-600 transition-colors text-xs block"
                     >
                       {subItem}
                     </Link>
@@ -210,7 +156,7 @@ const Navigation = () => {
               <div className="flex items-center">
                 <button
                   onClick={toggleDrawer(true)}
-                  className="flex items-center gap-2 text-gray-800 font-semibold hover:text-blue-600 transition-colors py-2 px-4 bg-gray-50 hover:bg-blue-50 rounded-lg"
+                  className="flex items-center gap-2 text-gray-800 font-semibold hover:text-red-600 transition-colors py-2 px-4 bg-gray-50 hover:bg-blue-50 rounded-lg"
                 >
                   <RiMenu2Fill size={18} />
                   <span className="text-sm">ALL CATEGORIES</span>
@@ -224,7 +170,7 @@ const Navigation = () => {
                     <li key={index} className="relative group">
                       {item.type === "mega" ? (
                         <>
-                          <button className="flex items-center gap-1 text-sm font-semibold text-gray-800 hover:text-blue-600 transition-colors py-2 group-hover:bg-blue-50 px-3 rounded-lg group-hover:text-blue-600">
+                          <button className="flex items-center gap-1 text-sm font-semibold text-gray-800 hover:text-red-600 transition-colors py-2 group-hover:bg-blue-50 px-3 rounded-lg group-hover:text-red-600">
                             {item.name} <TfiAngleDown size={12} className="group-hover:rotate-180 transition-transform" />
                           </button>
                           <DesktopMegaMenu item={item} />
@@ -232,7 +178,7 @@ const Navigation = () => {
                       ) : (
                         <Link
                           to={item.link}
-                          className="text-sm font-semibold text-gray-800 hover:text-blue-600 transition-colors py-2 block hover:bg-blue-50 px-3 rounded-lg"
+                          className="text-sm font-semibold text-gray-800 hover:text-red-600 transition-colors py-2 block hover:bg-blue-50 px-3 rounded-lg"
                         >
                           {item.name}
                         </Link>
@@ -259,7 +205,7 @@ const Navigation = () => {
               <div className="flex items-center justify-between mb-3">
                 <button
                   onClick={toggleDrawer(true)}
-                  className="flex items-center gap-2 text-gray-800 font-semibold hover:text-blue-600 transition-colors p-2 bg-gray-50 hover:bg-blue-50 rounded-lg"
+                  className="flex items-center gap-2 text-gray-800 font-semibold hover:text-red-600 transition-colors p-2 bg-gray-50 hover:bg-blue-50 rounded-lg"
                 >
                   <RiMenu2Fill size={18} />
                   <span className="text-xs">CATEGORIES</span>
@@ -293,7 +239,7 @@ const Navigation = () => {
                         {item.type === "simple" ? (
                           <Link
                             to={item.link}
-                            className="text-xs font-semibold text-gray-700 hover:text-blue-600 whitespace-nowrap transition-colors px-3 py-2 rounded-lg hover:bg-blue-50 block border border-transparent hover:border-blue-200"
+                            className="text-xs font-semibold text-gray-700 hover:text-red-600 whitespace-nowrap transition-colors px-3 py-2 rounded-lg hover:bg-blue-50 block border border-transparent hover:border-blue-200"
                           >
                             {item.name}
                           </Link>
@@ -304,7 +250,7 @@ const Navigation = () => {
                             className={`text-xs font-semibold whitespace-nowrap transition-colors px-3 py-2 rounded-lg flex items-center gap-1 border border-transparent 
                                 ${activeMegaMenu === index 
                                   ? 'bg-blue-100 text-blue-700 border-blue-300' 
-                                  : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200'
+                                  : 'text-gray-700 hover:text-red-600 hover:bg-blue-50 hover:border-blue-200'
                                 }`}
                           >
                             {item.name} 

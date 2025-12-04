@@ -19,105 +19,107 @@
     .tab-pane { padding: 1rem 0; }
     .btn-group-sm .btn { padding: 0.25rem 0.5rem; }
     :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #34495e;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .navbar {
-            background-color: var(--secondary-color);
-        }
-        
-        .sidebar {
-            background-color: var(--dark-color);
-            min-height: calc(100vh - 56px);
-            color: white;
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            border-radius: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .sidebar .nav-link i {
-            margin-right: 0.5rem;
-            width: 20px;
-            text-align: center;
-        }
-        
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #34495e;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .navbar {
+      background-color: var(--secondary-color);
+    }
+    
+    .sidebar {
+      background-color: var(--dark-color);
+      min-height: calc(100vh - 56px);
+      color: white;
+    }
+    
+    .sidebar .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 0.75rem 1rem;
+      border-radius: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .sidebar .nav-link i {
+      margin-right: 0.5rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .specification-row, .image-row {
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
   <div class="d-flex" id="wrapper">
     <!-- Sidebar -->
     <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
-                        <div class="position-sticky pt-3">
-                            <ul class="nav flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="index.html">
-                                        <i class="fas fa-tachometer-alt"></i>
-                                        Dashboard
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="users.html">
-                                        <i class="fas fa-users"></i>
-                                        Users
-                                    </a>
-                                </li>
-                                <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
-
-                                <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="orders.html">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        Orders
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="payment.html">
-                                        <i class="fas fa-credit-card"></i>
-                                        Payments
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-chart-bar"></i>
-                                        Analytics
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-cog"></i>
-                                        Settings
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+      <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-tachometer-alt"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="users.html">
+              <i class="fas fa-users"></i>
+              Users
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="categories.html" class="nav-link text-white">
+              <i class="fas fa-list"></i> Categories
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="products.html" class="nav-link text-white active">
+              <i class="fas fa-box"></i> Products
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="orders.html">
+              <i class="fas fa-shopping-cart"></i>
+              Orders
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="payment.html">
+              <i class="fas fa-credit-card"></i>
+              Payments
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
 
     <!-- Main Content -->
     <div class="container-fluid p-4" id="page-content">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 class="mb-1">📦 Product Management</h2>
+          <h2 class="mb-1"><i class="fas fa-box me-2"></i>Product Management</h2>
           <p class="text-muted mb-0">Manage your product catalog and inventory</p>
         </div>
         <button class="btn btn-primary" id="addProductBtn">
@@ -209,69 +211,83 @@
 
   <!-- Product Modal -->
   <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="modalTitle">Add Product</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form id="productForm">
             <input type="hidden" id="productId">
             
-            <ul class="nav nav-tabs" id="productTabs" role="tablist">
+            <!-- Tab Navigation -->
+            <ul class="nav nav-tabs nav-justified mb-4" id="productTabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">Basic Info</button>
+                <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                  <i class="fas fa-info-circle me-2"></i>Basic Info
+                </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="pricing-tab" data-bs-toggle="tab" data-bs-target="#pricing" type="button" role="tab">Pricing & Inventory</button>
+                <button class="nav-link" id="pricing-tab" data-bs-toggle="tab" data-bs-target="#pricing" type="button" role="tab">
+                  <i class="fas fa-tag me-2"></i>Pricing
+                </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media" type="button" role="tab">Media</button>
+                <button class="nav-link" id="media-tab" data-bs-toggle="tab" data-bs-target="#media" type="button" role="tab">
+                  <i class="fas fa-images me-2"></i>Media
+                </button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">Shipping</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo" type="button" role="tab">SEO</button>
+                <button class="nav-link" id="attributes-tab" data-bs-toggle="tab" data-bs-target="#attributes" type="button" role="tab">
+                  <i class="fas fa-sliders-h me-2"></i>Attributes
+                </button>
               </li>
             </ul>
 
-            <div class="tab-content mt-3" id="productTabContent">
+            <!-- Tab Content -->
+            <div class="tab-content" id="productTabContent">
+              
               <!-- Basic Info Tab -->
               <div class="tab-pane fade show active" id="basic" role="tabpanel">
                 <div class="row g-3">
                   <div class="col-md-6">
-                    <label class="form-label">Product Name <span class="text-danger">*</span></label>
-                    <input type="text" id="name" class="form-control" required maxlength="200">
-                    <div class="form-text">Maximum 200 characters</div>
+                    <label class="form-label">Product Name *</label>
+                    <input type="text" id="name" class="form-control" required maxlength="200" placeholder="Enter product name">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Brand</label>
-                    <input type="text" id="brand" class="form-control" maxlength="100">
+                    <input type="text" id="brand" class="form-control" maxlength="100" placeholder="Enter brand name">
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Category <span class="text-danger">*</span></label>
+                    <label class="form-label">Category *</label>
                     <select id="category" class="form-select" required>
                       <option value="">Select Category</option>
                     </select>
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Subcategory</label>
-                    <input type="text" id="subCategory" class="form-control" maxlength="100">
+                    <input type="text" id="subCategory" class="form-control" maxlength="100" placeholder="Enter subcategory">
                   </div>
                   <div class="col-12">
-                    <label class="form-label">Description <span class="text-danger">*</span></label>
-                    <textarea id="description" class="form-control" rows="4" required maxlength="2000"></textarea>
-                    <div class="form-text">Maximum 2000 characters</div>
+                    <label class="form-label">Description *</label>
+                    <textarea id="description" class="form-control" rows="4" required maxlength="2000" placeholder="Enter product description"></textarea>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">SKU</label>
+                    <label class="form-label">SKU (Stock Keeping Unit)</label>
                     <input type="text" id="sku" class="form-control" placeholder="Auto-generated if empty">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Tags</label>
-                    <input type="text" id="tags" class="form-control" placeholder="Comma separated tags">
+                    <input type="text" id="tags" class="form-control" placeholder="electronics, gadget, tech">
+                  </div>
+                  
+                  <!-- Status Switch -->
+                  <div class="col-md-6">
+                    <div class="form-check form-switch mt-4">
+                      <input class="form-check-input" type="checkbox" id="isActive" checked>
+                      <label class="form-check-label" for="isActive">Active Product</label>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -280,27 +296,39 @@
               <div class="tab-pane fade" id="pricing" role="tabpanel">
                 <div class="row g-3">
                   <div class="col-md-4">
-                    <label class="form-label">Price <span class="text-danger">*</span></label>
-                    <input type="number" id="price" class="form-control" step="0.01" min="0" required>
+                    <label class="form-label">Price (₹) *</label>
+                    <input type="number" id="price" class="form-control" step="0.01" min="0" required placeholder="0.00">
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label">Compare Price</label>
-                    <input type="number" id="comparePrice" class="form-control" step="0.01" min="0">
-                    <div class="form-text">Original price for showing discounts</div>
+                    <label class="form-label">Compare Price (₹)</label>
+                    <input type="number" id="comparePrice" class="form-control" step="0.01" min="0" placeholder="Original price">
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label">Stock <span class="text-danger">*</span></label>
-                    <input type="number" id="stock" class="form-control" min="0" required>
+                    <label class="form-label">Stock Quantity *</label>
+                    <input type="number" id="stock" class="form-control" min="0" required value="0">
                   </div>
+                  
+                  <!-- Features -->
                   <div class="col-12">
-                    <label class="form-label">Features</label>
-                    <textarea id="features" class="form-control" rows="3" placeholder="One feature per line"></textarea>
-                    <div class="form-text">Enter each feature on a new line</div>
+                    <label class="form-label">Product Features</label>
+                    <textarea id="features" class="form-control" rows="3" placeholder="Enter each feature on a new line"></textarea>
                   </div>
+                  
+                  <!-- Specifications -->
                   <div class="col-12">
                     <label class="form-label">Specifications</label>
                     <div id="specificationsContainer">
-                      <!-- Specifications will be added dynamically -->
+                      <div class="specification-row row g-2 mb-2">
+                        <div class="col-md-5">
+                          <input type="text" class="form-control specification-key" placeholder="Key (e.g., Processor)">
+                        </div>
+                        <div class="col-md-5">
+                          <input type="text" class="form-control specification-value" placeholder="Value (e.g., Intel i7)">
+                        </div>
+                        <div class="col-md-2">
+                          <button type="button" class="btn btn-sm btn-danger w-100 remove-specification">×</button>
+                        </div>
+                      </div>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="addSpecification">
                       <i class="fas fa-plus me-1"></i>Add Specification
@@ -315,85 +343,67 @@
                   <div class="col-12">
                     <label class="form-label">Product Images</label>
                     <div id="imagesContainer" class="mb-3">
-                      <!-- Images will be added here dynamically -->
+                      <div class="image-row row g-2 mb-2 align-items-center">
+                        <div class="col-md-5">
+                          <input type="text" class="form-control image-public-id" placeholder="Public ID">
+                        </div>
+                        <div class="col-md-5">
+                          <input type="url" class="form-control image-url" placeholder="Image URL" required>
+                        </div>
+                        <div class="col-md-2">
+                          <button type="button" class="btn btn-sm btn-danger w-100 remove-image">×</button>
+                        </div>
+                      </div>
                     </div>
                     <button type="button" class="btn btn-outline-primary" id="addImageBtn">
                       <i class="fas fa-plus me-1"></i>Add Image
                     </button>
                   </div>
-                  <div class="col-md-6">
+                  
+                  <!-- Feature Toggles -->
+                  <div class="col-md-4">
                     <div class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" id="isFeatured">
                       <label class="form-check-label" for="isFeatured">Featured Product</label>
                     </div>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <div class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" id="isDigital">
                       <label class="form-check-label" for="isDigital">Digital Product</label>
                     </div>
                   </div>
+                  
+                  <!-- Digital File Section -->
                   <div class="col-12" id="digitalFileSection" style="display: none;">
-                    <div class="row g-3">
+                    <div class="row g-3 mt-2">
                       <div class="col-md-6">
                         <label class="form-label">Digital File URL</label>
-                        <input type="url" id="digitalFileUrl" class="form-control">
+                        <input type="url" id="digitalFileUrl" class="form-control" placeholder="https://example.com/file.pdf">
                       </div>
                       <div class="col-md-6">
                         <label class="form-label">File Name</label>
-                        <input type="text" id="digitalFileName" class="form-control">
+                        <input type="text" id="digitalFileName" class="form-control" placeholder="product-manual.pdf">
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Shipping Tab -->
-              <div class="tab-pane fade" id="shipping" role="tabpanel">
+              <!-- Attributes Tab -->
+              <div class="tab-pane fade" id="attributes" role="tabpanel">
                 <div class="row g-3">
                   <div class="col-md-4">
                     <label class="form-label">Weight (kg)</label>
-                    <input type="number" id="weight" class="form-control" step="0.01" min="0">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Dimensions - Length (cm)</label>
-                    <input type="number" id="dimensionsLength" class="form-control" step="0.1" min="0">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Dimensions - Width (cm)</label>
-                    <input type="number" id="dimensionsWidth" class="form-control" step="0.1" min="0">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Dimensions - Height (cm)</label>
-                    <input type="number" id="dimensionsHeight" class="form-control" step="0.1" min="0">
+                    <input type="number" id="weight" class="form-control" step="0.01" min="0" placeholder="0.00">
                   </div>
                   <div class="col-md-8">
                     <label class="form-label">Warranty</label>
-                    <input type="text" id="warranty" class="form-control" value="No warranty">
+                    <input type="text" id="warranty" class="form-control" placeholder="1 Year Manufacturer Warranty">
                   </div>
                   <div class="col-12">
                     <label class="form-label">Return Policy</label>
-                    <textarea id="returnPolicy" class="form-control" rows="2">30 days return policy</textarea>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SEO Tab -->
-              <div class="tab-pane fade" id="seo" role="tabpanel">
-                <div class="row g-3">
-                  <div class="col-12">
-                    <label class="form-label">SEO Title</label>
-                    <input type="text" id="seoTitle" class="form-control" maxlength="60">
-                    <div class="form-text">Recommended: 50-60 characters</div>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">SEO Description</label>
-                    <textarea id="seoDescription" class="form-control" rows="3" maxlength="160"></textarea>
-                    <div class="form-text">Recommended: 150-160 characters</div>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label">SEO Keywords</label>
-                    <input type="text" id="seoKeywords" class="form-control" placeholder="Comma separated keywords">
+                    <textarea id="returnPolicy" class="form-control" rows="2" placeholder="30 days return policy"></textarea>
                   </div>
                 </div>
               </div>
@@ -419,10 +429,11 @@
 
     // Global Variables
     let currentProducts = [];
+    let productModalInstance = null;
 
     // DOM Elements
     const productsTable = document.getElementById('productsTable');
-    const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+    const productModalEl = document.getElementById('productModal');
     const addProductBtn = document.getElementById('addProductBtn');
     const saveProductBtn = document.getElementById('saveProductBtn');
     const showInactiveToggle = document.getElementById('showInactiveToggle');
@@ -443,6 +454,16 @@
       'Authorization': `Bearer ${token}`
     };
 
+    // Initialize Modal
+    document.addEventListener('DOMContentLoaded', () => {
+      productModalInstance = new bootstrap.Modal(productModalEl);
+      loadProducts();
+      loadCategories();
+      
+      // Initialize form
+      initializeForm();
+    });
+
     // Load Products
     async function loadProducts(filters = {}) {
       try {
@@ -453,10 +474,10 @@
         if (filters.category) queryParams.append('category', filters.category);
         if (filters.status === 'active') queryParams.append('isActive', 'true');
         if (filters.status === 'inactive') queryParams.append('isActive', 'false');
-        if (filters.featured === 'featured') queryParams.append('featured', 'true');
-        if (filters.featured === 'not-featured') queryParams.append('featured', 'false');
-        if (filters.stock === 'in-stock') queryParams.append('inStock', 'true');
-        if (filters.stock === 'out-of-stock') queryParams.append('inStock', 'false');
+        if (filters.featured === 'featured') queryParams.append('isFeatured', 'true');
+        if (filters.featured === 'not-featured') queryParams.append('isFeatured', 'false');
+        if (filters.stock === 'in-stock') queryParams.append('minStock', '1');
+        if (filters.stock === 'out-of-stock') queryParams.append('maxStock', '0');
         
         // Remove active filter if showing inactive products
         if (showInactiveToggle.checked) {
@@ -478,11 +499,10 @@
         console.log('Products response:', data);
 
         if (data.success) {
-          // Handle different response structures
           let products = data.data?.products || data.data || [];
           currentProducts = products;
           
-          // Apply low stock filter on frontend if needed
+          // Apply low stock filter on frontend
           if (filters.stock === 'low-stock') {
             products = products.filter(p => p.stock > 0 && p.stock < 10);
           }
@@ -501,10 +521,11 @@
     function showLoading() {
       productsTable.innerHTML = `
         <tr>
-          <td colspan="8" class="text-center">
+          <td colspan="8" class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Loading...</span>
             </div>
+            <p class="mt-2 text-muted">Loading products...</p>
           </td>
         </tr>
       `;
@@ -538,7 +559,7 @@
           <tr>
             <td>
               ${mainImage ? 
-                `<img src="${mainImage}" alt="${product.name}" class="image-thumbnail">` : 
+                `<img src="${mainImage}" alt="${product.name}" class="image-thumbnail" onerror="this.src='https://via.placeholder.com/60'">` : 
                 `<div class="image-thumbnail bg-light d-flex align-items-center justify-content-center">
                   <i class="fas fa-image text-muted"></i>
                 </div>`
@@ -554,8 +575,8 @@
             </td>
             <td>${product.category?.name || 'N/A'}</td>
             <td>
-              <strong>$${product.price?.toFixed(2) || '0.00'}</strong>
-              ${product.comparePrice ? `<br><small class="text-muted text-decoration-line-through">$${product.comparePrice.toFixed(2)}</small>` : ''}
+              <strong>₹${product.price?.toFixed(2) || '0.00'}</strong>
+              ${product.comparePrice ? `<br><small class="text-muted text-decoration-line-through">₹${product.comparePrice.toFixed(2)}</small>` : ''}
             </td>
             <td>
               <span class="badge ${stockBadgeClass}">${product.stock}</span>
@@ -575,14 +596,14 @@
             </td>
             <td>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-warning" onclick="editProduct('${product._id}')">
+                <button class="btn btn-outline-primary" onclick="viewProduct('${product._id}')" title="View">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-outline-warning" onclick="editProduct('${product._id}')" title="Edit">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn btn-outline-danger" onclick="deleteProduct('${product._id}')">
+                <button class="btn btn-outline-danger" onclick="deleteProduct('${product._id}')" title="Delete">
                   <i class="fas fa-trash"></i>
-                </button>
-                <button class="btn btn-outline-${product.isActive ? 'secondary' : 'success'}" onclick="toggleProductStatus('${product._id}', ${!product.isActive})">
-                  <i class="fas fa-power-off"></i>
                 </button>
               </div>
             </td>
@@ -608,35 +629,73 @@
         if (data.success) {
           const categories = data.data || [];
           categories.forEach(cat => {
-            if (cat.isActive) {
-              categorySelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
-              categoryFilterSelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
-            }
+            categorySelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
+            categoryFilterSelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
           });
         }
       } catch (error) {
         console.error('Error loading categories:', error);
-        showAlert('Error loading categories', 'danger');
       }
+    }
+
+    // Initialize Form
+    function initializeForm() {
+      // Add image button
+      document.getElementById('addImageBtn').addEventListener('click', addImageRow);
+      
+      // Add specification button
+      document.getElementById('addSpecification').addEventListener('click', addSpecificationRow);
+      
+      // Digital product toggle
+      document.getElementById('isDigital').addEventListener('change', function() {
+        toggleDigitalFileSection(this.checked);
+      });
+      
+      // Add product button
+      addProductBtn.addEventListener('click', openAddProductModal);
+      
+      // Save product button
+      saveProductBtn.addEventListener('click', saveProduct);
+      
+      // Filter event listeners
+      [categoryFilter, statusFilter, featuredFilter, stockFilter].forEach(filter => {
+        filter.addEventListener('change', () => {
+          loadProducts(getCurrentFilters());
+        });
+      });
+      
+      // Show inactive toggle
+      showInactiveToggle.addEventListener('change', () => {
+        loadProducts(getCurrentFilters());
+      });
     }
 
     // Open Add Product Modal
     function openAddProductModal() {
-      document.getElementById('modalTitle').textContent = 'Add Product';
+      document.getElementById('modalTitle').textContent = 'Add New Product';
       document.getElementById('productForm').reset();
       document.getElementById('productId').value = '';
-      document.getElementById('isActive').checked = true;
-      document.getElementById('isFeatured').checked = false;
-      document.getElementById('isDigital').checked = false;
       
       // Reset dynamic fields
       document.getElementById('imagesContainer').innerHTML = '';
-      document.getElementById('specificationsContainer').innerHTML = '';
-      addSpecificationRow(); // Add one empty specification row
+      addImageRow();
       
-      loadCategories();
-      productModal.show();
+      document.getElementById('specificationsContainer').innerHTML = '';
+      addSpecificationRow();
+      
+      // Set default values
+      document.getElementById('isActive').checked = true;
+      document.getElementById('isFeatured').checked = false;
+      document.getElementById('isDigital').checked = false;
+      document.getElementById('stock').value = 0;
+      
+      productModalInstance.show();
     }
+
+    // View Product
+    window.viewProduct = (productId) => {
+      window.open(`/productdetails/${productId}`, '_blank');
+    };
 
     // Edit Product
     window.editProduct = async (productId) => {
@@ -650,17 +709,17 @@
           
           document.getElementById('modalTitle').textContent = 'Edit Product';
           document.getElementById('productId').value = product._id;
-          document.getElementById('name').value = product.name;
-          document.getElementById('description').value = product.description;
+          document.getElementById('name').value = product.name || '';
+          document.getElementById('description').value = product.description || '';
           document.getElementById('brand').value = product.brand || '';
           document.getElementById('subCategory').value = product.subCategory || '';
           document.getElementById('sku').value = product.sku || '';
-          document.getElementById('price').value = product.price;
+          document.getElementById('price').value = product.price || 0;
           document.getElementById('comparePrice').value = product.comparePrice || '';
-          document.getElementById('stock').value = product.stock;
+          document.getElementById('stock').value = product.stock || 0;
           document.getElementById('weight').value = product.weight || '';
-          document.getElementById('warranty').value = product.warranty || 'No warranty';
-          document.getElementById('returnPolicy').value = product.returnPolicy || '30 days return policy';
+          document.getElementById('warranty').value = product.warranty || '';
+          document.getElementById('returnPolicy').value = product.returnPolicy || '';
           document.getElementById('isActive').checked = product.isActive !== false;
           document.getElementById('isFeatured').checked = product.isFeatured || false;
           document.getElementById('isDigital').checked = product.isDigital || false;
@@ -669,22 +728,16 @@
           // Features
           document.getElementById('features').value = product.features ? product.features.join('\n') : '';
           
-          // SEO
-          document.getElementById('seoTitle').value = product.seo?.title || '';
-          document.getElementById('seoDescription').value = product.seo?.description || '';
-          document.getElementById('seoKeywords').value = product.seo?.keywords ? product.seo.keywords.join(', ') : '';
-          
-          // Dimensions
-          document.getElementById('dimensionsLength').value = product.dimensions?.length || '';
-          document.getElementById('dimensionsWidth').value = product.dimensions?.width || '';
-          document.getElementById('dimensionsHeight').value = product.dimensions?.height || '';
-          
           // Digital file
           document.getElementById('digitalFileUrl').value = product.digitalFile?.url || '';
           document.getElementById('digitalFileName').value = product.digitalFile?.fileName || '';
           
-          await loadCategories();
-          document.getElementById('category').value = product.category?._id || product.category;
+          // Set category
+          const categorySelect = document.getElementById('category');
+          const categoryId = product.category?._id || product.category;
+          if (categoryId && categorySelect) {
+            categorySelect.value = categoryId;
+          }
           
           // Render images
           renderImages(product.images || []);
@@ -695,8 +748,7 @@
           // Toggle digital file section
           toggleDigitalFileSection(product.isDigital);
           
-          productModal.show();
-          showAlert('Product data loaded successfully', 'success');
+          productModalInstance.show();
         } else {
           showAlert(data.message || 'Failed to load product data', 'danger');
         }
@@ -718,7 +770,7 @@
           container.innerHTML += `
             <div class="image-row row g-2 mb-2 align-items-center">
               <div class="col-md-5">
-                <input type="text" class="form-control image-public-id" value="${image.public_id}" placeholder="Public ID" required>
+                <input type="text" class="form-control image-public-id" value="${image.public_id || ''}" placeholder="Public ID">
               </div>
               <div class="col-md-5">
                 <input type="url" class="form-control image-url" value="${image.url}" placeholder="Image URL" required>
@@ -732,11 +784,7 @@
       }
       
       // Add event listeners for remove buttons
-      container.querySelectorAll('.remove-image').forEach(btn => {
-        btn.addEventListener('click', function() {
-          this.closest('.image-row').remove();
-        });
-      });
+      attachImageRemoveListeners();
     }
 
     // Add Image Row
@@ -745,7 +793,7 @@
       container.innerHTML += `
         <div class="image-row row g-2 mb-2 align-items-center">
           <div class="col-md-5">
-            <input type="text" class="form-control image-public-id" placeholder="Public ID" required>
+            <input type="text" class="form-control image-public-id" placeholder="Public ID">
           </div>
           <div class="col-md-5">
             <input type="url" class="form-control image-url" placeholder="Image URL" required>
@@ -756,9 +804,16 @@
         </div>
       `;
       
-      // Add event listener for the new remove button
-      container.querySelector('.image-row:last-child .remove-image').addEventListener('click', function() {
-        this.closest('.image-row').remove();
+      attachImageRemoveListeners();
+    }
+
+    // Attach Image Remove Listeners
+    function attachImageRemoveListeners() {
+      const container = document.getElementById('imagesContainer');
+      container.querySelectorAll('.remove-image').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.closest('.image-row').remove();
+        });
       });
     }
 
@@ -787,12 +842,7 @@
         });
       }
       
-      // Add event listeners for remove buttons
-      container.querySelectorAll('.remove-specification').forEach(btn => {
-        btn.addEventListener('click', function() {
-          this.closest('.specification-row').remove();
-        });
-      });
+      attachSpecificationRemoveListeners();
     }
 
     // Add Specification Row
@@ -812,109 +862,44 @@
         </div>
       `;
       
-      // Add event listener for the new remove button
-      container.querySelector('.specification-row:last-child .remove-specification').addEventListener('click', function() {
-        this.closest('.specification-row').remove();
+      attachSpecificationRemoveListeners();
+    }
+
+    // Attach Specification Remove Listeners
+    function attachSpecificationRemoveListeners() {
+      const container = document.getElementById('specificationsContainer');
+      container.querySelectorAll('.remove-specification').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.closest('.specification-row').remove();
+        });
       });
     }
 
     // Toggle Digital File Section
     function toggleDigitalFileSection(isDigital) {
       const section = document.getElementById('digitalFileSection');
-      section.style.display = isDigital ? 'block' : 'none';
+      if (section) {
+        section.style.display = isDigital ? 'block' : 'none';
+      }
     }
 
     // Save Product
-    saveProductBtn.addEventListener('click', async () => {
+    async function saveProduct() {
       const productId = document.getElementById('productId').value;
       
-      // Basic product data
-      const productData = {
-        name: document.getElementById('name').value.trim(),
-        description: document.getElementById('description').value.trim(),
-        price: parseFloat(document.getElementById('price').value),
-        comparePrice: document.getElementById('comparePrice').value ? parseFloat(document.getElementById('comparePrice').value) : null,
-        category: document.getElementById('category').value,
-        subCategory: document.getElementById('subCategory').value.trim() || undefined,
-        brand: document.getElementById('brand').value.trim() || undefined,
-        sku: document.getElementById('sku').value.trim() || undefined,
-        stock: parseInt(document.getElementById('stock').value),
-        weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : undefined,
-        warranty: document.getElementById('warranty').value.trim(),
-        returnPolicy: document.getElementById('returnPolicy').value.trim(),
-        isActive: document.getElementById('isActive').checked,
-        isFeatured: document.getElementById('isFeatured').checked,
-        isDigital: document.getElementById('isDigital').checked,
-      };
-
-      // Handle tags
-      const tagsInput = document.getElementById('tags').value;
-      if (tagsInput) {
-        productData.tags = JSON.stringify(tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag));
-      }
-
-      // Handle features
-      const featuresInput = document.getElementById('features').value;
-      if (featuresInput) {
-        productData.features = JSON.stringify(featuresInput.split('\n').map(feature => feature.trim()).filter(feature => feature));
-      }
-
-      // Dimensions
-      const length = document.getElementById('dimensionsLength').value;
-      const width = document.getElementById('dimensionsWidth').value;
-      const height = document.getElementById('dimensionsHeight').value;
-      if (length || width || height) {
-        productData.dimensions = JSON.stringify({
-          length: length ? parseFloat(length) : undefined,
-          width: width ? parseFloat(width) : undefined,
-          height: height ? parseFloat(height) : undefined
-        });
-      }
-
-      // SEO Data
-      const seoTitle = document.getElementById('seoTitle').value.trim();
-      const seoDescription = document.getElementById('seoDescription').value.trim();
-      const seoKeywords = document.getElementById('seoKeywords').value.split(',').map(kw => kw.trim()).filter(kw => kw);
-      
-      if (seoTitle || seoDescription || seoKeywords.length > 0) {
-        productData.seo = JSON.stringify({
-          title: seoTitle || undefined,
-          description: seoDescription || undefined,
-          keywords: seoKeywords.length > 0 ? seoKeywords : undefined
-        });
-      }
-
-      // Digital File
-      if (productData.isDigital) {
-        const digitalFileUrl = document.getElementById('digitalFileUrl').value.trim();
-        const digitalFileName = document.getElementById('digitalFileName').value.trim();
-        if (digitalFileUrl) {
-          productData.digitalFile = JSON.stringify({
-            url: digitalFileUrl,
-            fileName: digitalFileName || 'digital-file'
-          });
-        }
-      }
-
-      // Images
-      const imageRows = document.querySelectorAll('.image-row');
+      // Collect images
       const images = [];
-      imageRows.forEach(row => {
+      document.querySelectorAll('.image-row').forEach(row => {
         const publicId = row.querySelector('.image-public-id').value.trim();
         const url = row.querySelector('.image-url').value.trim();
-        if (publicId && url) {
+        if (url) {
           images.push({ public_id: publicId, url });
         }
       });
       
-      if (images.length > 0) {
-        productData.images = images;
-      }
-
-      // Specifications
-      const specRows = document.querySelectorAll('.specification-row');
+      // Collect specifications
       const specifications = {};
-      specRows.forEach(row => {
+      document.querySelectorAll('.specification-row').forEach(row => {
         const key = row.querySelector('.specification-key').value.trim();
         const value = row.querySelector('.specification-value').value.trim();
         if (key && value) {
@@ -922,23 +907,44 @@
         }
       });
       
-      if (Object.keys(specifications).length > 0) {
-        productData.specifications = JSON.stringify(specifications);
+      // Prepare product data
+      const productData = {
+        name: document.getElementById('name').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        brand: document.getElementById('brand').value.trim() || undefined,
+        category: document.getElementById('category').value,
+        subCategory: document.getElementById('subCategory').value.trim() || undefined,
+        sku: document.getElementById('sku').value.trim() || undefined,
+        price: parseFloat(document.getElementById('price').value) || 0,
+        comparePrice: document.getElementById('comparePrice').value ? parseFloat(document.getElementById('comparePrice').value) : undefined,
+        stock: parseInt(document.getElementById('stock').value) || 0,
+        isActive: document.getElementById('isActive').checked,
+        isFeatured: document.getElementById('isFeatured').checked,
+        isDigital: document.getElementById('isDigital').checked,
+        tags: document.getElementById('tags').value ? document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag) : undefined,
+        features: document.getElementById('features').value ? document.getElementById('features').value.split('\n').map(feature => feature.trim()).filter(feature => feature) : undefined,
+        weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : undefined,
+        warranty: document.getElementById('warranty').value.trim() || undefined,
+        returnPolicy: document.getElementById('returnPolicy').value.trim() || undefined,
+        images: images.length > 0 ? images : undefined,
+        specifications: Object.keys(specifications).length > 0 ? specifications : undefined
+      };
+      
+      // Add digital file data if product is digital
+      if (productData.isDigital) {
+        const digitalFileUrl = document.getElementById('digitalFileUrl').value.trim();
+        const digitalFileName = document.getElementById('digitalFileName').value.trim();
+        if (digitalFileUrl) {
+          productData.digitalFile = {
+            url: digitalFileUrl,
+            fileName: digitalFileName || 'digital-file'
+          };
+        }
       }
 
       // Validation
-      if (!productData.name || !productData.description || !productData.price || !productData.category || isNaN(productData.stock)) {
-        showAlert('Please fill in all required fields (Name, Description, Price, Category, Stock)', 'warning');
-        return;
-      }
-
-      if (productData.price < 0) {
-        showAlert('Price cannot be negative', 'warning');
-        return;
-      }
-
-      if (productData.stock < 0) {
-        showAlert('Stock cannot be negative', 'warning');
+      if (!productData.name || !productData.description || !productData.price || !productData.category) {
+        showAlert('Please fill in all required fields (Name, Description, Price, Category)', 'warning');
         return;
       }
 
@@ -962,7 +968,7 @@
             productId ? 'Product updated successfully!' : 'Product created successfully!',
             'success'
           );
-          productModal.hide();
+          productModalInstance.hide();
           loadProducts(getCurrentFilters());
         } else {
           const errorMsg = data.message || (data.errors ? data.errors.map(e => e.message).join(', ') : 'Operation failed');
@@ -972,7 +978,7 @@
         console.error('Error saving product:', error);
         showAlert('Error saving product: ' + error.message, 'danger');
       }
-    });
+    }
 
     // Delete Product
     window.deleteProduct = async (productId) => {
@@ -1001,30 +1007,6 @@
       }
     };
 
-    // Toggle Product Status
-    window.toggleProductStatus = async (productId, newStatus) => {
-      try {
-        showAlert('Updating product status...', 'info');
-        const res = await fetch(`${PRODUCTS_API}/${productId}`, {
-          method: 'PUT',
-          headers: authHeaders,
-          body: JSON.stringify({ isActive: newStatus })
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          showAlert(`Product ${newStatus ? 'activated' : 'deactivated'} successfully!`, 'success');
-          loadProducts(getCurrentFilters());
-        } else {
-          showAlert(data.message || 'Status update failed', 'danger');
-        }
-      } catch (error) {
-        console.error('Error updating product status:', error);
-        showAlert('Error updating product status: ' + error.message, 'danger');
-      }
-    };
-
     // Get Current Filters
     function getCurrentFilters() {
       return {
@@ -1039,6 +1021,7 @@
     function showAlert(message, type) {
       alertBox.innerHTML = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
           ${message}
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
@@ -1054,37 +1037,6 @@
         }, 5000);
       }
     }
-
-    // Event Listeners
-    addProductBtn.addEventListener('click', openAddProductModal);
-    
-    showInactiveToggle.addEventListener('change', () => {
-      loadProducts(getCurrentFilters());
-    });
-
-    // Filter event listeners
-    [categoryFilter, statusFilter, featuredFilter, stockFilter].forEach(filter => {
-      filter.addEventListener('change', () => {
-        loadProducts(getCurrentFilters());
-      });
-    });
-
-    // Add image button
-    document.getElementById('addImageBtn').addEventListener('click', addImageRow);
-
-    // Add specification button
-    document.getElementById('addSpecification').addEventListener('click', addSpecificationRow);
-
-    // Digital product toggle
-    document.getElementById('isDigital').addEventListener('change', function() {
-      toggleDigitalFileSection(this.checked);
-    });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      loadProducts();
-      loadCategories();
-    });
   </script>
 </body>
 </html>

@@ -42,7 +42,7 @@ const Header = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/order-tracking" className="hover:underline transition-colors">
+                <Link to="/shipping-tracking" className="hover:underline transition-colors">
                   Order Tracking
                 </Link>
               </li>
@@ -70,11 +70,12 @@ const Header = () => {
         <div className="flex items-center gap-3 lg:gap-4 w-1/4 lg:w-1/5 justify-end">
           {/* Desktop Auth */}
           <div className="hidden lg:flex items-center gap-2">
-            <Link to="/auth" className="text-sm text-gray-700 font-medium hover:text-blue-600 transition-colors">
+            <Link to="/auth" className="text-sm text-gray-700 font-medium hover:text-red-600 transition-colors">
               Log In
             </Link>
+            
             <span className="text-gray-300">|</span>
-            <Link to="/register" className="text-sm text-gray-700 font-medium hover:text-blue-600 transition-colors">
+            <Link to="/register" className="text-sm text-gray-700 font-medium hover:text-red-600 transition-colors">
               Register
             </Link>
           </div>
@@ -118,13 +119,13 @@ const Header = () => {
 
           {/* Mobile Navigation Links */}
           <div className="flex flex-col gap-2 text-sm border-t border-gray-100 pt-3">
-            <Link to="/auth" className="text-gray-700 font-medium py-2 hover:text-blue-600 transition-colors">
+            <Link to="/auth" className="text-gray-700 font-medium py-2 hover:text-red-600 transition-colors">
               Log In / Register
             </Link>
-            <Link to="/help-center" className="text-gray-700 font-medium py-2 hover:text-blue-600 transition-colors">
+            <Link to="/help-center" className="text-gray-700 font-medium py-2 hover:text-red-600 transition-colors">
               Help Center
             </Link>
-            <Link to="/order-tracking" className="text-gray-700 font-medium py-2 hover:text-blue-600 transition-colors">
+            <Link to="/order-tracking" className="text-gray-700 font-medium py-2 hover:text-red-600 transition-colors">
               Order Tracking
             </Link>
           </div>

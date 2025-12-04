@@ -1,0 +1,423 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import Rating from "@mui/material/Rating";
+import Button from "@mui/material/Button";
+import { FaRegHeart, FaShoppingBag } from "react-icons/fa";
+import { FaCodeCompare } from "react-icons/fa6";
+import { MdOutlineZoomOutMap } from "react-icons/md";
+
+const ElectronicsItem = ({
+  imageFront,
+  imageBack,
+  category,
+  title,
+  rating = 0,
+  oldPrice,
+  newPrice,
+}) => {
+  const discount = oldPrice ? Math.round(((oldPrice - newPrice) / oldPrice) * 100) : 0;
+
+  return (
+    <div className="group bg-white border border-gray-100 rounded-none hover:shadow-lg transition-all duration-300 h-full flex flex-col relative">
+      <div className="relative bg-gray-50 overflow-hidden aspect-[4/5]">
+        <img
+          src={imageFront}
+          alt={title}
+          className="w-full h-full object-cover transition-opacity duration-500 group-hover:opacity-0"
+        />
+        <img
+          src={imageBack}
+          alt={title}
+          className="w-full h-full object-cover absolute top-0 left-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        />
+        <div className="absolute top-3 left-3 z-10">
+          <span className="bg-red-600 text-white text-xs font-semibold px-3 py-1">
+            -{discount}%
+          </span>
+        </div>
+        <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
+          <Button
+            className="!min-w-0 !w-10 !h-10 !p-0 !bg-white/90 !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+          >
+            <FaRegHeart size={16} />
+          </Button>
+          <Button
+            className="!min-w-0 !w-10 !h-10 !p-0 !bg-white/90 !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-75"
+          >
+            <FaCodeCompare size={16} />
+          </Button>
+          <Button
+            className="!min-w-0 !w-10 !h-10 !p-0 !bg-white/90 !text-gray-600 hover:!bg-black hover:!text-white !rounded-none !shadow-sm opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 delay-100"
+          >
+            <MdOutlineZoomOutMap size={16} />
+          </Button>
+        </div>
+        <div className="absolute bottom-4 left-4 right-4 z-20">
+          <button className="w-full bg-black text-white py-3 text-sm font-medium tracking-wide opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 delay-150 flex items-center justify-center gap-2 hover:bg-gray-800">
+            <FaShoppingBag size={14} />
+            Add to Cart
+          </button>
+        </div>
+      </div>
+
+      <div className="p-4 flex flex-col">
+        <div className="bg-red-600 text-white text-xs font-semibold px-3 py-1 inline-block mb-3 rounded-full">
+          {category}
+        </div>
+
+        <h3 className="text-[15px] font-semibold text-gray-900 mb-1 leading-tight line-clamp-2">
+          {title}
+        </h3>
+
+        <p className="text-xs text-gray-500 mb-3">
+          {/* You can show a small subtitle or skip */}
+        </p>
+
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[22px] font-semibold text-black">
+            ₹{newPrice}
+          </span>
+          {oldPrice && (
+            <span className="text-sm text-gray-400 line-through">
+              ₹{oldPrice}
+            </span>
+          )}
+          <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+            {discount}% OFF
+          </span>
+        </div>
+
+        <p className="text-[13px] text-gray-700 mb-4">
+          {/* Optional EMI line; update or remove */}
+        </p>
+
+        <button className="w-full bg-black text-white py-3 text-sm font-semibold tracking-wide rounded-md hover:bg-gray-800 transition">
+          Buy Now
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ElectronicsItem;
+
+
+import React, { useEffect, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import ElectronicsItem from "../ElectronicsItem";
+import axios from "axios";
+
+const ElectronicsSlider = ({ items = 4 }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/products");
+        console.log("API Loaded:", res.data);
+
+        setProducts(res.data.data?.products || []);
+      } catch (error) {
+        console.error("API Error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  return (
+    <div className="bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 border-b border-gray-100 pb-6">
+          <div className="text-center lg:text-left mb-6 lg:mb-0">
+            <h2 className="text-3xl font-light text-gray-900 tracking-tight mb-2">
+              Trending Electronics
+            </h2>
+            <p className="text-gray-500 font-light">
+              Explore the latest gadgets and tech innovations of 2025
+            </p>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex items-center justify-center lg:justify-end space-x-3">
+            <button className="custom-prev w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button className="custom-next w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center hover:border-gray-400 transition-colors">
+              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Slider */}
+        <div className="relative">
+
+          {loading ? (
+            <p className="text-center text-gray-500 py-10">Loading products…</p>
+          ) : (
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              navigation={{
+                nextEl: ".custom-next",
+                prevEl: ".custom-prev",
+              }}
+              pagination={{
+                clickable: true,
+                el: ".custom-pagination",
+                bulletClass: "custom-bullet",
+                bulletActiveClass: "custom-bullet-active",
+              }}
+              autoplay={{
+                delay: 5000,
+                disableOnInteraction: false,
+              }}
+              speed={600}
+              spaceBetween={24}
+              slidesPerView={1}
+              breakpoints={{
+                640: { slidesPerView: 2, spaceBetween: 20 },
+                768: { slidesPerView: 3, spaceBetween: 24 },
+                1024: { slidesPerView: 4, spaceBetween: 24 },
+                1280: { slidesPerView: 4, spaceBetween: 24 },
+              }}
+              className="!pb-12"
+            >
+              {products.map((product, index) => (
+                <SwiperSlide key={index} className="!h-auto">
+                  <div className="h-full px-2 py-4">
+                    <ElectronicsItem
+                      imageFront={product.images?.[0]?.url}
+                      imageBack={product.images?.[1]?.url || product.images?.[0]?.url}
+                      category={product.category?.name || "Category"}
+                      title={product.name}
+                      rating={product.averageRating}
+                      oldPrice={product.comparePrice}
+                      newPrice={product.price}
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+
+          {/* Pagination */}
+          <div className="custom-pagination flex justify-center gap-2 mt-8 !relative" />
+        </div>
+      </div>
+
+      <style jsx>{`
+        .custom-bullet {
+          width: 8px;
+          height: 8px;
+          background: #d1d5db;
+          border-radius: 50%;
+          opacity: 0.6;
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+        .custom-bullet-active {
+          width: 24px;
+          background: #000;
+          opacity: 1;
+          border-radius: 6px;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default ElectronicsSlider;
+
+
+
+
+ <Routes>
+       <Route path={"/"} exact={true} element={<Home/>}/>
+       <Route path={"/productlisting"} exact={true} element={<ProductListing/>}/>
+       <Route path={"/productdetails/:id"} exact={true} element={<ProductDetails/>}/>
+       <Route path={"/auth"} exact={true} element={<AuthPage/>}/>
+       <Route path={"/register"} exact={true} element={<RegisterPage/>}/>
+       <Route path={"/checkout"} exact={true} element={<CartCheckout/>}/>
+       <Route path={"/my-order"} exact={true} element={<MyOrders/>}/>
+       <Route path={"/shipping-tracking"} exact={true} element={<ShippingTracker/>}/>
+        <Route path={"/my-account"} exact={true} element={<User/>}/>
+        <Route path={"/wishlist"} exact={true} element={<Wishlist/>}/>
+        <Route path={"/cart"} exact={true} element={<Cart/>}/>
+     </Routes>
+
+
+
+// API Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/addresses", addressRoutes);
+app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/coupons", couponRoutes);
+app.use("/api/payments", paymentRoutes);
+
+
+
+
+
+
+### detail page :
+
+
+
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Link from "@mui/material/Link";
+import Rating from "@mui/material/Rating";
+import { FaShoppingBag, FaRegHeart } from "react-icons/fa";
+
+const ProductDetails = () => {
+  const { id } = useParams(); // get product id from URL
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+        setProduct(res.data.data); // assuming API returns { data: product }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) return <p className="text-center py-10">Loading...</p>;
+  if (!product) return <p className="text-center py-10">Product not found</p>;
+
+  const discount = product.comparePrice
+    ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
+    : 0;
+
+  return (
+    <section className="py-6 bg-gray-50 min-h-screen">
+      {/* Breadcrumbs */}
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div role="presentation" className="mb-4">
+          <Breadcrumbs aria-label="breadcrumb" className="text-sm">
+            <Link
+              underline="hover"
+              color="inherit"
+              href="/"
+              className="text-gray-600 hover:text-red-600 transition-colors"
+            >
+              Home
+            </Link>
+            <span className="text-gray-900 font-medium">{product.name}</span>
+          </Breadcrumbs>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto max-w-7xl px-4 flex flex-col lg:flex-row gap-8">
+        {/* Left: Image gallery */}
+        <div className="lg:w-1/2 flex flex-col gap-4">
+          {product.images?.length > 0 ? (
+            <div className="relative w-full h-[400px] border rounded-md overflow-hidden">
+              <img
+                src={product.images[0].url}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-full h-[400px] bg-gray-200 flex items-center justify-center">
+              <span className="text-gray-500">No Image Available</span>
+            </div>
+          )}
+
+          {/* Thumbnails */}
+          <div className="flex gap-2 overflow-x-auto mt-2">
+            {product.images?.map((img, idx) => (
+              <img
+                key={idx}
+                src={img.url}
+                alt={`${product.name}-${idx}`}
+                className="w-20 h-20 object-cover border rounded cursor-pointer hover:scale-105 transition-transform"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Product info */}
+        <div className="lg:w-1/2 flex flex-col gap-4">
+          <h1 className="text-3xl font-semibold text-gray-900">{product.name}</h1>
+
+          <div className="flex items-center gap-2">
+            <Rating value={product.averageRating} precision={0.5} readOnly />
+            <span className="text-gray-600 text-sm">({product.reviewCount} reviews)</span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-2xl font-bold text-black">₹{product.price}</span>
+            {product.comparePrice && (
+              <span className="line-through text-gray-400">₹{product.comparePrice}</span>
+            )}
+            {discount > 0 && (
+              <span className="bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                {discount}% OFF
+              </span>
+            )}
+          </div>
+
+          <p className="text-gray-700">{product.description}</p>
+
+          <div className="flex gap-3 mt-4">
+            <button className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition">
+              <FaShoppingBag /> Add to Cart
+            </button>
+            <button className="flex items-center gap-2 border border-gray-300 px-6 py-3 rounded-md hover:bg-gray-100 transition">
+              <FaRegHeart /> Wishlist
+            </button>
+          </div>
+
+          {/* Additional info */}
+          <div className="mt-6">
+            <p>
+              <span className="font-semibold">Category:</span>{" "}
+              {product.category?.name || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Stock:</span>{" "}
+              {product.stock > 0 ? "In Stock" : "Out of Stock"}
+            </p>
+            {product.sku && (
+              <p>
+                <span className="font-semibold">SKU:</span> {product.sku}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default ProductDetails;

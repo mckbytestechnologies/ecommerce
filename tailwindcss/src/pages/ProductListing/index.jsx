@@ -232,10 +232,10 @@ const ProductListing = () => {
       <div className="container mx-auto px-4 max-w-7xl">
         <div role="presentation" className="mb-4">
           <Breadcrumbs aria-label="breadcrumb" className="text-sm">
-            <Link underline="hover" color="inherit" href="/" className="text-gray-600 hover:text-blue-600 transition-colors">
+            <Link underline="hover" color="inherit" href="/" className="text-gray-600 hover:text-red-600 transition-colors">
               Home
             </Link>
-            <Link underline="hover" color="inherit" href="/categories" className="text-gray-600 hover:text-blue-600 transition-colors">
+            <Link underline="hover" color="inherit" href="/categories" className="text-gray-600 hover:text-red-600 transition-colors">
               Categories
             </Link>
             <span className="text-gray-900 font-medium">All Products</span>
@@ -411,7 +411,7 @@ const ProductListing = () => {
                           <div className="mb-1">
                             <span className="text-xs text-gray-500 uppercase">{product.category}</span>
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors cursor-pointer text-sm leading-tight">
+                          <h3 className="font-medium text-gray-900 mb-2 line-clamp-2 hover:text-red-600 transition-colors cursor-pointer text-sm leading-tight">
                             {product.title}
                           </h3>
                           
@@ -498,7 +498,7 @@ const ProductListing = () => {
                             <div className="flex flex-col h-full">
                               <div className="mb-3">
                                 <span className="text-xs text-gray-500 uppercase">{product.category}</span>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors cursor-pointer">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-red-600 transition-colors cursor-pointer">
                                   {product.title}
                                 </h3>
                                 

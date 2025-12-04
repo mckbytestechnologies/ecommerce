@@ -68,12 +68,12 @@ const Sidebar = () => {
     <Collapse isOpened={submenuIndex === 1}>
       <ul className="ml-8 mt-1 space-y-1">
         <li>
-          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-blue-800 !capitalize">
+          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-red-800 !capitalize">
             Slide 1
           </Button>
         </li>
         <li>
-          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-blue-800 !capitalize">
+          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-red-800 !capitalize">
             Slide 2
           </Button>
         </li>
@@ -103,12 +103,12 @@ const Sidebar = () => {
     <Collapse isOpened={submenuIndex === 2}>
       <ul className="ml-8 mt-1 space-y-1">
         <li>
-          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-blue-800 !capitalize">
+          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-red-800 !capitalize">
             Add Product
           </Button>
         </li>
         <li>
-          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-blue-800 !capitalize">
+          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-red-800 !capitalize">
             All Products
           </Button>
         </li>
@@ -131,12 +131,12 @@ const Sidebar = () => {
     <Collapse isOpened={submenuIndex === 3}>
       <ul className="ml-8 mt-1 space-y-1">
         <li>
-          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-blue-800 !capitalize">
+          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-red-800 !capitalize">
             Add Category
           </Button>
         </li>
         <li>
-          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-blue-800 !capitalize">
+          <Button className="w-full justify-start text-[16px] text-blue-600 hover:text-red-800 !capitalize">
             All Categories
           </Button>
         </li>

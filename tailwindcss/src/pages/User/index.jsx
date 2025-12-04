@@ -225,7 +225,7 @@ export default function UserAccountDashboard() {
             <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
             <button 
               onClick={() => setActiveSection("orders")}
-              className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2"
+              className="text-blue-600 hover:text-red-700 font-medium flex items-center gap-2"
             >
               View All <ChevronRight size={16} />
             </button>
@@ -251,7 +251,7 @@ export default function UserAccountDashboard() {
                 </div>
                 <div className="text-right">
                   <div className="font-bold text-gray-900">₹{order.amount}</div>
-                  <button className="mt-2 text-sm text-blue-600 hover:text-blue-700">
+                  <button className="mt-2 text-sm text-blue-600 hover:text-red-700">
                     View Details
                   </button>
                 </div>
@@ -498,7 +498,7 @@ export default function UserAccountDashboard() {
                 )}
               </div>
               <div className="flex gap-2">
-                <button className="p-2 text-gray-400 hover:text-blue-600 transition">
+                <button className="p-2 text-gray-400 hover:text-red-600 transition">
                   <Edit size={18} />
                 </button>
                 {!address.default && (

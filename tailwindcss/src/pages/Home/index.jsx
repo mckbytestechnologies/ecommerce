@@ -43,10 +43,7 @@ const Home = () => {
           </div>
         </div>
       </section> */}
-      <br />
-      <AdsBannerSlider items={3} />
-
-      <br />
+      
 
       {/* Popular Product Section with Tabs */}
       <section className="bg-white py-8">
@@ -124,7 +121,7 @@ const Home = () => {
         <div className="containers">
           <div className="flex items-center justify-between mb-4">
             <div className='leftsec'>
-              <h3 className='text-[25px] font-[600]'>Latest Product</h3>
+              {/* <h3 className='text-[25px] font-[600]'>Latest Product</h3> */}
             </div>
           </div>
           <LatestProductSlider items={5} />
@@ -215,7 +212,8 @@ const Home = () => {
       </section>
 
       <br />
-      <AdsBannerSlider items={2} />
+      <AdsBannerSlider items={3} />
+
       <br />
       <br />
 

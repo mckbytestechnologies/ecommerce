@@ -1,0 +1,386 @@
+import React from "react";
+import { 
+  FaTools, 
+  FaLightbulb, 
+  FaHandshake, 
+  FaShieldAlt, 
+  FaUserTie, 
+  FaArrowRight,
+  FaRocket,
+  FaUsers,
+  FaBriefcase,
+  FaStar,
+  FaCrown,
+  FaFemale,
+  FaChartLine,
+  FaAward,
+  FaBuilding
+} from "react-icons/fa";
+import { GiBrain, GiFactory, GiProgression } from "react-icons/gi";
+
+export default function About3DotWorld() {
+  return (
+    <div className="font-sans bg-gradient-to-b from-white to-gray-50 text-gray-900">
+
+      {/* HERO SECTION - Enhanced */}
+      <section className="relative bg-gradient-to-r from-red-900 via-red-700 to-amber-700 text-white py-28 px-6 text-center overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-red-600/20 to-transparent rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-amber-600/20 to-transparent rounded-full translate-x-1/3 translate-y-1/3"></div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="inline-flex items-center justify-center mb-6 animate-fadeIn">
+            <div className="w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-6 border border-white/20">
+              <FaRocket className="text-4xl text-white animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-5xl md:text-6xl font-extrabold mb-4 tracking-tight">
+                <span className="bg-gradient-to-r from-white to-amber-200 bg-clip-text text-transparent">
+                  About 3DOTWORLD
+                </span>
+              </h1>
+              <p className="text-xl md:text-2xl font-light tracking-wide text-amber-100">
+                Where Innovation Meets Industry
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-10 max-w-2xl mx-auto bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20">
+            <p className="text-lg md:text-xl leading-relaxed">
+              Empowering the next generation of innovators through hands-on experience 
+              and cutting-edge technology. We're more than a company – we're an ecosystem 
+              for creators.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* MISSION SECTION */}
+      <section className="max-w-6xl mx-auto py-20 px-6 relative">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center justify-center mb-4">
+            <div className="w-2 h-16 bg-gradient-to-b from-red-600 to-transparent mr-4"></div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900">
+              Our <span className="text-red-700">Mission</span>
+            </h2>
+            <div className="w-2 h-16 bg-gradient-to-t from-red-600 to-transparent ml-4"></div>
+          </div>
+          
+          <div className="relative max-w-3xl mx-auto">
+            <div className="absolute -top-6 -left-6 text-6xl text-red-200 opacity-50">"</div>
+            <p className="text-xl md:text-2xl text-gray-700 leading-relaxed font-medium italic">
+              To democratize innovation by providing the tools, resources, and mentorship 
+              needed to transform ideas into impactful realities.
+            </p>
+            <div className="absolute -bottom-6 -right-6 text-6xl text-red-200 opacity-50 rotate-180">"</div>
+          </div>
+        </div>
+
+        {/* Vision Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
+          <div className="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 border-l-4 border-red-500">
+            <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+              <GiBrain className="text-3xl text-red-600" />
+            </div>
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">Innovation First</h3>
+            <p className="text-gray-600 leading-relaxed">
+              Fostering creative thinking and breakthrough solutions through 
+              real-world challenges and collaborative environments.
+            </p>
+          </div>
+
+          <div className="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 border-l-4 border-amber-500">
+            <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mb-6">
+              <FaUsers className="text-3xl text-amber-600" />
+            </div>
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">Community Driven</h3>
+            <p className="text-gray-600 leading-relaxed">
+              Building a global network of innovators who support, mentor, and 
+              collaborate with each other to accelerate growth.
+            </p>
+          </div>
+
+          <div className="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 border-l-4 border-red-500">
+            <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6">
+              <GiProgression className="text-3xl text-red-600" />
+            </div>
+            <h3 className="text-2xl font-bold mb-4 text-gray-900">Sustainable Growth</h3>
+            <p className="text-gray-600 leading-relaxed">
+              Creating pathways for continuous learning, skill development, and 
+              career advancement in the tech industry.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* PROGRAMS SECTION */}
+      <section className="bg-gradient-to-b from-gray-50 to-white py-20 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Our <span className="text-red-700">Innovation</span> Programs
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Comprehensive pathways designed to nurture talent and bring ideas to life
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <FaUserTie className="text-3xl" />,
+                title: "Sales Internship",
+                description: "Step into innovation with real-world experience. Learn communication, customer interaction, and become an ambassador of innovation.",
+                color: "bg-gradient-to-r from-blue-500 to-blue-600"
+              },
+              {
+                icon: <FaTools className="text-3xl" />,
+                title: "Manufacturing Internship",
+                description: "Learn by doing. Build by thinking. Hands-on experience assembling and testing our cutting-edge electronics products.",
+                color: "bg-gradient-to-r from-amber-500 to-amber-600"
+              },
+              {
+                icon: <FaLightbulb className="text-3xl" />,
+                title: "Product Incubation",
+                description: "Create. Customize. Credit. Get workspace, tools, and expert guidance to turn your ideas into real products.",
+                color: "bg-gradient-to-r from-green-500 to-green-600"
+              },
+              {
+                icon: <FaShieldAlt className="text-3xl" />,
+                title: "Patenting & Royalty Program",
+                description: "Protect your ideas. Profit from innovation. We help you file patents under your name and share royalties.",
+                color: "bg-gradient-to-r from-purple-500 to-purple-600"
+              },
+              {
+                icon: <FaHandshake className="text-3xl" />,
+                title: "Innovation Sponsorship",
+                description: "Big ideas deserve big support. We provide funding and resources for breakthrough concepts and prototypes.",
+                color: "bg-gradient-to-r from-red-500 to-red-600"
+              },
+              {
+                icon: <GiFactory className="text-3xl" />,
+                title: "Factory ID Program",
+                description: "Every innovator receives a factory ID card for continued access to our labs and development facilities.",
+                color: "bg-gradient-to-r from-gray-700 to-gray-900"
+              }
+            ].map((program, index) => (
+              <div 
+                key={index}
+                className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-2"
+              >
+                <div className={`h-2 ${program.color}`}></div>
+                <div className="p-8">
+                  <div className={`w-16 h-16 ${program.color} rounded-2xl flex items-center justify-center mb-6 text-white`}>
+                    {program.icon}
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900 group-hover:text-red-700 transition-colors">
+                    {program.title}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed mb-6">
+                    {program.description}
+                  </p>
+                  <button className="flex items-center text-red-600 font-semibold hover:text-red-800 transition-colors">
+                    Learn more <FaArrowRight className="ml-2" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SHEROES SECTION - Standalone */}
+      <section className="relative py-24 px-6 overflow-hidden">
+        {/* Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-purple-50 to-red-50"></div>
+        
+        {/* Decorative Elements */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-pink-200/30 to-transparent rounded-full -translate-y-32 translate-x-32"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-purple-200/30 to-transparent rounded-full translate-y-48 -translate-x-48"></div>
+
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left Column - Content */}
+            <div>
+              <div className="inline-flex items-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-pink-600 to-purple-600 rounded-2xl flex items-center justify-center mr-4 shadow-lg">
+                  <FaCrown className="text-2xl text-white" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-purple-600 uppercase tracking-wider">
+                    Women Empowerment Initiative
+                  </span>
+                  <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mt-2">
+                    <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                      SHEROES
+                    </span>
+                    <br />
+                    <span className="text-2xl md:text-3xl text-gray-700">by 3 DOT</span>
+                  </h2>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-pink-200 shadow-lg">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center mr-4">
+                      <FaFemale className="text-xl text-pink-600" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900">Singapenney Program</h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed text-lg">
+                    A dedicated entrepreneurship initiative empowering women to design, 
+                    create, and grow their own innovative products. We provide the 
+                    resources, mentorship, and platform for women-led innovation.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-pink-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                        <FaChartLine className="text-purple-600" />
+                      </div>
+                      <h4 className="font-bold text-gray-900">Business Training</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">Comprehensive entrepreneurship education</p>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-pink-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
+                        <FaBriefcase className="text-pink-600" />
+                      </div>
+                      <h4 className="font-bold text-gray-900">Funding Support</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">Seed funding and investment opportunities</p>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-purple-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                        <FaStar className="text-purple-600" />
+                      </div>
+                      <h4 className="font-bold text-gray-900">Mentorship</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">Guidance from successful women entrepreneurs</p>
+                  </div>
+                  <div className="bg-white/80 backdrop-blur-sm p-5 rounded-xl border border-pink-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
+                        <FaAward className="text-pink-600" />
+                      </div>
+                      <h4 className="font-bold text-gray-900">Recognition</h4>
+                    </div>
+                    <p className="text-sm text-gray-600">Awards and showcase opportunities</p>
+                  </div>
+                </div>
+
+                <button className="bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold px-8 py-4 rounded-full shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 inline-flex items-center gap-3">
+                  Join SHEROES Program <FaArrowRight />
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column - Visual */}
+            <div className="relative">
+              <div className="relative h-[500px] rounded-3xl overflow-hidden shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 via-purple-400/20 to-red-400/20"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center p-8">
+                    <div className="w-48 h-48 mx-auto bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-8 shadow-2xl">
+                      <FaFemale className="text-8xl text-white" />
+                    </div>
+                    <h3 className="text-3xl font-bold text-gray-900 mb-4">Empowering Women in Tech</h3>
+                    <p className="text-gray-700 text-lg">
+                      Breaking barriers and building futures in technology and innovation
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Stats Badge */}
+              <div className="absolute -bottom-6 -right-6 bg-white rounded-2xl p-6 shadow-2xl border border-purple-200">
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">500+</div>
+                  <div className="text-sm text-gray-600 font-semibold">Women Empowered</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA SECTION */}
+      <section className="relative py-24 px-6 text-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-red-900 via-red-800 to-amber-800"></div>
+        <div className="absolute inset-0 bg-circuit-pattern opacity-10"></div>
+        
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <div className="inline-flex items-center justify-center mb-6">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mr-6 border border-white/30">
+              <FaBuilding className="text-4xl text-white" />
+            </div>
+            <div>
+              <h3 className="text-4xl md:text-5xl font-extrabold mb-4 text-white">
+                Ready to <span className="text-amber-300">Innovate?</span>
+              </h3>
+            </div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-sm p-8 rounded-3xl border border-white/20 mb-8">
+            <p className="text-xl text-white leading-relaxed max-w-2xl mx-auto">
+              Join our ecosystem where imagination meets industry. Every innovator receives 
+              lifetime access to our labs, mentorship network, and innovation community.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button className="bg-white text-red-700 font-bold px-10 py-4 rounded-full shadow-2xl hover:bg-amber-50 hover:scale-105 transition-all duration-300 inline-flex items-center gap-3 text-lg">
+              Start Your Journey <FaRocket className="animate-bounce" />
+            </button>
+            <button className="bg-transparent border-2 border-white text-white font-bold px-10 py-4 rounded-full hover:bg-white/20 hover:scale-105 transition-all duration-300 inline-flex items-center gap-3 text-lg">
+              Schedule a Tour <FaArrowRight />
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
+            {[
+              { number: "1000+", label: "Innovators Trained" },
+              { number: "200+", label: "Products Launched" },
+              { number: "50+", label: "Patents Filed" },
+              { number: "24/7", label: "Lab Access" }
+            ].map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.number}</div>
+                <div className="text-sm text-amber-200 font-semibold">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Add custom styles for background patterns */}
+      <style jsx>{`
+        .bg-grid-pattern {
+          background-image: 
+            linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+          background-size: 50px 50px;
+        }
+        
+        .bg-circuit-pattern {
+          background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.8s ease-out;
+        }
+      `}</style>
+    </div>
+  );
+}
