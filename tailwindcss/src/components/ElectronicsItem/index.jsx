@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Rating from "@mui/material/Rating";
 import Button from "@mui/material/Button";
-import { FaRegHeart, FaShoppingBag } from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaShoppingBag } from "react-icons/fa";
 import { FaCodeCompare } from "react-icons/fa6";
 import { MdOutlineZoomOutMap } from "react-icons/md";
 import { toast } from "react-hot-toast";
+import { addToCart } from "../../utils/cart";
 
 const ElectronicsItem = ({
   productId,
@@ -19,23 +20,125 @@ const ElectronicsItem = ({
   newPrice,
 }) => {
   const navigate = useNavigate();
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [checkingWishlist, setCheckingWishlist] = useState(true);
 
   const discount =
     oldPrice && newPrice
       ? Math.round(((oldPrice - newPrice) / oldPrice) * 100)
       : 0;
 
-  // ⭐ ADD TO WISHLIST API
-  const addToWishlist = async () => {
+  // Get auth token
+  const getToken = () => {
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  };
+
+  // Check if product is in wishlist
+  const checkWishlistStatus = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/wishlist/add", {
-        productId,
+      const token = getToken();
+      if (!token) {
+        setCheckingWishlist(false);
+        return;
+      }
+
+      const response = await axios.get(`http://localhost:5000/api/wishlist/check/${productId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
 
-      toast.success("Added to wishlist!");
-    } catch (err) {
-      toast.error("Failed to add to wishlist");
-      console.log(err);
+      if (response.data.success) {
+        setIsWishlisted(response.data.data.isInWishlist);
+      }
+    } catch (error) {
+      console.error("Error checking wishlist:", error);
+    } finally {
+      setCheckingWishlist(false);
+    }
+  };
+
+  // Handle wishlist toggle
+  const handleWishlistClick = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Please login to add to wishlist");
+      navigate("/login");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (isWishlisted) {
+        // Remove from wishlist
+        const response = await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.data.success) {
+          setIsWishlisted(false);
+          toast.success("Removed from wishlist");
+        }
+      } else {
+        // Add to wishlist
+        const response = await axios.post(
+          `http://localhost:5000/api/wishlist`,
+          { productId },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.success) {
+          setIsWishlisted(true);
+          toast.success("Added to wishlist!");
+        }
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to update wishlist";
+      toast.error(message);
+      console.error("Wishlist error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Check wishlist status on component mount
+  useEffect(() => {
+    checkWishlistStatus();
+  }, [productId]);
+
+  // Handle add to cart
+  const handleAddToCart = async () => {
+    try {
+      const productData = {
+        id: productId,
+        name: title,
+        price: newPrice,
+        image: imageFront,
+        quantity: 1
+      };
+      
+      const cartResult = await addToCart(productData);
+      
+      if (cartResult.success) {
+        toast.success("Added to cart!");
+        navigate("/cart");
+      } else {
+        toast.error("Failed to add to cart");
+      }
+    } catch (error) {
+      toast.error("Error adding to cart");
+      console.error("Add to cart error:", error);
     }
   };
 
@@ -66,17 +169,27 @@ const ElectronicsItem = ({
 
         {/* RIGHT SIDE ICON BUTTONS */}
         <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
-          
           {/* ❤️ WISHLIST BUTTON */}
           <Button
-            onClick={addToWishlist}
-            className="!min-w-0 !w-10 !h-10 !p-0 !bg-white/90 
+            onClick={handleWishlistClick}
+            disabled={isLoading || checkingWishlist}
+            className={`!min-w-0 !w-10 !h-10 !p-0 
               !text-gray-600 hover:!bg-black hover:!text-white 
               opacity-0 translate-x-4 
               group-hover:opacity-100 group-hover:translate-x-0 
-              transition-all duration-300 rounded-none"
+              transition-all duration-300 rounded-none
+              ${isWishlisted 
+                ? '!bg-red-500 !text-white hover:!bg-red-600' 
+                : '!bg-white/90'
+              }`}
           >
-            <FaRegHeart size={16} />
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+            ) : isWishlisted ? (
+              <FaHeart size={16} />
+            ) : (
+              <FaRegHeart size={16} />
+            )}
           </Button>
 
           {/* ↔ COMPARE BUTTON */}
@@ -107,7 +220,7 @@ const ElectronicsItem = ({
         {/* ADD TO CART BUTTON (BOTTOM) */}
         <div className="absolute bottom-4 left-4 right-4 z-20">
           <button
-            onClick={() => navigate("/cart")}
+            onClick={handleAddToCart}
             className="w-full bg-black text-white py-3 text-sm font-medium tracking-wide 
             opacity-0 translate-y-4 
             group-hover:opacity-100 group-hover:translate-y-0 

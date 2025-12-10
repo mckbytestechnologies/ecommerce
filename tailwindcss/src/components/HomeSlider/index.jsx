@@ -25,7 +25,7 @@ const HomeSlider = () => {
     >
       {SLIDES.map((slide) => (
         <SwiperSlide key={slide.id}>
-          <div className="w-full h-[200px] sm:h-[260px] md:h-[320px] overflow-hidden">
+          <div className="w-full h-[200px] sm:h-[260px] md:h-[450px] overflow-hidden">
             <img
               src={slide.img}
               alt="slider"

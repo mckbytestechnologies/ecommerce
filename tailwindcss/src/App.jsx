@@ -1,5 +1,6 @@
-import {BrowserRouter,Route,Routes} from "react-router-dom";
-import './App.css'
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import './App.css';
+
 import Header from './components/Header';
 import Home from './pages/Home';
 import ProductListing from "./pages/ProductListing";
@@ -9,7 +10,6 @@ import AuthPage from "./pages/AuthPage";
 import CartCheckout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
 import ShippingTracker from "./pages/Shipping";
-import { User } from "lucide-react";
 import RegisterPage from "./pages/Register";
 import Wishlist from "./pages/wishlist";
 import Cart from "./pages/Cart";
@@ -19,35 +19,39 @@ import About3DotWorld from "./pages/About";
 import ContactPage from "./pages/Contact";
 import SheroesPage from "./pages/Sherose";
 
-function App() {
+import { WishlistProvider } from "./context/WishlistContext";   // ✅ IMPORTANT
 
+function App() {
   return (
-    <>
     <BrowserRouter>
 
-     <Header/>
-     <Routes>
-       <Route path={"/"} exact={true} element={<Home/>}/>
-       <Route path={"/productlisting"} exact={true} element={<ProductListing/>}/>
-       <Route path={"/productdetails/:id"} exact={true} element={<ProductDetails/>}/>
-       <Route path={"/auth"} exact={true} element={<AuthPage/>}/>
-       <Route path={"/register"} exact={true} element={<RegisterPage/>}/>
-       <Route path={"/checkout"} exact={true} element={<CartCheckout/>}/>
-       <Route path={"/my-order"} exact={true} element={<MyOrders/>}/>
-       <Route path={"/shipping-tracking"} exact={true} element={<ShippingTracker/>}/>
-      <Route path={"/my-account"} exact={true} element={<User/>}/>
-      <Route path={"/wishlist"} exact={true} element={<Wishlist/>}/>
-      <Route path={"/cart"} exact={true} element={<Cart/>}/>
-      <Route path={"/warranty"} exact={true} element={<WarrantyRegistration/>}/>
-      <Route path={"/corporating-gifting"} exact={true} element={<CorporateGiftingPage/>}/>
-      <Route path={"/about"} exact={true} element={<About3DotWorld/>}/>
-      <Route path={"/contact"} exact={true} element={<ContactPage/>}/>
-      <Route path={"/sherose"} exact={true} element={<SheroesPage/>}/>
-     </Routes>
-     <Footer/>
-     </BrowserRouter>
-    </>
-  )
+      {/* ✅ Wrap everything inside WishlistProvider */}
+      <WishlistProvider>
+        <Header />
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/productlisting" element={<ProductListing />} />
+          <Route path="/productdetails/:id" element={<ProductDetails />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/checkout" element={<CartCheckout />} />
+          <Route path="/my-order" element={<MyOrders />} />
+          <Route path="/shipping-tracking" element={<ShippingTracker />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/warranty" element={<WarrantyRegistration />} />
+          <Route path="/corporating-gifting" element={<CorporateGiftingPage />} />
+          <Route path="/about" element={<About3DotWorld />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/sherose" element={<SheroesPage />} />
+        </Routes>
+
+        <Footer />
+      </WishlistProvider>
+
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
