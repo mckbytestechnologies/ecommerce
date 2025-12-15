@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Categories - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-red: #dc3545;
+      --primary-red-dark: #c82333;
+      --primary-red-light: #f8d7da;
+      --secondary-red: #e74c3c;
+      --accent-red: #ff6b6b;
+      --dark-bg: #1a1a2e;
+      --dark-card: #16213e;
+      --text-light: #f8f9fa;
+      --text-muted: #adb5bd;
+      --border-color: #2d3748;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --gray-100: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-300: #dee2e6;
+      --gray-800: #343a40;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      background: linear-gradient(180deg, var(--dark-bg) 0%, #0f0f23 100%);
+      color: var(--text-light);
+      width: 280px;
+      min-height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 3px 0 20px rgba(0,0,0,0.1);
+      border-right: 1px solid var(--border-color);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--dark-card);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand-logo i {
+      color: var(--primary-red);
+      font-size: 1.8rem;
+    }
+
+    .brand-text h3 {
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.4rem;
+      background: linear-gradient(45deg, #ff6b6b, #dc3545);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text small {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .nav-links {
+      padding: 1rem 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .nav-item {
+      margin: 0.25rem 1rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary-red);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-link:hover:before,
+    .nav-link.active:before {
+      transform: translateX(0);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+      transform: translateX(5px);
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    /* Main Content */
+    #main-content {
+      margin-left: 280px;
+      padding: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      width: 300px;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      outline: none;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-800);
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-left: 5px solid var(--primary-red);
+    }
+
+    .page-title h1 {
+      font-weight: 700;
+      color: var(--dark-bg);
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    .page-title p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(45deg, var(--primary-red-dark), var(--primary-red));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Categories Grid */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .category-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray-200);
+      position: relative;
+    }
+
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      border-color: var(--primary-red);
+    }
+
+    .category-header {
+      padding: 1.25rem;
+      background: linear-gradient(135deg, var(--dark-card), var(--dark-bg));
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+    }
+
+    .category-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .category-body {
+      padding: 1.25rem;
+    }
+
+    .category-name {
+      font-weight: 700;
+      color: var(--dark-bg);
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .category-description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .category-image {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border: 2px solid var(--gray-200);
+    }
+
+    .category-stats {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      color: var(--primary-red);
+      font-size: 1.1rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .category-footer {
+      padding: 1rem 1.25rem;
+      background: var(--gray-100);
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-badge.active {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .status-badge.inactive {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    .category-type {
+      background: #cce5ff;
+      color: #004085;
+      padding: 0.25rem 0.5rem;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+      background: rgba(255, 193, 7, 0.1);
+      color: var(--warning);
+    }
+
+    .btn-edit:hover {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-delete {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+    }
+
+    .btn-delete:hover {
+      background: var(--primary-red);
+      color: white;
+    }
+
+    .btn-subcategory {
+      background: rgba(23, 162, 184, 0.1);
+      color: var(--info);
+    }
+
+    .btn-subcategory:hover {
+      background: var(--info);
+      color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Stats Cards */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .stat-card i {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card.total i { color: var(--primary-red); }
+    .stat-card.active i { color: var(--success); }
+    .stat-card.main i { color: var(--info); }
+    .stat-card.sub i { color: var(--warning); }
+
+    .stat-card h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--dark-bg);
+    }
+
+    .stat-card p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+      font-size: 0.9rem;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 1.5rem;
+    }
+
+    .modal-header .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+    }
+
+    .modal-header .btn-close:hover {
+      opacity: 1;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    /* Image Upload */
+    .image-upload-container {
+      border: 2px dashed var(--gray-300);
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .image-upload-container:hover {
+      border-color: var(--primary-red);
+      background: var(--primary-red-light);
+    }
+
+    .image-upload-container i {
+      font-size: 3rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* Alert Box */
+    .alert-box {
+      position: fixed;
+      top: 100px;
+      right: 30px;
+      z-index: 9999;
+      min-width: 300px;
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Loading Spinner */
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--gray-300);
+      border-top: 5px solid var(--primary-red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Subcategories */
+    .subcategories-list {
+      margin-left: 2rem;
+      padding-left: 1.5rem;
+      border-left: 3px solid var(--primary-red-light);
+    }
+
+    .subcategory-item {
+      background: var(--gray-100);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      border: 1px solid var(--gray-200);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      #sidebar {
+        width: 80px;
+      }
+      
+      #sidebar .nav-link span {
+        display: none;
+      }
+      
+      #main-content {
+        margin-left: 80px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      #sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar-show {
+        transform: translateX(0);
+      }
+      
+      #main-content {
+        margin-left: 0;
+      }
+      
+      .search-box input {
+        width: 200px;
+      }
+      
+      .categories-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .search-box input {
+        width: 100%;
+      }
+      
+      .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      
+      .btn-icon {
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .alert-box {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+      }
+      
+      .categories-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-200);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-red-dark);
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand-logo">
+        <i class="fas fa-store"></i>
+        <div class="brand-text">
+          <h3>E-Shop</h3>
+          <small>Admin Panel</small>
+        </div>
+      </a>
+    </div>
+    
+    <div class="nav-links">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="products.html" class="nav-link">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="categories.html" class="nav-link active">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="orders.html" class="nav-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Orders</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="users.html" class="nav-link">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="hero.html" class="nav-link">
+            <i class="fas fa-images"></i>
+            <span>Hero Sections</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="settings.html" class="nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalSearch" placeholder="Search categories...">
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted me-2" id="currentDate"></span>
+        <button class="btn btn-outline-danger btn-sm" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Alert Box -->
+    <div class="alert-box" id="alertBox"></div>
+
+    <!-- Page Header -->
+    <div class="page-header fade-in">
+      <div class="page-title">
+        <h1><i class="fas fa-tags text-danger me-2"></i>Category Management</h1>
+        <p>Organize your products with categories and subcategories</p>
+      </div>
+      <button class="btn btn-primary" id="addCategoryBtn">
+        <i class="fas fa-plus me-2"></i>Add Category
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-cards fade-in">
+      <div class="stat-card total">
+        <i class="fas fa-layer-group"></i>
+        <h3 id="totalCategories">0</h3>
+        <p>Total Categories</p>
+      </div>
+      <div class="stat-card active">
+        <i class="fas fa-check-circle"></i>
+        <h3 id="activeCategories">0</h3>
+        <p>Active Categories</p>
+      </div>
+      <div class="stat-card main">
+        <i class="fas fa-folder"></i>
+        <h3 id="mainCategories">0</h3>
+        <p>Main Categories</p>
+      </div>
+      <div class="stat-card sub">
+        <i class="fas fa-folder-plus"></i>
+        <h3 id="subCategories">0</h3>
+        <p>Sub Categories</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4 fade-in">
+      <div class="col-md-3">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="showInactiveToggle" checked>
+          <label class="form-check-label fw-600" for="showInactiveToggle">Show Inactive</label>
+        </div>
+      </div>
+      <div class="col-md-9 text-end">
+        <button class="btn btn-sm btn-outline-danger me-2" onclick="loadCategories()">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+        <button class="btn btn-sm btn-outline-primary" onclick="exportCategories()">
+          <i class="fas fa-download"></i> Export
+        </button>
+      </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div id="categoriesContainer">
+      <div class="categories-grid fade-in">
+        <div class="col-12 text-center">
+          <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2 text-muted">Loading categories...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state fade-in" style="display: none;">
+      <i class="fas fa-folder-open"></i>
+      <h3 class="mb-2">No Categories Found</h3>
+      <p class="text-muted mb-4">Get started by creating your first category</p>
+      <button class="btn btn-primary" onclick="openAddCategoryModal()">
+        <i class="fas fa-plus me-2"></i>Create Category
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Modal -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle"><i class="fas fa-plus me-2"></i>Add New Category</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="categoryForm">
+            <input type="hidden" id="categoryId">
+            <input type="hidden" id="isSubcategory" value="false">
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Category Name <span class="text-danger">*</span></label>
+                <input type="text" id="name" class="form-control" required placeholder="Enter category name">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Parent Category</label>
+                <select id="parentCategory" class="form-select">
+                  <option value="">None (Main Category)</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea id="description" class="form-control" rows="3" placeholder="Enter category description"></textarea>
+              </div>
+              
+              <!-- Image Upload -->
+              <div class="col-12">
+                <label class="form-label">Category Image</label>
+                <div class="image-upload-container mb-3" id="imageUploadArea">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <h5>Drag & Drop Image Here</h5>
+                  <p class="text-muted">or click to browse</p>
+                  <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <div id="imagePreview" class="text-center mb-3"></div>
+                
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label">Image URL</label>
+                    <input type="url" id="imageUrl" class="form-control" placeholder="https://example.com/image.jpg">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Public ID</label>
+                    <input type="text" id="imagePublicId" class="form-control" placeholder="cloudinary_public_id">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="isActive" checked>
+                  <label class="form-check-label" for="isActive">Active Category</label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="saveCategoryBtn">
+            <i class="fas fa-save me-2"></i>Save Category
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="spinner-overlay" id="loadingOverlay" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script>
+    // API Configuration
+    const API_BASE = "http://localhost:5000/api";
+    const CATEGORIES_API = `${API_BASE}/categories`;
+
+    // Global Variables
+    let currentCategories = [];
+    let categoryModalInstance = null;
+
+    // DOM Elements
+    const elements = {
+      categoriesContainer: document.getElementById('categoriesContainer'),
+      emptyState: document.getElementById('emptyState'),
+      categoryModalEl: document.getElementById('categoryModal'),
+      addCategoryBtn: document.getElementById('addCategoryBtn'),
+      saveCategoryBtn: document.getElementById('saveCategoryBtn'),
+      showInactiveToggle: document.getElementById('showInactiveToggle'),
+      alertBox: document.getElementById('alertBox'),
+      globalSearch: document.getElementById('globalSearch'),
+      loadingOverlay: document.getElementById('loadingOverlay')
+    };
+
+    // Authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    const authHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    // Initialize Date
+    function updateCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Show Loading
+    function showLoading() {
+      elements.loadingOverlay.style.display = 'flex';
+    }
+
+    // Hide Loading
+    function hideLoading() {
+      elements.loadingOverlay.style.display = 'none';
+    }
+
+    // Show Alert
+    function showAlert(message, type = 'info') {
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} alert-dismissible fade show`;
+      alert.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      elements.alertBox.appendChild(alert);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.remove();
+        }
+      }, 5000);
+    }
+
+    // Load Categories
+    async function loadCategories() {
+      try {
+        showLoading();
+        const showInactive = elements.showInactiveToggle.checked;
+        const searchTerm = elements.globalSearch.value;
+        
+        const url = showInactive ? `${CATEGORIES_API}?includeInactive=true` : CATEGORIES_API;
+        const res = await fetch(url, { headers: authHeaders });
+
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          let categories = data.data || [];
+          currentCategories = categories;
+          
+          // Apply search filter
+          if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            categories = categories.filter(cat => 
+              cat.name.toLowerCase().includes(term) ||
+              (cat.description && cat.description.toLowerCase().includes(term))
+            );
+          }
+          
+          renderCategories(categories);
+          updateStats(categories);
+        } else {
+          showAlert('Failed to load categories', 'danger');
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        showAlert('Error loading categories: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Render Categories
+    function renderCategories(categories) {
+      if (!categories || categories.length === 0) {
+        elements.categoriesContainer.innerHTML = '';
+        elements.emptyState.style.display = 'block';
+        return;
+      }
+
+      elements.emptyState.style.display = 'none';
+      
+      // Separate main categories and subcategories
+      const mainCategories = categories.filter(cat => !cat.parentCategory);
+      const subcategoriesMap = categories.reduce((acc, cat) => {
+        if (cat.parentCategory) {
+          const parentId = cat.parentCategory._id || cat.parentCategory;
+          if (!acc[parentId]) acc[parentId] = [];
+          acc[parentId].push(cat);
+        }
+        return acc;
+      }, {});
+
+      let html = '';
+      
+      mainCategories.forEach(category => {
+        html += renderCategoryCard(category, subcategoriesMap[category._id] || []);
+      });
+
+      elements.categoriesContainer.innerHTML = `
+        <div class="categories-grid fade-in">
+          ${html}
+        </div>
+      `;
+    }
+
+    // Render Single Category Card
+    function renderCategoryCard(category, subcategories = []) {
+      const productCount = category.productCount || 0;
+      const hasSubcategories = subcategories.length > 0;
+      
+      return `
+        <div class="category-card">
+          <div class="category-header">
+            <div class="category-icon">
+              <i class="fas fa-folder"></i>
+            </div>
+            <h5 class="mb-0">${category.name}</h5>
+          </div>
+          
+          <div class="category-body">
+            ${category.image?.url ? 
+              `<img src="${category.image.url}" alt="${category.name}" class="category-image" onerror="this.style.display='none'">` : 
+              ''
+            }
+            
+            <p class="category-description">${category.description || 'No description available'}</p>
+            
+            <div class="category-stats">
+              <div class="stat-item">
+                <div class="stat-value">${productCount}</div>
+                <div class="stat-label">Products</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">${subcategories.length}</div>
+                <div class="stat-label">Subcategories</div>
+              </div>
+            </div>
+            
+            ${hasSubcategories ? `
+              <div class="subcategories-list">
+                <h6 class="mb-2 text-muted">Subcategories:</h6>
+                ${subcategories.map(subcat => `
+                  <div class="subcategory-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>${subcat.name}</strong>
+                        <div class="small text-muted">${subcat.productCount || 0} products</div>
+                      </div>
+                      <span class="status-badge ${subcat.isActive ? 'active' : 'inactive'}">
+                        ${subcat.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+          
+          <div class="category-footer">
+            <div>
+              <span class="status-badge ${category.isActive ? 'active' : 'inactive'}">
+                ${category.isActive ? 'Active' : 'Inactive'}
+              </span>
+              ${category.parentCategory ? 
+                '<span class="category-type ms-2">Subcategory</span>' : 
+                '<span class="category-type ms-2">Main Category</span>'
+              }
+            </div>
+            
+            <div class="action-buttons">
+              <button class="btn-icon btn-edit" onclick="editCategory('${category._id}')" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-delete" onclick="deleteCategory('${category._id}')" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+              ${!category.parentCategory ? `
+                <button class="btn-icon btn-subcategory" onclick="addSubcategory('${category._id}')" title="Add Subcategory">
+                  <i class="fas fa-plus"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Update Stats
+    function updateStats(categories) {
+      const total = categories.length;
+      const active = categories.filter(cat => cat.isActive).length;
+      const main = categories.filter(cat => !cat.parentCategory).length;
+      const sub = categories.filter(cat => cat.parentCategory).length;
+      
+      document.getElementById('totalCategories').textContent = total;
+      document.getElementById('activeCategories').textContent = active;
+      document.getElementById('mainCategories').textContent = main;
+      document.getElementById('subCategories').textContent = sub;
+    }
+
+    // Open Add Category Modal
+    function openAddCategoryModal(parentId = null) {
+      const isSubcategory = !!parentId;
+      document.getElementById('modalTitle').innerHTML = isSubcategory ? 
+        '<i class="fas fa-plus me-2"></i>Add Subcategory' : 
+        '<i class="fas fa-plus me-2"></i>Add New Category';
+      
+      document.getElementById('categoryForm').reset();
+      document.getElementById('categoryId').value = '';
+      document.getElementById('isSubcategory').value = isSubcategory;
+      document.getElementById('isActive').checked = true;
+      document.getElementById('imagePreview').innerHTML = '';
+      
+      // Set parent category if provided
+      if (parentId) {
+        document.getElementById('parentCategory').value = parentId;
+      } else {
+        document.getElementById('parentCategory').value = '';
+      }
+      
+      loadParentCategories();
+      categoryModalInstance.show();
+    }
+
+    // Add Subcategory
+    window.addSubcategory = (parentId) => {
+      openAddCategoryModal(parentId);
+    };
+
+    // Load Parent Categories
+    async function loadParentCategories() {
+      try {
+        const res = await fetch(CATEGORIES_API, { headers: authHeaders });
+        const data = await res.json();
+        
+        const parentSelect = document.getElementById('parentCategory');
+        parentSelect.innerHTML = '<option value="">None (Main Category)</option>';
+        
+        if (data.success) {
+          const mainCategories = data.data.filter(cat => !cat.parentCategory && cat.isActive);
+          mainCategories.forEach(cat => {
+            parentSelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
+          });
+        }
+        
+        // Initialize Select2
+        $(parentSelect).select2({
+          placeholder: "Select Parent Category",
+          width: '100%',
+          dropdownParent: $('#categoryModal')
+        });
+      } catch (error) {
+        console.error('Error loading parent categories:', error);
+      }
+    }
+
+    // Edit Category
+    window.editCategory = async (categoryId) => {
+      try {
+        showLoading();
+        const res = await fetch(`${CATEGORIES_API}/${categoryId}`, { headers: authHeaders });
+        const data = await res.json();
+        
+        if (data.success) {
+          const category = data.data;
+          
+          document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Category';
+          document.getElementById('categoryId').value = category._id;
+          document.getElementById('name').value = category.name;
+          document.getElementById('description').value = category.description || '';
+          document.getElementById('isActive').checked = category.isActive;
+          document.getElementById('imageUrl').value = category.image?.url || '';
+          document.getElementById('imagePublicId').value = category.image?.public_id || '';
+          
+          // Show image preview
+          if (category.image?.url) {
+            document.getElementById('imagePreview').innerHTML = `
+              <img src="${category.image.url}" class="img-fluid rounded" style="max-height: 200px;">
+            `;
+          }
+          
+          await loadParentCategories();
+          
+          // Set parent category
+          const parentId = category.parentCategory?._id || category.parentCategory;
+          if (parentId) {
+            $('#parentCategory').val(parentId).trigger('change');
+          } else {
+            $('#parentCategory').val('').trigger('change');
+          }
+          
+          categoryModalInstance.show();
+        } else {
+          showAlert('Failed to load category data', 'danger');
+        }
+      } catch (error) {
+        console.error('Error loading category:', error);
+        showAlert('Error loading category: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
+      }
+    };
+
+    // Save Category
+    async function saveCategory() {
+      const categoryId = document.getElementById('categoryId').value;
+      const categoryData = {
+        name: document.getElementById('name').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        parentCategory: $('#parentCategory').val() || null,
+        isActive: document.getElementById('isActive').checked
+      };
+
+      // Image data
+      const imageUrl = document.getElementById('imageUrl').value.trim();
+      const imagePublicId = document.getElementById('imagePublicId').value.trim();
+      if (imageUrl && imagePublicId) {
+        categoryData.image = {
+          url: imageUrl,
+          public_id: imagePublicId
+        };
+      }
+
+      // Validation
+      if (!categoryData.name) {
+        showAlert('Category name is required', 'warning');
+        return;
+      }
+
+      try {
+        showLoading();
+        const url = categoryId ? `${CATEGORIES_API}/${categoryId}` : CATEGORIES_API;
+        const method = categoryId ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: authHeaders,
+          body: JSON.stringify(categoryData)
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showAlert(
+            categoryId ? 'Category updated successfully!' : 'Category created successfully!',
+            'success'
+          );
+          categoryModalInstance.hide();
+          loadCategories();
+        } else {
+          const errorMsg = data.message || (data.errors ? data.errors.map(e => e.message).join(', ') : 'Operation failed');
+          showAlert(errorMsg, 'danger');
+        }
+      } catch (error) {
+        console.error('Error saving category:', error);
+        showAlert('Error saving category: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Delete Category
+    window.deleteCategory = async (categoryId) => {
+      if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        const res = await fetch(`${CATEGORIES_API}/${categoryId}`, {
+          method: 'DELETE',
+          headers: authHeaders
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showAlert('Category deleted successfully!', 'success');
+          loadCategories();
+        } else {
+          showAlert(data.message || 'Delete failed', 'danger');
+        }
+      } catch (error) {
+        console.error('Error deleting category:', error);
+        showAlert('Error deleting category: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
+      }
+    };
+
+    // Export Categories
+    function exportCategories() {
+      showAlert('Export feature coming soon!', 'info');
+      // Implement export functionality here
+    }
+
+    // Logout
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Debounce Search
+    function debounceSearch() {
+      let timeout;
+      return function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          loadCategories();
+        }, 300);
+      };
+    }
+
+    // Initialize Application
+    document.addEventListener('DOMContentLoaded', () => {
+      // Update date
+      updateCurrentDate();
+      
+      // Initialize modal
+      categoryModalInstance = new bootstrap.Modal(elements.categoryModalEl);
+      
+      // Load categories
+      loadCategories();
+      
+      // Initialize event listeners
+      initializeEventListeners();
+    });
+
+    // Initialize Event Listeners
+    function initializeEventListeners() {
+      // Add category button
+      elements.addCategoryBtn.addEventListener('click', () => openAddCategoryModal());
+      
+      // Save category button
+      elements.saveCategoryBtn.addEventListener('click', saveCategory);
+      
+      // Show inactive toggle
+      elements.showInactiveToggle.addEventListener('change', loadCategories);
+      
+      // Global search
+      elements.globalSearch.addEventListener('input', debounceSearch());
+      
+      // Image upload
+      const imageUploadArea = document.getElementById('imageUploadArea');
+      const imageInput = document.getElementById('imageInput');
+      
+      imageUploadArea.addEventListener('click', () => imageInput.click());
+      
+      imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            document.getElementById('imagePreview').innerHTML = `
+              <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">
+            `;
+            
+            // Here you would typically upload to your server
+            // and get back the URL and public_id
+            showAlert('Image selected. Upload will happen when saving.', 'info');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

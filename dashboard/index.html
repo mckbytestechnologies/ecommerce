@@ -3,82 +3,2303 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - ECommerce</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="css/style.css" rel="stylesheet" />
-  <script defer src="js/main.js"></script>
+  <title>E-Commerce Admin Dashboard</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- ApexCharts for better charts -->
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <!-- Toastr for notifications -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <style>
+    :root {
+      --primary-red: #dc3545;
+      --primary-red-dark: #c82333;
+      --primary-red-light: #f8d7da;
+      --secondary-red: #e74c3c;
+      --accent-red: #ff6b6b;
+      --dark-bg: #1a1a2e;
+      --dark-card: #16213e;
+      --text-light: #f8f9fa;
+      --text-muted: #adb5bd;
+      --border-color: #2d3748;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --gray-100: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-300: #dee2e6;
+      --gray-800: #343a40;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--gray-100);
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styling */
+    #sidebar {
+      background: linear-gradient(180deg, var(--dark-bg) 0%, #0f0f23 100%);
+      color: var(--text-light);
+      width: 280px;
+      min-height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 3px 0 20px rgba(0,0,0,0.1);
+      border-right: 1px solid var(--border-color);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-collapsed {
+      width: 80px;
+    }
+
+    .sidebar-collapsed .sidebar-text {
+      display: none;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--dark-card);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand-logo i {
+      color: var(--primary-red);
+      font-size: 1.8rem;
+    }
+
+    .brand-text h3 {
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.4rem;
+      background: linear-gradient(45deg, #ff6b6b, #dc3545);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text small {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .nav-links {
+      padding: 1rem 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .nav-links::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .nav-links::-webkit-scrollbar-thumb {
+      background: var(--primary-red);
+      border-radius: 10px;
+    }
+
+    .nav-item {
+      margin: 0.25rem 1rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary-red);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-link:hover:before,
+    .nav-link.active:before {
+      transform: translateX(0);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+      transform: translateX(5px);
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      background: var(--primary-red);
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      margin-left: auto;
+    }
+
+    .nav-divider {
+      border-top: 1px solid var(--border-color);
+      margin: 1rem 0;
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem;
+      background: var(--dark-card);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    .user-info h6 {
+      margin: 0;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .user-info small {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    /* Main Content Area */
+    #main-content {
+      margin-left: 280px;
+      padding: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 100vh;
+    }
+
+    .main-expanded {
+      margin-left: 80px;
+    }
+
+    .main-full {
+      margin-left: 0;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sidebar-toggle {
+      background: var(--primary-red);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    .sidebar-toggle:hover {
+      background: var(--primary-red-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(220, 53, 69, 0.4);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      width: 300px;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      outline: none;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-800);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .notification-badge {
+      position: relative;
+      background: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 2px solid var(--gray-200);
+      transition: all 0.3s ease;
+    }
+
+    .notification-badge:hover {
+      border-color: var(--primary-red);
+      transform: translateY(-2px);
+    }
+
+    .notification-badge .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--primary-red);
+      color: white;
+      font-size: 0.6rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 50%;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .date-display {
+      padding: 0.5rem 1rem;
+      background: var(--gray-100);
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: var(--gray-800);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      border-color: var(--primary-red-light);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+    }
+
+    .stat-icon {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: white;
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+    }
+
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--dark-bg);
+      margin: 0.5rem 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .stat-label {
+      color: var(--gray-800);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .stat-change {
+      font-size: 0.85rem;
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-change.positive { color: var(--success); }
+    .stat-change.negative { color: var(--primary-red); }
+
+    /* Charts Section */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 1200px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      border: 1px solid var(--gray-200);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .chart-header h5 {
+      color: var(--dark-bg);
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    /* Recent Orders Table */
+    .recent-orders {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+      border: 1px solid var(--gray-200);
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--gray-200);
+    }
+
+    .table-header h5 {
+      color: var(--dark-bg);
+      margin: 0;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .table {
+      margin: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table thead th {
+      border-bottom: 2px solid var(--gray-200);
+      font-weight: 600;
+      color: var(--gray-800);
+      padding: 1rem;
+      background: var(--gray-100);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+    }
+
+    .table thead th:first-child {
+      border-radius: 10px 0 0 0;
+    }
+
+    .table thead th:last-child {
+      border-radius: 0 10px 0 0;
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    .table tbody tr:hover {
+      background-color: var(--primary-red-light);
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .status-badge i {
+      font-size: 0.6rem;
+    }
+
+    .status-badge.pending {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+    }
+
+    .status-badge.completed {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .status-badge.processing {
+      background: #cce5ff;
+      color: #004085;
+      border: 1px solid #007bff;
+    }
+
+    .status-badge.cancelled {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .action-btn {
+      background: white;
+      border: 2px solid var(--gray-200);
+      border-radius: 15px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      color: var(--gray-800);
+      text-decoration: none;
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      color: var(--primary-red);
+      text-decoration: none;
+      border-color: var(--primary-red-light);
+    }
+
+    .action-btn i {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary-red);
+      display: block;
+    }
+
+    .action-btn .badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--primary-red);
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 10px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--gray-800);
+      font-size: 0.9rem;
+      background: white;
+      border-radius: 15px;
+      margin-top: 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid var(--gray-200);
+    }
+
+    .footer .version {
+      color: var(--primary-red);
+      font-weight: 600;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .modal-header {
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 1.5rem;
+    }
+
+    .modal-header .btn-close {
+      filter: invert(1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .search-box input {
+        width: 250px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      #sidebar {
+        margin-left: -280px;
+      }
+      
+      .sidebar-show {
+        margin-left: 0;
+      }
+      
+      #main-content {
+        margin-left: 0;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .search-box input {
+        width: 200px;
+      }
+      
+      .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+      }
+      
+      .nav-controls, .user-menu {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .search-box input {
+        width: 100%;
+      }
+      
+      .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .table-responsive {
+        overflow-x: auto;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+      
+      .top-nav {
+        padding: 1rem;
+      }
+      
+      .date-display {
+        display: none;
+      }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Toastr Customization */
+    .toast {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .toast-success {
+      background: linear-gradient(90deg, #28a745, #20c997);
+      color: white;
+    }
+
+    .toast-error {
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+      color: white;
+    }
+
+    .toast-info {
+      background: linear-gradient(90deg, #17a2b8, #20c997);
+      color: white;
+    }
+
+    .toast-warning {
+      background: linear-gradient(90deg, #ffc107, #fd7e14);
+      color: white;
+    }
+
+    /* Loading Spinner */
+    .spinner-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--gray-300);
+      border-top: 4px solid var(--primary-red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-200);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-red-dark);
+    }
+  </style>
 </head>
 <body>
-  <div class="d-flex" id="wrapper">
-    <!-- Sidebar -->
-    <nav class="bg-dark text-white p-3 vh-100" id="sidebar">
-      <h3 class="text-center mb-4">🛒 Admin</h3>
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand-logo">
+        <i class="fas fa-store"></i>
+        <div class="brand-text">
+          <h3>E-Shop Admin</h3>
+          <small>Version 2.1.0</small>
+        </div>
+      </a>
+    </div>
+    
+    <div class="nav-links">
       <ul class="nav flex-column">
-        <li class="nav-item"><a href="index.html" class="nav-link text-white">🏠 Dashboard</a></li>
-        <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
-        <li class="nav-item"><a href="orders.html" class="nav-link text-white">🧾 Orders</a></li>
-        <li class="nav-item"><a href="users.html" class="nav-link text-white">👤 Users</a></li>
-        <li class="nav-item"><a href="categories.html" class="nav-link text-white">🗂 Categories</a></li>
-        <li class="nav-item"><a href="coupons.html" class="nav-link text-white">🎟 Coupons</a></li>
-        <li class="nav-item mt-3"><a href="settings.html" class="nav-link text-warning">⚙️ Settings</a></li>
+        <li class="nav-item">
+          <a href="#" class="nav-link active" data-page="dashboard">
+            <i class="fas fa-tachometer-alt"></i>
+            <span class="sidebar-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="products">
+            <i class="fas fa-box"></i>
+            <span class="sidebar-text">Products</span>
+            <span class="nav-badge" id="products-badge">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="orders">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="sidebar-text">Orders</span>
+            <span class="nav-badge" id="orders-badge">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="users">
+            <i class="fas fa-users"></i>
+            <span class="sidebar-text">Users</span>
+            <span class="nav-badge" id="users-badge">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="categories">
+            <i class="fas fa-tags"></i>
+            <span class="sidebar-text">Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="coupons">
+            <i class="fas fa-ticket-alt"></i>
+            <span class="sidebar-text">Coupons</span>
+          </a>
+        </li>
+        <li class="nav-divider"></li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="hero">
+            <i class="fas fa-images"></i>
+            <span class="sidebar-text">Hero Sections</span>
+            <span class="nav-badge" id="hero-badge">0</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="blogs">
+            <i class="fas fa-blog"></i>
+            <span class="sidebar-text">Blogs</span>
+            <span class="nav-badge" id="blogs-badge">0</span>
+          </a>
+        </li>
+        <li class="nav-divider"></li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="settings">
+            <i class="fas fa-cog"></i>
+            <span class="sidebar-text">Settings</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" data-page="reports">
+            <i class="fas fa-chart-bar"></i>
+            <span class="sidebar-text">Reports</span>
+          </a>
+        </li>
       </ul>
-    </nav>
+    </div>
 
-    <!-- Page Content -->
-    <div class="container-fluid p-4" id="page-content">
-      <h2 class="mb-4">📊 Dashboard Overview</h2>
-      <div class="row g-4">
-        <div class="col-md-3">
-          <div class="card text-center shadow">
-            <div class="card-body">
-              <h5 class="card-title text-muted">Total Products</h5>
-              <h2 id="productCount">0</h2>
-            </div>
-          </div>
+    <div class="sidebar-footer">
+      <div class="user-profile" id="userProfile">
+        <div class="user-avatar" id="userAvatar">AD</div>
+        <div class="user-info">
+          <h6 id="userName">Admin User</h6>
+          <small id="userRole">Administrator</small>
         </div>
-        <div class="col-md-3">
-          <div class="card text-center shadow">
-            <div class="card-body">
-              <h5 class="card-title text-muted">Total Orders</h5>
-              <h2 id="orderCount">0</h2>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card text-center shadow">
-            <div class="card-body">
-              <h5 class="card-title text-muted">Total Users</h5>
-              <h2 id="userCount">0</h2>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="card text-center shadow">
-            <div class="card-body">
-              <h5 class="card-title text-muted">Active Coupons</h5>
-              <h2 id="couponCount">0</h2>
-            </div>
-          </div>
+        <i class="fas fa-chevron-down ml-auto"></i>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+      <div class="nav-controls">
+        <button class="sidebar-toggle" id="sidebarToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="globalSearch" placeholder="Search dashboard...">
         </div>
       </div>
-      <hr class="my-4">
-      <div class="mt-4">
-        <h4>Recent Orders</h4>
-        <table class="table table-striped mt-3">
-          <thead class="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Order ID</th>
-              <th>User</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="recentOrders"></tbody>
-        </table>
+      
+      <div class="user-menu">
+        <div class="date-display">
+          <i class="far fa-calendar-alt me-2"></i>
+          <span id="currentDate"></span>
+        </div>
+        <div class="notification-badge" id="notificationBtn">
+          <i class="fas fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
+        <button class="btn btn-outline-danger btn-sm" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Page Content Container -->
+    <div id="page-content">
+      <!-- Dashboard content will be loaded here dynamically -->
+      <div class="spinner-container" id="loadingSpinner">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer fade-in">
+      <p>© 2024 E-Commerce Admin Panel. All rights reserved. | <span class="version">Version 2.1.0</span></p>
+      <p class="text-muted">
+        <i class="fas fa-shield-alt"></i> Secure Connection | 
+        <i class="fas fa-server"></i> Server Uptime: 99.9% | 
+        <i class="fas fa-user-clock"></i> Last Login: <span id="lastLogin">Today 08:45 AM</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Notification Modal -->
+  <div class="modal fade" id="notificationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-bell me-2"></i>Notifications</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="list-group" id="notificationList">
+            <!-- Notifications will be loaded here -->
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- User Profile Modal -->
+  <div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-user-circle me-2"></i>Profile Settings</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <div class="user-avatar mx-auto mb-3" style="width: 80px; height: 80px;" id="modalAvatar">AD</div>
+            <h5 id="modalUserName">Admin User</h5>
+            <p class="text-muted" id="modalUserEmail">admin@example.com</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="profileEmail" value="admin@example.com">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="profileName" value="Admin User">
+          </div>
+          <button class="btn btn-danger w-100">Update Profile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // ============================================
+    // Configuration & Constants
+    // ============================================
+    const CONFIG = {
+      API_BASE_URL: 'http://localhost:5000/api',
+      TOKEN_KEY: 'adminToken',
+      USER_KEY: 'adminUser',
+      THEME: 'light'
+    };
+
+    // ============================================
+    // State Management
+    // ============================================
+    const state = {
+      token: localStorage.getItem(CONFIG.TOKEN_KEY),
+      user: JSON.parse(localStorage.getItem(CONFIG.USER_KEY)) || {},
+      stats: {},
+      notifications: [],
+      currentPage: 'dashboard'
+    };
+
+    // ============================================
+    // DOM Elements
+    // ============================================
+    const elements = {
+      sidebar: document.getElementById('sidebar'),
+      mainContent: document.getElementById('main-content'),
+      sidebarToggle: document.getElementById('sidebarToggle'),
+      pageContent: document.getElementById('page-content'),
+      loadingSpinner: document.getElementById('loadingSpinner'),
+      userProfile: document.getElementById('userProfile'),
+      userName: document.getElementById('userName'),
+      userAvatar: document.getElementById('userAvatar'),
+      currentDate: document.getElementById('currentDate'),
+      notificationBtn: document.getElementById('notificationBtn'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      globalSearch: document.getElementById('globalSearch')
+    };
+
+    // ============================================
+    // Utility Functions
+    // ============================================
+    const utils = {
+      // Format date
+      formatDate: (date) => {
+        return new Date(date).toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      },
+
+      // Format currency
+      formatCurrency: (amount) => {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD'
+        }).format(amount);
+      },
+
+      // Show toast notification
+      showToast: (message, type = 'success') => {
+        toastr[type](message, type.charAt(0).toUpperCase() + type.slice(1), {
+          positionClass: 'toast-top-right',
+          progressBar: true,
+          closeButton: true,
+          timeOut: 3000
+        });
+      },
+
+      // Show loading
+      showLoading: () => {
+        elements.loadingSpinner.style.display = 'flex';
+      },
+
+      // Hide loading
+      hideLoading: () => {
+        elements.loadingSpinner.style.display = 'none';
+      },
+
+      // Check if user is authenticated
+      isAuthenticated: () => {
+        return !!state.token;
+      },
+
+      // Get auth headers
+      getAuthHeaders: () => {
+        return {
+          'Authorization': `Bearer ${state.token}`,
+          'Content-Type': 'application/json'
+        };
+      },
+
+      // Handle API errors
+      handleApiError: (error) => {
+        console.error('API Error:', error);
+        
+        if (error.status === 401) {
+          utils.showToast('Session expired. Please login again.', 'error');
+          setTimeout(() => {
+            localStorage.removeItem(CONFIG.TOKEN_KEY);
+            localStorage.removeItem(CONFIG.USER_KEY);
+            window.location.href = 'login.html';
+          }, 2000);
+          return;
+        }
+
+        const message = error.data?.message || 'An error occurred';
+        utils.showToast(message, 'error');
+      }
+    };
+
+    // ============================================
+    // API Service
+    // ============================================
+    const apiService = {
+      // Generic fetch wrapper
+      async fetch(url, options = {}) {
+        try {
+          const response = await fetch(`${CONFIG.API_BASE_URL}${url}`, {
+            ...options,
+            headers: {
+              ...utils.getAuthHeaders(),
+              ...options.headers
+            }
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw { status: response.status, data };
+          }
+
+          return data;
+        } catch (error) {
+          utils.handleApiError(error);
+          throw error;
+        }
+      },
+
+      // Dashboard stats
+      async getDashboardStats() {
+        return Promise.all([
+          this.fetch('/products'),
+          this.fetch('/users'),
+          this.fetch('/orders'),
+          this.fetch('/hero/active'),
+          this.fetch('/blogs')
+        ]);
+      },
+
+      // Get products
+      async getProducts(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.fetch(`/products${query ? `?${query}` : ''}`);
+      },
+
+      // Get orders
+      async getOrders(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.fetch(`/orders${query ? `?${query}` : ''}`);
+      },
+
+      // Get users
+      async getUsers(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return this.fetch(`/users${query ? `?${query}` : ''}`);
+      },
+
+      // Get hero sections
+      async getHeroSections() {
+        return this.fetch('/hero');
+      },
+
+      // Get blogs
+      async getBlogs() {
+        return this.fetch('/blogs');
+      },
+
+      // Update order status
+      async updateOrderStatus(orderId, status) {
+        return this.fetch(`/orders/${orderId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status })
+        });
+      },
+
+      // Delete item
+      async deleteItem(type, id) {
+        return this.fetch(`/${type}/${id}`, {
+          method: 'DELETE'
+        });
+      }
+    };
+
+    // ============================================
+    // Page Renderers
+    // ============================================
+    const pageRenderer = {
+      // Dashboard page
+      async renderDashboard() {
+        utils.showLoading();
+        
+        try {
+          const [productsRes, usersRes, ordersRes, heroRes, blogsRes] = await apiService.getDashboardStats();
+          
+          state.stats = {
+            products: productsRes.data?.total || productsRes.count || 0,
+            users: usersRes.data?.total || usersRes.count || 0,
+            orders: ordersRes.data?.total || ordersRes.count || 0,
+            hero: heroRes.data?.count || 0,
+            blogs: blogsRes.data?.total || blogsRes.count || 0,
+            revenue: 24580 // This should come from your orders API
+          };
+
+          const html = `
+            <div class="fade-in">
+              <!-- Quick Actions -->
+              <div class="quick-actions">
+                <a href="#" class="action-btn" data-action="add-product">
+                  <i class="fas fa-plus-circle"></i>
+                  <div>Add Product</div>
+                  <span class="badge">New</span>
+                </a>
+                <a href="#" class="action-btn" data-action="view-orders">
+                  <i class="fas fa-shopping-cart"></i>
+                  <div>View Orders</div>
+                  <span class="badge">${state.stats.orders}</span>
+                </a>
+                <a href="#" class="action-btn" data-action="add-user">
+                  <i class="fas fa-user-plus"></i>
+                  <div>Add User</div>
+                </a>
+                <a href="#" class="action-btn" data-action="create-coupon">
+                  <i class="fas fa-tag"></i>
+                  <div>Create Coupon</div>
+                </a>
+              </div>
+
+              <!-- Stats Cards -->
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <div class="stat-icon">
+                    <i class="fas fa-box"></i>
+                  </div>
+                  <h3 class="stat-value">${state.stats.products.toLocaleString()}</h3>
+                  <p class="stat-label">Total Products</p>
+                  <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 12.5% from last month
+                  </div>
+                </div>
+                
+                <div class="stat-card">
+                  <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                  </div>
+                  <h3 class="stat-value">${state.stats.orders.toLocaleString()}</h3>
+                  <p class="stat-label">Total Orders</p>
+                  <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 8.3% from yesterday
+                  </div>
+                </div>
+                
+                <div class="stat-card">
+                  <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <h3 class="stat-value">${state.stats.users.toLocaleString()}</h3>
+                  <p class="stat-label">Total Users</p>
+                  <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 5.2% from last week
+                  </div>
+                </div>
+                
+                <div class="stat-card">
+                  <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                  </div>
+                  <h3 class="stat-value">${utils.formatCurrency(state.stats.revenue)}</h3>
+                  <p class="stat-label">Total Revenue</p>
+                  <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 15.7% from last month
+                  </div>
+                </div>
+              </div>
+
+              <!-- Charts Section -->
+              <div class="charts-grid">
+                <div class="chart-container">
+                  <div class="chart-header">
+                    <h5>Sales Overview</h5>
+                    <div class="btn-group">
+                      <button class="btn btn-sm btn-outline-danger active" data-period="week">Week</button>
+                      <button class="btn btn-sm btn-outline-secondary" data-period="month">Month</button>
+                      <button class="btn btn-sm btn-outline-secondary" data-period="year">Year</button>
+                    </div>
+                  </div>
+                  <canvas id="salesChart" height="250"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                  <div class="chart-header">
+                    <h5>Top Categories</h5>
+                    <button class="btn btn-sm btn-outline-danger" data-action="export">
+                      <i class="fas fa-download"></i> Export
+                    </button>
+                  </div>
+                  <canvas id="categoryChart" height="250"></canvas>
+                </div>
+              </div>
+
+              <!-- Recent Orders Table -->
+              <div class="recent-orders">
+                <div class="table-header">
+                  <h5>Recent Orders</h5>
+                  <a href="#" class="btn btn-danger btn-sm" data-action="view-all-orders">
+                    <i class="fas fa-eye"></i> View All
+                  </a>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="recentOrdersList">
+                      <!-- Orders will be loaded here -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          `;
+
+          elements.pageContent.innerHTML = html;
+          await this.loadRecentOrders();
+          this.initializeCharts();
+          
+          // Update badges
+          document.getElementById('products-badge').textContent = state.stats.products;
+          document.getElementById('orders-badge').textContent = state.stats.orders;
+          document.getElementById('users-badge').textContent = state.stats.users;
+          document.getElementById('hero-badge').textContent = state.stats.hero;
+          document.getElementById('blogs-badge').textContent = state.stats.blogs;
+
+        } catch (error) {
+          console.error('Error loading dashboard:', error);
+          elements.pageContent.innerHTML = `
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              Failed to load dashboard data. Please try again.
+            </div>
+          `;
+        } finally {
+          utils.hideLoading();
+        }
+      },
+
+      // Load recent orders
+      async loadRecentOrders() {
+        try {
+          const response = await apiService.getOrders({ limit: 5, sort: '-createdAt' });
+          const orders = response.data || response;
+          
+          const ordersHtml = orders.map(order => `
+            <tr>
+              <td><strong>#${order._id?.slice(-8) || order.orderId}</strong></td>
+              <td>${order.user?.name || 'Guest'}</td>
+              <td>${utils.formatDate(order.createdAt)}</td>
+              <td>${utils.formatCurrency(order.totalAmount || 0)}</td>
+              <td>
+                <span class="status-badge ${order.status || 'pending'}">
+                  ${order.status || 'Pending'}
+                </span>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-outline-danger" data-action="view-order" data-id="${order._id}">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+          `).join('');
+
+          document.getElementById('recentOrdersList').innerHTML = ordersHtml;
+        } catch (error) {
+          console.error('Error loading orders:', error);
+        }
+      },
+
+      // Initialize charts
+      initializeCharts() {
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart')?.getContext('2d');
+        if (salesCtx) {
+          new Chart(salesCtx, {
+            type: 'line',
+            data: {
+              labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+              datasets: [{
+                label: 'Sales ($)',
+                data: [1200, 1900, 1500, 2500, 2200, 3000, 2800],
+                borderColor: '#dc3545',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#dc3545',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  mode: 'index',
+                  intersect: false,
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  titleFont: { size: 14 },
+                  bodyFont: { size: 13 },
+                  padding: 12,
+                  cornerRadius: 6
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  grid: {
+                    drawBorder: false,
+                    color: 'rgba(0, 0, 0, 0.05)'
+                  },
+                  ticks: {
+                    callback: value => '$' + value
+                  }
+                },
+                x: {
+                  grid: {
+                    display: false
+                  }
+                }
+              },
+              interaction: {
+                intersect: false,
+                mode: 'nearest'
+              }
+            }
+          });
+        }
+
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart')?.getContext('2d');
+        if (categoryCtx) {
+          new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+              labels: ['Electronics', 'Fashion', 'Home', 'Books', 'Sports'],
+              datasets: [{
+                data: [35, 25, 20, 10, 10],
+                backgroundColor: [
+                  '#dc3545',
+                  '#3498db',
+                  '#2ecc71',
+                  '#9b59b6',
+                  '#f39c12'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+              }]
+            },
+            options: {
+              responsive: true,
+              cutout: '70%',
+              plugins: {
+                legend: {
+                  position: 'right',
+                  labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                  }
+                }
+              }
+            }
+          });
+        }
+      },
+
+      // Products page
+      async renderProducts() {
+        utils.showLoading();
+        
+        try {
+          const response = await apiService.getProducts();
+          const products = response.data || response;
+          
+          const html = `
+            <div class="fade-in">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Product Management</h4>
+                <button class="btn btn-danger" data-action="add-product">
+                  <i class="fas fa-plus me-2"></i>Add Product
+                </button>
+              </div>
+              
+              <div class="row mb-4">
+                <div class="col-md-4">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search products..." id="productSearch">
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="fashion">Fashion</option>
+                    <option value="home">Home</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="out-of-stock">Out of Stock</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Image</th>
+                      <th>Name</th>
+                      <th>Category</th>
+                      <th>Price</th>
+                      <th>Stock</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productsTable">
+                    ${products.map(product => `
+                      <tr>
+                        <td>
+                          <img src="${product.images?.[0] || 'https://via.placeholder.com/50'}" 
+                               alt="${product.name}" 
+                               style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                        </td>
+                        <td>
+                          <strong>${product.name}</strong><br>
+                          <small class="text-muted">${product.sku || 'N/A'}</small>
+                        </td>
+                        <td>${product.category?.name || 'Uncategorized'}</td>
+                        <td>${utils.formatCurrency(product.price || 0)}</td>
+                        <td>${product.stock || 0}</td>
+                        <td>
+                          <span class="status-badge ${product.status === 'active' ? 'completed' : 'cancelled'}">
+                            ${product.status || 'inactive'}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" data-action="edit-product" data-id="${product._id}">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" data-action="delete-product" data-id="${product._id}">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-action="view-product" data-id="${product._id}">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              
+              <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                  <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+              </nav>
+            </div>
+          `;
+          
+          elements.pageContent.innerHTML = html;
+        } catch (error) {
+          console.error('Error loading products:', error);
+        } finally {
+          utils.hideLoading();
+        }
+      },
+
+      // Orders page
+      async renderOrders() {
+        utils.showLoading();
+        
+        try {
+          const response = await apiService.getOrders();
+          const orders = response.data || response;
+          
+          const html = `
+            <div class="fade-in">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Order Management</h4>
+                <div class="btn-group">
+                  <button class="btn btn-outline-danger" data-action="export-orders">
+                    <i class="fas fa-download me-2"></i>Export
+                  </button>
+                  <button class="btn btn-danger" data-action="refresh-orders">
+                    <i class="fas fa-sync me-2"></i>Refresh
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Stats -->
+              <div class="row mb-4">
+                <div class="col-md-3">
+                  <div class="card bg-primary bg-opacity-10 border-primary">
+                    <div class="card-body text-center">
+                      <h5 class="text-primary">Pending</h5>
+                      <h3>${orders.filter(o => o.status === 'pending').length}</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-success bg-opacity-10 border-success">
+                    <div class="card-body text-center">
+                      <h5 class="text-success">Completed</h5>
+                      <h3>${orders.filter(o => o.status === 'completed').length}</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-warning bg-opacity-10 border-warning">
+                    <div class="card-body text-center">
+                      <h5 class="text-warning">Processing</h5>
+                      <h3>${orders.filter(o => o.status === 'processing').length}</h3>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-danger bg-opacity-10 border-danger">
+                    <div class="card-body text-center">
+                      <h5 class="text-danger">Cancelled</h5>
+                      <h3>${orders.filter(o => o.status === 'cancelled').length}</h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Customer</th>
+                      <th>Date</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Payment</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordersTable">
+                    ${orders.map(order => `
+                      <tr>
+                        <td><strong>#${order._id?.slice(-8)}</strong></td>
+                        <td>
+                          <div>${order.user?.name || 'Guest'}</div>
+                          <small class="text-muted">${order.user?.email || ''}</small>
+                        </td>
+                        <td>${utils.formatDate(order.createdAt)}</td>
+                        <td>${utils.formatCurrency(order.totalAmount || 0)}</td>
+                        <td>
+                          <select class="form-select form-select-sm status-select" data-id="${order._id}" style="width: 120px;">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                            <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                          </select>
+                        </td>
+                        <td>
+                          <span class="badge bg-${order.paymentStatus === 'paid' ? 'success' : 'warning'}">
+                            ${order.paymentStatus || 'pending'}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" data-action="view-order" data-id="${order._id}">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" data-action="delete-order" data-id="${order._id}">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+          
+          elements.pageContent.innerHTML = html;
+          
+          // Add event listeners for status changes
+          document.querySelectorAll('.status-select').forEach(select => {
+            select.addEventListener('change', async (e) => {
+              const orderId = e.target.dataset.id;
+              const newStatus = e.target.value;
+              
+              try {
+                await apiService.updateOrderStatus(orderId, newStatus);
+                utils.showToast('Order status updated successfully!', 'success');
+              } catch (error) {
+                utils.showToast('Failed to update order status', 'error');
+              }
+            });
+          });
+          
+        } catch (error) {
+          console.error('Error loading orders:', error);
+        } finally {
+          utils.hideLoading();
+        }
+      },
+
+      // Users page
+      async renderUsers() {
+        utils.showLoading();
+        
+        try {
+          const response = await apiService.getUsers();
+          const users = response.data || response;
+          
+          const html = `
+            <div class="fade-in">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>User Management</h4>
+                <button class="btn btn-danger" data-action="add-user">
+                  <i class="fas fa-user-plus me-2"></i>Add User
+                </button>
+              </div>
+              
+              <div class="row mb-4">
+                <div class="col-md-6">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search users..." id="userSearch">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <select class="form-select" id="roleFilter">
+                    <option value="">All Roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                    <option value="moderator">Moderator</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Joined</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTable">
+                    ${users.map(user => `
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="user-avatar me-3" style="width: 40px; height: 40px;">
+                              ${user.name?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                            <div>
+                              <strong>${user.name || 'Unnamed User'}</strong><br>
+                              <small class="text-muted">ID: ${user._id?.slice(-6)}</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>
+                          <span class="badge bg-${user.role === 'admin' ? 'danger' : 'primary'}">
+                            ${user.role || 'user'}
+                          </span>
+                        </td>
+                        <td>
+                          <span class="status-badge ${user.status === 'active' ? 'completed' : 'cancelled'}">
+                            ${user.status || 'inactive'}
+                          </span>
+                        </td>
+                        <td>${utils.formatDate(user.createdAt)}</td>
+                        <td>
+                          <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" data-action="edit-user" data-id="${user._id}">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" data-action="delete-user" data-id="${user._id}">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" data-action="view-user" data-id="${user._id}">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+          
+          elements.pageContent.innerHTML = html;
+        } catch (error) {
+          console.error('Error loading users:', error);
+        } finally {
+          utils.hideLoading();
+        }
+      },
+
+      // Hero sections page
+      async renderHero() {
+        utils.showLoading();
+        
+        try {
+          const response = await apiService.getHeroSections();
+          const heroSections = response.data || response;
+          
+          const html = `
+            <div class="fade-in">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Hero Sections Management</h4>
+                <button class="btn btn-danger" data-action="add-hero">
+                  <i class="fas fa-plus me-2"></i>Add Hero Section
+                </button>
+              </div>
+              
+              <div class="row" id="heroSectionsGrid">
+                ${heroSections.map(hero => `
+                  <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                      <img src="${hero.backgroundImage}" class="card-img-top" alt="${hero.title}" style="height: 200px; object-fit: cover;">
+                      <div class="card-body">
+                        <h5 class="card-title">${hero.title}</h5>
+                        <p class="card-text text-muted">${hero.subtitle}</p>
+                        <div class="mb-3">
+                          <span class="badge bg-${hero.isActive ? 'success' : 'secondary'} me-2">
+                            ${hero.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                          <span class="badge bg-info">Order: ${hero.displayOrder}</span>
+                        </div>
+                        ${hero.buttonText ? `
+                          <a href="${hero.buttonLink || '#'}" class="btn btn-sm btn-outline-danger mb-2">
+                            ${hero.buttonText}
+                          </a>
+                        ` : ''}
+                      </div>
+                      <div class="card-footer">
+                        <div class="btn-group w-100">
+                          <button class="btn btn-sm btn-outline-primary" data-action="edit-hero" data-id="${hero._id}">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" data-action="delete-hero" data-id="${hero._id}">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-success" data-action="toggle-hero" data-id="${hero._id}" data-active="${hero.isActive}">
+                            <i class="fas fa-${hero.isActive ? 'eye-slash' : 'eye'}"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+              
+              ${heroSections.length === 0 ? `
+                <div class="text-center py-5">
+                  <i class="fas fa-images fa-4x text-muted mb-3"></i>
+                  <h4>No Hero Sections</h4>
+                  <p class="text-muted">Get started by creating your first hero section</p>
+                  <button class="btn btn-danger" data-action="add-hero">
+                    <i class="fas fa-plus me-2"></i>Create Hero Section
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          
+          elements.pageContent.innerHTML = html;
+        } catch (error) {
+          console.error('Error loading hero sections:', error);
+        } finally {
+          utils.hideLoading();
+        }
+      },
+
+      // Blogs page
+      async renderBlogs() {
+        utils.showLoading();
+        
+        try {
+          const response = await apiService.getBlogs();
+          const blogs = response.data || response;
+          
+          const html = `
+            <div class="fade-in">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Blog Management</h4>
+                <button class="btn btn-danger" data-action="add-blog">
+                  <i class="fas fa-plus me-2"></i>Add Blog Post
+                </button>
+              </div>
+              
+              <div class="row" id="blogsGrid">
+                ${blogs.map(blog => `
+                  <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                      ${blog.image ? `
+                        <img src="${blog.image}" class="card-img-top" alt="${blog.title}" style="height: 200px; object-fit: cover;">
+                      ` : ''}
+                      <div class="card-body">
+                        <h5 class="card-title">${blog.title}</h5>
+                        <p class="card-text text-muted">${blog.excerpt || ''}</p>
+                        <div class="mb-3">
+                          <span class="badge bg-danger me-2">${blog.category || 'Uncategorized'}</span>
+                          <span class="badge bg-info">${blog.readTime || '5'} min read</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                          <small class="text-muted">
+                            <i class="far fa-calendar-alt me-1"></i>
+                            ${utils.formatDate(blog.createdAt)}
+                          </small>
+                          <span class="badge bg-${blog.status === 'published' ? 'success' : 'warning'}">
+                            ${blog.status || 'draft'}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="card-footer">
+                        <div class="btn-group w-100">
+                          <button class="btn btn-sm btn-outline-primary" data-action="edit-blog" data-id="${blog._id}">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-danger" data-action="delete-blog" data-id="${blog._id}">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                          <button class="btn btn-sm btn-outline-success" data-action="view-blog" data-id="${blog._id}">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          
+          elements.pageContent.innerHTML = html;
+        } catch (error) {
+          console.error('Error loading blogs:', error);
+        } finally {
+          utils.hideLoading();
+        }
+      }
+    };
+
+    // ============================================
+    // Event Handlers
+    // ============================================
+    const eventHandlers = {
+      // Initialize all event listeners
+      init() {
+        // Sidebar toggle
+        elements.sidebarToggle.addEventListener('click', this.toggleSidebar);
+        
+        // Navigation links
+        document.querySelectorAll('.nav-link[data-page]').forEach(link => {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.handleNavigation(e.target.closest('.nav-link').dataset.page);
+          });
+        });
+        
+        // Logout
+        elements.logoutBtn.addEventListener('click', this.handleLogout);
+        
+        // User profile
+        elements.userProfile.addEventListener('click', () => {
+          new bootstrap.Modal(document.getElementById('profileModal')).show();
+        });
+        
+        // Notifications
+        elements.notificationBtn.addEventListener('click', () => {
+          new bootstrap.Modal(document.getElementById('notificationModal')).show();
+        });
+        
+        // Global search
+        elements.globalSearch.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            this.handleSearch(e.target.value);
+          }
+        });
+        
+        // Delegate page content clicks
+        elements.pageContent.addEventListener('click', (e) => {
+          const action = e.target.closest('[data-action]')?.dataset.action;
+          const id = e.target.closest('[data-id]')?.dataset.id;
+          
+          if (action) {
+            this.handlePageAction(action, id);
+          }
+        });
+        
+        // Initialize date
+        this.updateCurrentDate();
+        setInterval(this.updateCurrentDate, 60000);
+      },
+      
+      // Toggle sidebar
+      toggleSidebar() {
+        elements.sidebar.classList.toggle('sidebar-collapsed');
+        elements.mainContent.classList.toggle('main-expanded');
+      },
+      
+      // Handle navigation
+      handleNavigation(page) {
+        state.currentPage = page;
+        
+        // Update active nav link
+        document.querySelectorAll('.nav-link').forEach(link => {
+          link.classList.remove('active');
+        });
+        document.querySelector(`.nav-link[data-page="${page}"]`).classList.add('active');
+        
+        // Update page title
+        document.title = `${page.charAt(0).toUpperCase() + page.slice(1)} - E-Shop Admin`;
+        
+        // Render page
+        switch(page) {
+          case 'dashboard':
+            pageRenderer.renderDashboard();
+            break;
+          case 'products':
+            pageRenderer.renderProducts();
+            break;
+          case 'orders':
+            pageRenderer.renderOrders();
+            break;
+          case 'users':
+            pageRenderer.renderUsers();
+            break;
+          case 'hero':
+            pageRenderer.renderHero();
+            break;
+          case 'blogs':
+            pageRenderer.renderBlogs();
+            break;
+          default:
+            elements.pageContent.innerHTML = `
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Page "${page}" is under construction.
+              </div>
+            `;
+        }
+      },
+      
+      // Handle logout
+      handleLogout() {
+        if (confirm('Are you sure you want to logout?')) {
+          localStorage.removeItem(CONFIG.TOKEN_KEY);
+          localStorage.removeItem(CONFIG.USER_KEY);
+          utils.showToast('Logged out successfully', 'success');
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        }
+      },
+      
+      // Update current date
+      updateCurrentDate() {
+        elements.currentDate.textContent = utils.formatDate(new Date());
+      },
+      
+      // Handle search
+      handleSearch(query) {
+        utils.showToast(`Searching for: ${query}`, 'info');
+        // Implement search functionality
+      },
+      
+      // Handle page actions
+      handlePageAction(action, id) {
+        switch(action) {
+          case 'add-product':
+            utils.showToast('Add product clicked', 'info');
+            break;
+          case 'edit-product':
+            utils.showToast(`Edit product ${id}`, 'info');
+            break;
+          case 'delete-product':
+            if (confirm('Are you sure you want to delete this product?')) {
+              apiService.deleteItem('products', id)
+                .then(() => {
+                  utils.showToast('Product deleted successfully', 'success');
+                  pageRenderer.renderProducts();
+                })
+                .catch(error => {
+                  utils.showToast('Failed to delete product', 'error');
+                });
+            }
+            break;
+          case 'view-order':
+            utils.showToast(`View order ${id}`, 'info');
+            break;
+          case 'delete-order':
+            if (confirm('Are you sure you want to delete this order?')) {
+              apiService.deleteItem('orders', id)
+                .then(() => {
+                  utils.showToast('Order deleted successfully', 'success');
+                  pageRenderer.renderOrders();
+                })
+                .catch(error => {
+                  utils.showToast('Failed to delete order', 'error');
+                });
+            }
+            break;
+          case 'add-user':
+            utils.showToast('Add user clicked', 'info');
+            break;
+          case 'edit-user':
+            utils.showToast(`Edit user ${id}`, 'info');
+            break;
+          case 'delete-user':
+            if (confirm('Are you sure you want to delete this user?')) {
+              apiService.deleteItem('users', id)
+                .then(() => {
+                  utils.showToast('User deleted successfully', 'success');
+                  pageRenderer.renderUsers();
+                })
+                .catch(error => {
+                  utils.showToast('Failed to delete user', 'error');
+                });
+            }
+            break;
+          case 'add-hero':
+            window.open('hero-admin.html', '_blank');
+            break;
+          case 'edit-hero':
+            utils.showToast(`Edit hero section ${id}`, 'info');
+            break;
+          case 'delete-hero':
+            if (confirm('Are you sure you want to delete this hero section?')) {
+              apiService.deleteItem('hero', id)
+                .then(() => {
+                  utils.showToast('Hero section deleted successfully', 'success');
+                  pageRenderer.renderHero();
+                })
+                .catch(error => {
+                  utils.showToast('Failed to delete hero section', 'error');
+                });
+            }
+            break;
+          case 'toggle-hero':
+            utils.showToast('Toggle hero status', 'info');
+            break;
+          case 'add-blog':
+            utils.showToast('Add blog clicked', 'info');
+            break;
+          case 'edit-blog':
+            utils.showToast(`Edit blog ${id}`, 'info');
+            break;
+          case 'delete-blog':
+            if (confirm('Are you sure you want to delete this blog?')) {
+              apiService.deleteItem('blogs', id)
+                .then(() => {
+                  utils.showToast('Blog deleted successfully', 'success');
+                  pageRenderer.renderBlogs();
+                })
+                .catch(error => {
+                  utils.showToast('Failed to delete blog', 'error');
+                });
+            }
+            break;
+          default:
+            console.log('Action:', action, 'ID:', id);
+        }
+      }
+    };
+
+    // ============================================
+    // Initialize Application
+    // ============================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check authentication
+      if (!utils.isAuthenticated()) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Initialize UI
+      eventHandlers.init();
+      
+      // Load user data
+      if (state.user.name) {
+        elements.userName.textContent = state.user.name;
+        elements.userAvatar.textContent = state.user.name.charAt(0).toUpperCase();
+      }
+      
+      // Load dashboard by default
+      eventHandlers.handleNavigation('dashboard');
+      
+      // Load notifications
+      try {
+        // Simulate notifications
+        state.notifications = [
+          { id: 1, text: 'New order received', time: '5 minutes ago', type: 'order' },
+          { id: 2, text: 'Product low in stock', time: '1 hour ago', type: 'warning' },
+          { id: 3, text: 'New user registered', time: '2 hours ago', type: 'user' }
+        ];
+        
+        const notificationList = document.getElementById('notificationList');
+        if (notificationList) {
+          notificationList.innerHTML = state.notifications.map(notif => `
+            <a href="#" class="list-group-item list-group-item-action">
+              <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">${notif.text}</h6>
+                <small>${notif.time}</small>
+              </div>
+              <small class="text-muted">Click to view details</small>
+            </a>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Error loading notifications:', error);
+      }
+    });
+
+    // ============================================
+    // Export for debugging
+    // ============================================
+    window.app = {
+      state,
+      utils,
+      apiService,
+      pageRenderer,
+      eventHandlers
+    };
+  </script>
 </body>
 </html>

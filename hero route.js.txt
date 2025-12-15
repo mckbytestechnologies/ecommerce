@@ -1,0 +1,445 @@
+hero route.js
+
+import express from "express";
+import {
+  getAllHeroSections,
+  getActiveHeroSections,
+  createHeroSection,
+  updateHeroSection,
+  deleteHeroSection,
+  reorderHeroSections
+} from "../controllers/heroController.js";
+
+import { authenticate, authorize } from "../middleware/auth.js";
+import upload from "../middleware/uploadMiddleware.js";
+
+const router = express.Router();
+
+// Public route
+router.get("/active", getActiveHeroSections);
+
+// Admin Routes
+router.route("/")
+  .get(authenticate, authorize, getAllHeroSections)
+  .post(authenticate, authorize, upload.single("backgroundImage"), createHeroSection);
+
+router.put("/reorder", authenticate, authorize, reorderHeroSections);
+
+router.route("/:id")
+  .put(authenticate, authorize, upload.single("backgroundImage"), updateHeroSection)
+  .delete(authenticate, authorize, deleteHeroSection);
+
+export default router;
+
+herocontroler.js:
+
+import HeroSection from "../models/HeroSection.js";
+import asyncHandler from "express-async-handler";
+import { uploadImage } from "../Utilis/uploadHelper.js";
+
+
+// @desc    Get all hero sections (admin only)
+// @route   GET /api/hero
+// @access  Private/Admin
+export const getAllHeroSections = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const [heroSections, total] = await Promise.all([
+    HeroSection.find()
+      .populate("createdBy", "name email")
+      .sort({ displayOrder: 1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    HeroSection.countDocuments()
+  ]);
+
+  res.json({
+    success: true,
+    count: heroSections.length,
+    total,
+    totalPages: Math.ceil(total / limit),
+    currentPage: page,
+    data: heroSections
+  });
+});
+
+// @desc    Get active hero sections for frontend
+// @route   GET /api/hero/active
+// @access  Public
+export const getActiveHeroSections = asyncHandler(async (req, res) => {
+  const currentDate = new Date();
+  
+  const heroSections = await HeroSection.find({
+    isActive: true,
+    $or: [
+      { endDate: { $exists: false } },
+      { endDate: { $gte: currentDate } }
+    ]
+  })
+  .select("title subtitle backgroundImage buttonText buttonLink displayOrder")
+  .sort({ displayOrder: 1, createdAt: -1 })
+  .limit(5);
+
+  res.json({
+    success: true,
+    count: heroSections.length,
+    data: heroSections
+  });
+});
+
+// @desc    Create new hero section
+// @route   POST /api/hero
+// @access  Private/Admin
+export const createHeroSection = asyncHandler(async (req, res) => {
+  const {
+    title,
+    subtitle,
+    backgroundImage,
+    buttonText,
+    buttonLink,
+    displayOrder,
+    isActive,
+    endDate
+  } = req.body;
+
+  // Validate required fields
+  if (!title || !subtitle) {
+    res.status(400);
+    throw new Error("Title and subtitle are required");
+  }
+
+  // Handle image upload if file is present
+  let imageUrl = backgroundImage;
+  if (req.file) {
+    try {
+      const uploadResult = await uploadImage(req.file, "hero-images");
+      imageUrl = uploadResult.url;
+    } catch (error) {
+      res.status(400);
+      throw new Error("Failed to upload image: " + error.message);
+    }
+  }
+
+  // If no image provided
+  if (!imageUrl) {
+    res.status(400);
+    throw new Error("Background image is required");
+  }
+
+  const heroSection = await HeroSection.create({
+    title,
+    subtitle,
+    backgroundImage: imageUrl,
+    buttonText: buttonText || "Get Started",
+    buttonLink: buttonLink || "#",
+    displayOrder: displayOrder || 0,
+    isActive: isActive !== undefined ? isActive : true,
+    endDate: endDate ? new Date(endDate) : undefined,
+    createdBy: req.user._id
+  });
+
+  const populatedHero = await HeroSection.findById(heroSection._id)
+    .populate("createdBy", "name email");
+
+  res.status(201).json({
+    success: true,
+    message: "Hero section created successfully",
+    data: populatedHero
+  });
+});
+
+// @desc    Update hero section
+// @route   PUT /api/hero/:id
+// @access  Private/Admin
+export const updateHeroSection = asyncHandler(async (req, res) => {
+  const heroSection = await HeroSection.findById(req.params.id);
+
+  if (!heroSection) {
+    res.status(404);
+    throw new Error("Hero section not found");
+  }
+
+  // Handle image upload if new file is present
+  let imageUrl = req.body.backgroundImage || heroSection.backgroundImage;
+  if (req.file) {
+    try {
+      const uploadResult = await uploadImage(req.file, "hero-images");
+      imageUrl = uploadResult.url;
+    } catch (error) {
+      res.status(400);
+      throw new Error("Failed to upload image: " + error.message);
+    }
+  }
+
+  // Update fields
+  const updates = {};
+  const fields = ["title", "subtitle", "buttonText", "buttonLink", "displayOrder", "isActive", "endDate"];
+  
+  fields.forEach(field => {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
+  });
+
+  updates.backgroundImage = imageUrl;
+
+  const updatedHero = await HeroSection.findByIdAndUpdate(
+    req.params.id,
+    { $set: updates },
+    { new: true, runValidators: true }
+  ).populate("createdBy", "name email");
+
+  res.json({
+    success: true,
+    message: "Hero section updated successfully",
+    data: updatedHero
+  });
+});
+
+// @desc    Delete hero section
+// @route   DELETE /api/hero/:id
+// @access  Private/Admin
+export const deleteHeroSection = asyncHandler(async (req, res) => {
+  const heroSection = await HeroSection.findById(req.params.id);
+
+  if (!heroSection) {
+    res.status(404);
+    throw new Error("Hero section not found");
+  }
+
+  await heroSection.deleteOne();
+
+  res.json({
+    success: true,
+    message: "Hero section deleted successfully"
+  });
+});
+
+// @desc    Reorder hero sections
+// @route   PUT /api/hero/reorder
+// @access  Private/Admin
+export const reorderHeroSections = asyncHandler(async (req, res) => {
+  const { order } = req.body;
+
+  if (!Array.isArray(order)) {
+    res.status(400);
+    throw new Error("Order array is required");
+  }
+
+  const bulkOps = order.map((item, index) => ({
+    updateOne: {
+      filter: { _id: item.id },
+      update: { displayOrder: index }
+    }
+  }));
+
+  await HeroSection.bulkWrite(bulkOps);
+
+  res.json({
+    success: true,
+    message: "Hero sections reordered successfully"
+  });
+});
+
+auth .js:
+
+import jwt from "jsonwebtoken";
+import UserModel from "../models/User.js";
+
+// ----------------------
+// Authenticate Middleware
+// ----------------------
+export const authenticate = async (req, res, next) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        error: true,
+        message: "Access denied. No token provided.",
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const userId = decoded.id || decoded._id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: true,
+        message: "Invalid token payload.",
+      });
+    }
+
+    const user = await UserModel.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: true,
+        message: "Invalid token. User not found.",
+      });
+    }
+
+    if (user.status !== "active") {
+      return res.status(401).json({
+        success: false,
+        error: true,
+        message: "Account is inactive or suspended.",
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({
+        success: false,
+        error: true,
+        message: "Token expired.",
+      });
+    }
+
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({
+        success: false,
+        error: true,
+        message: "Invalid token.",
+      });
+    }
+
+    return res.status(401).json({
+      success: false,
+      error: true,
+      message: "Authentication failed.",
+    });
+  }
+};
+
+// ----------------------
+// Authorize Middleware
+// ----------------------
+export const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(403).json({
+        success: false,
+        error: true,
+        message: "User not authenticated.",
+      });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        error: true,
+        message: "Access denied. You don't have permission.",
+      });
+    }
+
+    next();
+  };
+};
+
+
+uploadmiddleware.js:
+
+
+import multer from "multer";
+import { validateImage } from "../utilis/uploadHelper.js";
+
+// Configure multer memory storage
+const storage = multer.memoryStorage();
+
+// File filter
+const fileFilter = (req, file, cb) => {
+  try {
+    validateImage(file);
+    cb(null, true);
+  } catch (error) {
+    cb(error, false);
+  }
+};
+
+// Create upload middleware
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  }
+});
+
+export default upload;
+
+models:
+
+
+import mongoose from "mongoose";
+
+const heroSectionSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, "Hero title is required"],
+    trim: true,
+    maxlength: [200, "Title cannot exceed 200 characters"]
+  },
+  subtitle: {
+    type: String,
+    required: [true, "Hero subtitle is required"],
+    trim: true,
+    maxlength: [500, "Subtitle cannot exceed 500 characters"]
+  },
+  backgroundImage: {
+    type: String,
+    required: [true, "Background image is required"],
+    trim: true
+  },
+  buttonText: {
+    type: String,
+    default: "Get Started",
+    trim: true,
+    maxlength: [50, "Button text cannot exceed 50 characters"]
+  },
+  buttonLink: {
+    type: String,
+    default: "#",
+    trim: true
+  },
+  displayOrder: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  startDate: {
+    type: Date,
+    default: Date.now
+  },
+  endDate: {
+    type: Date
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  }
+}, {
+  timestamps: true
+});
+
+// Index for efficient queries
+heroSectionSchema.index({ isActive: 1, displayOrder: 1 });
+heroSectionSchema.index({ createdBy: 1 });
+
+const HeroSection = mongoose.model("HeroSection", heroSectionSchema);
+export default HeroSection;

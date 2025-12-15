@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Slider - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; }
+    #sidebar { width: 250px; }
+    #wrapper { display: flex; }
+    .nav-link:hover { background-color: rgba(255,255,255,0.1); }
+    .slide-card { transition: transform 0.2s; }
+    .slide-card:hover { transform: translateY(-2px); }
+    .status-badge { font-size: 0.75rem; }
+    .image-thumbnail { width: 100px; height: 60px; object-fit: cover; border-radius: 4px; }
+    .feature-badge { font-size: 0.7rem; }
+    .tab-pane { padding: 1rem 0; }
+    .btn-group-sm .btn { padding: 0.25rem 0.5rem; }
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --dark-color: #34495e;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .sidebar {
+      background-color: var(--dark-color);
+      min-height: calc(100vh - 56px);
+      color: white;
+    }
+    
+    .sidebar .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 0.75rem 1rem;
+      border-radius: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .sidebar .nav-link i {
+      margin-right: 0.5rem;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .image-preview-container {
+      max-height: 200px;
+      overflow: hidden;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    
+    .image-preview {
+      width: 100%;
+      height: auto;
+      max-height: 200px;
+      object-fit: cover;
+    }
+    
+    .stats-card {
+      border: none;
+      border-radius: 10px;
+      transition: transform 0.3s;
+    }
+    
+    .stats-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .debug-panel {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 300px;
+      height: 200px;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      padding: 10px;
+      overflow: auto;
+      font-size: 12px;
+      z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Debug Panel (for troubleshooting) -->
+  <div class="debug-panel" id="debugPanel">
+    <button onclick="document.getElementById('debugPanel').style.display='none'" class="btn btn-sm btn-danger float-end">X</button>
+    <h6>Debug Info</h6>
+    <pre id="debugInfo"></pre>
+  </div>
+
+  <div class="d-flex" id="wrapper">
+    <!-- Sidebar -->
+    <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
+      <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="fas fa-tachometer-alt"></i>
+              Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="users.html">
+              <i class="fas fa-users"></i>
+              Users
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="categories.html" class="nav-link text-white">
+              <i class="fas fa-list"></i> Categories
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="products.html" class="nav-link text-white">
+              <i class="fas fa-box"></i> Products
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="hero.html">
+              <i class="fas fa-images"></i>
+              Hero Slider
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="orders.html">
+              <i class="fas fa-shopping-cart"></i>
+              Orders
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid p-4" id="page-content">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="mb-1"><i class="fas fa-images me-2"></i>Hero Slider Management</h2>
+          <p class="text-muted mb-0">Manage your website hero banner slides</p>
+        </div>
+        <div>
+          <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleDebug()">
+            <i class="fas fa-bug"></i> Debug
+          </button>
+          <button class="btn btn-primary" id="addSlideBtn">
+            <i class="fas fa-plus me-2"></i>Add Slide
+          </button>
+        </div>
+      </div>
+
+      <!-- Alert Box -->
+      <div id="alertBox"></div>
+
+      <!-- Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card stats-card bg-primary text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="card-subtitle mb-2">Total Slides</h6>
+                  <h2 id="totalSlides" class="card-title">0</h2>
+                </div>
+                <i class="fas fa-images fa-2x opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stats-card bg-success text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="card-subtitle mb-2">Active Slides</h6>
+                  <h2 id="activeSlides" class="card-title">0</h2>
+                </div>
+                <i class="fas fa-check-circle fa-2x opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stats-card bg-warning text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="card-subtitle mb-2">Featured Slides</h6>
+                  <h2 id="featuredSlides" class="card-title">0</h2>
+                </div>
+                <i class="fas fa-star fa-2x opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card stats-card bg-info text-white">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="card-subtitle mb-2">Expired Soon</h6>
+                  <h2 id="expiringSlides" class="card-title">0</h2>
+                </div>
+                <i class="fas fa-clock fa-2x opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Featured</label>
+              <select class="form-select" id="featuredFilter">
+                <option value="">All Slides</option>
+                <option value="featured">Featured Only</option>
+                <option value="not-featured">Not Featured</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Order By</label>
+              <select class="form-select" id="orderFilter">
+                <option value="displayOrder">Display Order</option>
+                <option value="createdAt">Newest First</option>
+              </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="showInactiveToggle">
+                <label class="form-check-label" for="showInactiveToggle">Show Inactive</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slides Table -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Slides List</h5>
+          <button class="btn btn-outline-primary btn-sm" onclick="openReorderModal()">
+            <i class="fas fa-sort me-1"></i>Reorder Slides
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead class="table-dark">
+                <tr>
+                  <th>#</th>
+                  <th>Image</th>
+                  <th>Title & Subtitle</th>
+                  <th>Button & Link</th>
+                  <th>Status</th>
+                  <th>Dates</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="slidesTable">
+                <tr>
+                  <td colspan="7" class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide Modal -->
+  <div class="modal fade" id="slideModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="modalTitle">Add Slide</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="slideForm">
+            <input type="hidden" id="slideId">
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Title *</label>
+                <input type="text" id="title" class="form-control" required maxlength="200" placeholder="Enter slide title">
+                <div class="form-text">
+                  <span id="titleCount">0</span>/200 characters
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Button Text</label>
+                <input type="text" id="buttonText" class="form-control" maxlength="50" placeholder="Get Started">
+                <div class="form-text">Leave empty for no button</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Subtitle *</label>
+                <textarea id="subtitle" class="form-control" rows="3" required maxlength="500" placeholder="Enter slide subtitle"></textarea>
+                <div class="form-text">
+                  <span id="subtitleCount">0</span>/500 characters
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Button Link</label>
+                <input type="url" id="buttonLink" class="form-control" placeholder="https://example.com">
+                <div class="form-text">Link for the action button</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Background Image URL *</label>
+                <div class="input-group">
+                  <input type="text" id="backgroundImage" class="form-control" required placeholder="Enter image URL">
+                  <button class="btn btn-outline-secondary" type="button" onclick="openImageUploadModal()">
+                    <i class="fas fa-upload me-1"></i>Upload
+                  </button>
+                </div>
+                <div class="form-text">Enter image URL or click upload</div>
+                
+                <!-- Image Preview -->
+                <div id="imagePreviewContainer" class="image-preview-container mt-3 d-none">
+                  <p class="small text-muted mb-2">Preview:</p>
+                  <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                </div>
+                
+                <!-- Current Image -->
+                <div id="currentImageContainer" class="image-preview-container mt-3 d-none">
+                  <p class="small text-muted mb-2">Current Image:</p>
+                  <img id="currentImage" class="image-preview" src="" alt="Current Image">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Display Order</label>
+                <input type="number" id="displayOrder" class="form-control" min="0" value="0">
+                <div class="form-text">Lower numbers appear first</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">End Date (Optional)</label>
+                <input type="datetime-local" id="endDate" class="form-control">
+                <div class="form-text">When this slide should expire</div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="isActive" checked>
+                  <label class="form-check-label" for="isActive">Active Slide</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="isFeatured">
+                  <label class="form-check-label" for="isFeatured">Featured Slide</label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="saveSlideBtn">
+            <i class="fas fa-save me-2"></i>Save Slide
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SortableJS -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+  
+  <!-- Main Script -->
+  <script>
+    // API Configuration
+    const API_BASE = "http://localhost:5000/api";
+    const HERO_API = `${API_BASE}/hero`;
+
+    // Global Variables
+    let currentSlides = [];
+    let slideModalInstance = null;
+    let imageUploadModalInstance = null;
+    let reorderModalInstance = null;
+    let sortableInstance = null;
+
+    // DOM Elements
+    const slidesTable = document.getElementById('slidesTable');
+    const slideModalEl = document.getElementById('slideModal');
+    const alertBox = document.getElementById('alertBox');
+    const addSlideBtn = document.getElementById('addSlideBtn');
+    const saveSlideBtn = document.getElementById('saveSlideBtn');
+
+    // Authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    const authHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    // Debug logging
+    function debugLog(message, data = null) {
+      console.log(`[DEBUG] ${message}`, data || '');
+      const debugInfo = document.getElementById('debugInfo');
+      if (debugInfo) {
+        debugInfo.textContent += `\n${new Date().toLocaleTimeString()}: ${message}`;
+        if (data) debugInfo.textContent += `\n${JSON.stringify(data, null, 2)}`;
+      }
+    }
+
+    // Toggle debug panel
+    function toggleDebug() {
+      const panel = document.getElementById('debugPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      slideModalInstance = new bootstrap.Modal(slideModalEl);
+      
+      loadSlides();
+      initializeForm();
+      initializeFilters();
+      
+      debugLog('Page initialized');
+    });
+
+    // Load Slides - SIMPLIFIED VERSION
+    async function loadSlides() {
+      try {
+        showLoading();
+        debugLog('Loading slides from:', HERO_API);
+        
+        const response = await fetch(HERO_API, { 
+          headers: authHeaders 
+        });
+        
+        debugLog('Response status:', response.status);
+        
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const result = await response.json();
+        debugLog('API Response:', result);
+
+        if (response.ok && result.success) {
+          const slides = result.data || [];
+          currentSlides = slides;
+          renderSlides(slides);
+          updateStats(slides);
+          debugLog(`Loaded ${slides.length} slides`);
+        } else {
+          showAlert(result.message || 'Failed to load slides', 'danger');
+        }
+      } catch (error) {
+        console.error('Error loading slides:', error);
+        debugLog('Error loading slides:', error.message);
+        showAlert('Error loading slides: ' + error.message, 'danger');
+        renderEmptyState();
+      }
+    }
+
+    // Show loading state
+    function showLoading() {
+      slidesTable.innerHTML = `
+        <tr id="loadingRow">
+          <td colspan="7" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading slides...</p>
+          </td>
+        </tr>
+      `;
+    }
+
+    // Render Slides Table
+    function renderSlides(slides) {
+      if (!slides || slides.length === 0) {
+        renderEmptyState();
+        return;
+      }
+
+      let html = '';
+      slides.forEach((slide, index) => {
+        const isExpired = slide.endDate ? new Date(slide.endDate) < new Date() : false;
+        const isFeatured = slide.isFeatured;
+        const isActive = slide.isActive;
+        
+        html += `
+          <tr data-id="${slide._id}" class="${!isActive ? 'table-secondary' : ''}">
+            <td>${index + 1}</td>
+            <td>
+              <img src="${slide.backgroundImage || 'https://via.placeholder.com/100x60?text=No+Image'}" 
+                   alt="${slide.title || 'Slide'}" 
+                   class="image-thumbnail">
+            </td>
+            <td>
+              <div class="fw-bold">${slide.title || 'No Title'}</div>
+              <small class="text-muted">${slide.subtitle ? slide.subtitle.substring(0, 100) : 'No subtitle'}${slide.subtitle && slide.subtitle.length > 100 ? '...' : ''}</small>
+            </td>
+            <td>
+              ${slide.buttonText ? `
+                <span class="badge bg-primary">${slide.buttonText}</span>
+                <br>
+                <small class="text-muted">${slide.buttonLink ? slide.buttonLink.substring(0, 30) : 'No link'}${slide.buttonLink && slide.buttonLink.length > 30 ? '...' : ''}</small>
+              ` : '<span class="text-muted">No button</span>'}
+            </td>
+            <td>
+              <span class="badge ${isActive ? 'bg-success' : 'bg-secondary'} status-badge me-1">
+                ${isActive ? 'Active' : 'Inactive'}
+              </span>
+              ${isFeatured ? '<span class="badge bg-warning status-badge me-1">Featured</span>' : ''}
+              ${isExpired ? '<span class="badge bg-danger status-badge">Expired</span>' : ''}
+            </td>
+            <td>
+              <small>Created: ${slide.createdAt ? new Date(slide.createdAt).toLocaleDateString() : 'N/A'}</small>
+              ${slide.endDate ? `
+                <br><small>Expires: ${new Date(slide.endDate).toLocaleDateString()}</small>
+              ` : ''}
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" onclick="viewSlide('${slide._id}')" title="Preview">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-outline-warning" onclick="editSlide('${slide._id}')" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-danger" onclick="deleteSlide('${slide._id}')" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      slidesTable.innerHTML = html;
+      debugLog(`Rendered ${slides.length} slides`);
+    }
+
+    // Render empty state
+    function renderEmptyState() {
+      slidesTable.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center py-5">
+            <i class="fas fa-images fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No slides found</h5>
+            <p class="text-muted">Get started by creating your first hero slide</p>
+            <button class="btn btn-primary" onclick="openAddSlideModal()">
+              <i class="fas fa-plus me-2"></i>Create First Slide
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    // Update Stats
+    function updateStats(slides) {
+      const total = slides.length;
+      const active = slides.filter(s => s.isActive).length;
+      const featured = slides.filter(s => s.isFeatured).length;
+      
+      const now = new Date();
+      const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const expiringSoon = slides.filter(s => {
+        if (!s.endDate || !s.isActive) return false;
+        const endDate = new Date(s.endDate);
+        return endDate > now && endDate < weekFromNow;
+      }).length;
+
+      document.getElementById('totalSlides').textContent = total;
+      document.getElementById('activeSlides').textContent = active;
+      document.getElementById('featuredSlides').textContent = featured;
+      document.getElementById('expiringSlides').textContent = expiringSoon;
+    }
+
+    // Initialize Form
+    function initializeForm() {
+      // Character counters
+      document.getElementById('title').addEventListener('input', function() {
+        document.getElementById('titleCount').textContent = this.value.length;
+      });
+      
+      document.getElementById('subtitle').addEventListener('input', function() {
+        document.getElementById('subtitleCount').textContent = this.value.length;
+      });
+      
+      // Image URL preview
+      document.getElementById('backgroundImage').addEventListener('input', function() {
+        const url = this.value.trim();
+        if (url) {
+          document.getElementById('imagePreview').src = url;
+          document.getElementById('imagePreviewContainer').classList.remove('d-none');
+        } else {
+          document.getElementById('imagePreviewContainer').classList.add('d-none');
+        }
+      });
+      
+      // Save button click
+      saveSlideBtn.addEventListener('click', saveSlide);
+      
+      // Add slide button
+      addSlideBtn.addEventListener('click', openAddSlideModal);
+    }
+
+    // Initialize Filters
+    function initializeFilters() {
+      const filters = ['statusFilter', 'featuredFilter', 'orderFilter', 'showInactiveToggle'];
+      
+      filters.forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element) {
+          element.addEventListener('change', () => {
+            loadSlides();
+          });
+        }
+      });
+    }
+
+    // Open Add Slide Modal
+    function openAddSlideModal() {
+      document.getElementById('modalTitle').textContent = 'Add New Slide';
+      document.getElementById('slideForm').reset();
+      document.getElementById('slideId').value = '';
+      
+      // Reset previews
+      document.getElementById('imagePreviewContainer').classList.add('d-none');
+      document.getElementById('currentImageContainer').classList.add('d-none');
+      
+      // Set defaults
+      document.getElementById('isActive').checked = true;
+      document.getElementById('isFeatured').checked = false;
+      document.getElementById('displayOrder').value = 0;
+      document.getElementById('titleCount').textContent = '0';
+      document.getElementById('subtitleCount').textContent = '0';
+      
+      slideModalInstance.show();
+      debugLog('Opened Add Slide modal');
+    }
+
+    // View Slide Preview
+    function viewSlide(slideId) {
+      window.open(`slider-preview.html?preview=${slideId}`, '_blank');
+      debugLog(`View slide: ${slideId}`);
+    }
+
+    // Edit Slide - FIXED WITH WORKAROUND
+    async function editSlide(slideId) {
+      try {
+        showAlert('Loading slide data...', 'info');
+        debugLog(`Editing slide: ${slideId}`);
+        
+        // FIRST: Check if the slide exists in our current list
+        const slide = currentSlides.find(s => s._id === slideId);
+        
+        if (!slide) {
+          // If not found, try to fetch it directly
+          debugLog('Slide not found in cache, trying API...');
+          
+          const response = await fetch(`${HERO_API}/${slideId}`, {
+            headers: authHeaders
+          });
+          
+          debugLog('Edit API response status:', response.status);
+          
+          if (response.status === 404) {
+            // If 404, show error and use data from list (workaround)
+            debugLog('API returned 404, using cached data if available');
+            throw new Error('API endpoint not found. Using available data.');
+          }
+          
+          const result = await response.json();
+          debugLog('Edit API response:', result);
+          
+          if (response.ok && result.success) {
+            fillFormWithSlideData(result.data);
+            slideModalInstance.show();
+            showAlert('Slide data loaded from API!', 'success');
+            return;
+          }
+        } else {
+          // Use the data from our current list
+          debugLog('Using cached slide data:', slide);
+          fillFormWithSlideData(slide);
+          slideModalInstance.show();
+          showAlert('Slide data loaded!', 'success');
+          return;
+        }
+        
+        throw new Error('Could not load slide data');
+        
+      } catch (error) {
+        console.error('Error in editSlide:', error);
+        debugLog('Edit error:', error.message);
+        
+        // Try to find the slide in currentSlides as fallback
+        const slide = currentSlides.find(s => s._id === slideId);
+        if (slide) {
+          debugLog('Using fallback data from cache');
+          fillFormWithSlideData(slide);
+          slideModalInstance.show();
+          showAlert('Slide loaded from cache (API unavailable)', 'warning');
+        } else {
+          showAlert(`Error loading slide: ${error.message}`, 'danger');
+        }
+      }
+    }
+
+    // Helper function to fill form with slide data
+    function fillFormWithSlideData(slide) {
+      document.getElementById('modalTitle').textContent = 'Edit Slide';
+      document.getElementById('slideId').value = slide._id || '';
+      document.getElementById('title').value = slide.title || '';
+      document.getElementById('subtitle').value = slide.subtitle || '';
+      document.getElementById('buttonText').value = slide.buttonText || '';
+      document.getElementById('buttonLink').value = slide.buttonLink || '';
+      document.getElementById('backgroundImage').value = slide.backgroundImage || '';
+      document.getElementById('displayOrder').value = slide.displayOrder || 0;
+      document.getElementById('isActive').checked = slide.isActive !== false;
+      document.getElementById('isFeatured').checked = slide.isFeatured || false;
+      
+      // Handle end date
+      if (slide.endDate) {
+        const date = new Date(slide.endDate);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        document.getElementById('endDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+      } else {
+        document.getElementById('endDate').value = '';
+      }
+      
+      // Update character counters
+      document.getElementById('titleCount').textContent = slide.title?.length || 0;
+      document.getElementById('subtitleCount').textContent = slide.subtitle?.length || 0;
+      
+      // Show current image
+      if (slide.backgroundImage) {
+        document.getElementById('currentImage').src = slide.backgroundImage;
+        document.getElementById('currentImageContainer').classList.remove('d-none');
+        document.getElementById('imagePreviewContainer').classList.add('d-none');
+      }
+      
+      debugLog('Form filled with slide data');
+    }
+
+    // Save Slide - SIMPLIFIED
+    async function saveSlide() {
+      const slideId = document.getElementById('slideId').value;
+      
+      // Prepare slide data
+      const slideData = {
+        title: document.getElementById('title').value.trim(),
+        subtitle: document.getElementById('subtitle').value.trim(),
+        backgroundImage: document.getElementById('backgroundImage').value.trim(),
+        buttonText: document.getElementById('buttonText').value.trim() || undefined,
+        buttonLink: document.getElementById('buttonLink').value.trim() || undefined,
+        displayOrder: parseInt(document.getElementById('displayOrder').value) || 0,
+        isActive: document.getElementById('isActive').checked,
+        isFeatured: document.getElementById('isFeatured').checked
+      };
+      
+      // Add end date if set
+      const endDate = document.getElementById('endDate').value;
+      if (endDate) {
+        slideData.endDate = endDate;
+      }
+
+      // Validation
+      if (!slideData.title || !slideData.subtitle || !slideData.backgroundImage) {
+        showAlert('Please fill in all required fields (Title, Subtitle, Background Image)', 'warning');
+        return;
+      }
+
+      try {
+        const url = slideId ? `${HERO_API}/${slideId}` : HERO_API;
+        const method = slideId ? 'PUT' : 'POST';
+
+        debugLog(`Saving slide (${method}):`, slideData);
+
+        const response = await fetch(url, {
+          method,
+          headers: authHeaders,
+          body: JSON.stringify(slideData)
+        });
+
+        const result = await response.json();
+        debugLog('Save response:', result);
+
+        if (response.ok && result.success) {
+          showAlert(
+            slideId ? 'Slide updated successfully!' : 'Slide created successfully!',
+            'success'
+          );
+          slideModalInstance.hide();
+          loadSlides();
+        } else {
+          const errorMsg = result.message || 'Operation failed';
+          showAlert(errorMsg, 'danger');
+        }
+      } catch (error) {
+        console.error('Error saving slide:', error);
+        debugLog('Save error:', error.message);
+        showAlert(`Error saving slide: ${error.message}`, 'danger');
+      }
+    }
+
+    // Delete Slide
+    async function deleteSlide(slideId) {
+      if (!confirm('Are you sure you want to delete this slide? This action cannot be undone.')) {
+        return;
+      }
+
+      try {
+        showAlert('Deleting slide...', 'info');
+        debugLog(`Deleting slide: ${slideId}`);
+        
+        const response = await fetch(`${HERO_API}/${slideId}`, {
+          method: 'DELETE',
+          headers: authHeaders
+        });
+
+        const result = await response.json();
+        debugLog('Delete response:', result);
+
+        if (response.ok && result.success) {
+          showAlert('Slide deleted successfully!', 'success');
+          loadSlides();
+        } else {
+          showAlert(result.message || 'Delete failed', 'danger');
+        }
+      } catch (error) {
+        console.error('Error deleting slide:', error);
+        debugLog('Delete error:', error.message);
+        showAlert(`Error deleting slide: ${error.message}`, 'danger');
+      }
+    }
+
+    // Show Alert
+    function showAlert(message, type) {
+      alertBox.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      `;
+      
+      // Auto remove success/info alerts after 5 seconds
+      if (type === 'success' || type === 'info') {
+        setTimeout(() => {
+          const alert = alertBox.querySelector('.alert');
+          if (alert) {
+            alert.remove();
+          }
+        }, 5000);
+      }
+      
+      debugLog(`Alert: ${type} - ${message}`);
+    }
+
+    // Make functions available globally
+    window.editSlide = editSlide;
+    window.deleteSlide = deleteSlide;
+    window.viewSlide = viewSlide;
+    window.openAddSlideModal = openAddSlideModal;
+    window.toggleDebug = toggleDebug;
+
+    // Initialize debug panel with info
+    debugLog('Hero Slider Admin loaded');
+    debugLog('Token:', token ? 'Present' : 'Missing');
+    debugLog('API Base:', HERO_API);
+  </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website - Hero Slider Preview</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <style>
+        .navbar {
+            background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
+        }
+        
+        .hero-slide {
+            background-size: cover;
+            background-position: center;
+            height: 600px;
+            position: relative;
+        }
+        
+        .hero-overlay {
+            background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 100%);
+        }
+        
+        .btn-hero {
+            background-color: #dc2626;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-hero:hover {
+            background-color: #b91c1c;
+            transform: translateY(-2px);
+        }
+        
+        .swiper-pagination-bullet {
+            background: white !important;
+            opacity: 0.5;
+        }
+        
+        .swiper-pagination-bullet-active {
+            background: #dc2626 !important;
+            opacity: 1;
+        }
+        
+        .swiper-button-next, .swiper-button-prev {
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="navbar text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-8">
+                    <div class="text-2xl font-bold">
+                        <i class="fas fa-fire mr-2"></i> BrandName
+                    </div>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="#" class="hover:text-gray-200 transition">Home</a>
+                        <a href="#" class="hover:text-gray-200 transition">Products</a>
+                        <a href="#" class="hover:text-gray-200 transition">Services</a>
+                        <a href="#" class="hover:text-gray-200 transition">About</a>
+                        <a href="#" class="hover:text-gray-200 transition">Contact</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="px-4 py-2 bg-white text-red-600 rounded-lg font-medium hover:bg-gray-100">
+                        <i class="fas fa-shopping-cart mr-2"></i> Cart
+                    </button>
+                    <button class="px-4 py-2 border border-white rounded-lg font-medium hover:bg-white hover:text-red-600 transition">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Slider -->
+    <div class="relative">
+        <div class="swiper hero-slider">
+            <div class="swiper-wrapper" id="slider-wrapper">
+                <!-- Slides will be loaded here -->
+            </div>
+            <!-- Navigation -->
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+            <!-- Pagination -->
+            <div class="swiper-pagination"></div>
+        </div>
+        
+        <!-- Loading State -->
+        <div id="loading" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="text-center text-white">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                <p class="mt-4 text-lg">Loading hero slider...</p>
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div id="empty-slider" class="hidden hero-slide flex items-center justify-center bg-gradient(90deg, #4f46e5 0%, #7c3aed 100%)">
+            <div class="text-center text-white p-8">
+                <i class="fas fa-image text-5xl mb-4 opacity-50"></i>
+                <h1 class="text-3xl font-bold mb-4">Welcome to Our Website</h1>
+                <p class="text-xl mb-6">No slides configured. Please add hero sections in admin panel.</p>
+                <a href="admin.html" class="btn-hero inline-block">
+                    <i class="fas fa-cog mr-2"></i> Go to Admin
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Content Sections -->
+    <div class="container mx-auto px-4 py-16">
+        <!-- Features -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-rocket text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Fast Delivery</h3>
+                <p class="text-gray-600">Get your products delivered within 24 hours in major cities.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Secure Payment</h3>
+                <p class="text-gray-600">100% secure payment processing with encryption.</p>
+            </div>
+            <div class="text-center p-6">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-headset text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">24/7 Support</h3>
+                <p class="text-gray-600">Round-the-clock customer support for all your queries.</p>
+            </div>
+        </div>
+        
+        <!-- Admin Link -->
+        <div class="bg-red-50 border border-red-100 rounded-lg p-8 text-center">
+            <i class="fas fa-tools text-red-600 text-4xl mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-3">Manage Hero Slider</h2>
+            <p class="text-gray-600 mb-6">This is a preview of your hero slider. To add or edit slides, use the admin panel.</p>
+            <a href="admin.html" class="btn-hero inline-block">
+                <i class="fas fa-sliders-h mr-2"></i> Open Admin Panel
+            </a>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="text-2xl font-bold mb-4">
+                        <i class="fas fa-fire mr-2"></i> BrandName
+                    </div>
+                    <p class="text-gray-400">Building amazing experiences since 2024.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">About Us</a></li>
+                        <li><a href="admin.html" class="text-gray-400 hover:text-white transition">Admin Panel</a></li>
+                        <li><a href="slider-preview.html" class="text-gray-400 hover:text-white transition">Slider Preview</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-envelope mr-2"></i> contact@example.com</li>
+                        <li><i class="fas fa-phone mr-2"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> New York, NY</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 BrandName. All rights reserved. | <a href="admin.html" class="text-red-400 hover:text-red-300">Admin Panel</a></p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:5000/api/hero/active';
+        
+        async function loadHeroSlider() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                if (result.success && result.data.length > 0) {
+                    const sliderWrapper = document.getElementById('slider-wrapper');
+                    
+                    result.data.forEach(hero => {
+                        const slide = document.createElement('div');
+                        slide.className = 'swiper-slide hero-slide';
+                        slide.style.backgroundImage = `url('${hero.backgroundImage}')`;
+                        
+                        slide.innerHTML = `
+                            <div class="hero-overlay absolute inset-0 flex items-center">
+                                <div class="container mx-auto px-4">
+                                    <div class="max-w-2xl">
+                                        <h1 class="text-5xl font-bold text-white mb-4">${hero.title}</h1>
+                                        <p class="text-xl text-gray-200 mb-8">${hero.subtitle}</p>
+                                        ${hero.buttonText ? `
+                                            <a href="${hero.buttonLink}" class="btn-hero inline-block">
+                                                ${hero.buttonText} <i class="fas fa-arrow-right ml-2"></i>
+                                            </a>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        sliderWrapper.appendChild(slide);
+                    });
+                    
+                    // Initialize Swiper
+                    const swiper = new Swiper('.hero-slider', {
+                        loop: true,
+                        autoplay: {
+                            delay: 5000,
+                            disableOnInteraction: false,
+                        },
+                        pagination: {
+                            el: '.swiper-pagination',
+                            clickable: true,
+                        },
+                        navigation: {
+                            nextEl: '.swiper-button-next',
+                            prevEl: '.swiper-button-prev',
+                        },
+                    });
+                    
+                } else {
+                    document.getElementById('empty-slider').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading slider:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('empty-slider').classList.remove('hidden');
+            }
+        }
+        
+        // Load slider on page load
+        window.addEventListener('DOMContentLoaded', loadHeroSlider);
+    </script>
+</body>
+</html>

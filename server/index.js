@@ -6,6 +6,8 @@ import morgan from "morgan";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import compression from "compression";
+import path from "path";
+import { fileURLToPath } from 'url';
 import connectDb from "./config/connectDb.js";
 
 // Route imports
@@ -20,17 +22,26 @@ import addressRoutes from "./routes/addressRoutes.js";
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 import couponRoutes from "./routes/couponRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import heroRoutes from "./routes/heroRoutes.js";
+import blogRoutes from "./routes/blogRoutes.js";
 
+
+// Initialize environment
 dotenv.config();
+
+// ES Modules fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-// Debug middleware to log all requests
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  console.log('Origin:', req.headers.origin);
-  console.log('Headers:', req.headers);
-  next();
-});
+// Debug middleware to log all requests (only in development)
+if (process.env.NODE_ENV === "development") {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+  });
+}
 
 // Security middleware
 app.use(helmet({
@@ -38,8 +49,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:", "http:", "blob:"],
     },
   },
 }));
@@ -81,7 +94,7 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
       callback(null, true);
     } else {
       console.log('Blocked by CORS:', origin);
@@ -90,15 +103,15 @@ app.use(cors({
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-  exposedHeaders: ["Set-Cookie"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+  exposedHeaders: ["Set-Cookie", "Authorization"]
 }));
 
 // Handle preflight requests
 app.options('*', cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -108,10 +121,23 @@ app.options('*', cors({
 }));
 
 // Logging
-app.use(morgan(":method :url :status :response-time ms - :res[content-length]"));
+app.use(morgan("dev"));
 
-// Serve uploaded files
-app.use("/uploads", express.static("uploads"));
+// Serve static files from multiple directories
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/hero-images", express.static(path.join(__dirname, "hero-images")));
+app.use("/blog-images", express.static(path.join(__dirname, "blog-images")));
+
+// Ensure directories exist
+import fs from 'fs';
+const directories = ['uploads', 'hero-images', 'blog-images'];
+directories.forEach(dir => {
+  const dirPath = path.join(__dirname, dir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+    console.log(`✅ Created directory: ${dir}`);
+  }
+});
 
 // Health check route
 app.get("/api/health", (req, res) => {
@@ -119,9 +145,40 @@ app.get("/api/health", (req, res) => {
     success: true,
     message: "E-commerce API is running 🚀",
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
-    version: "1.0.0",
-    allowedOrigins: allowedOrigins
+    environment: process.env.NODE_ENV || "development",
+    version: "2.0.0",
+    features: [
+      "Authentication & Authorization",
+      "Product Management",
+      "Order Processing",
+      "Hero Section Management",
+      "Blog Management",
+      "Image Uploads",
+      "Payment Integration"
+    ],
+    endpoints: {
+      auth: "/api/auth",
+      users: "/api/users",
+      products: "/api/products",
+      categories: "/api/categories",
+      orders: "/api/orders",
+      cart: "/api/cart",
+      hero: "/api/hero",
+      blogs: "/api/blogs",
+      reviews: "/api/reviews",
+      wishlist: "/api/wishlist",
+      payments: "/api/payments"
+    }
+  });
+});
+
+// Welcome route
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Welcome to E-commerce API with Hero & Blog Management",
+    documentation: "Check /api/health for available endpoints",
+    version: "2.0.0"
   });
 });
 
@@ -138,11 +195,15 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
 
+// NEW: Hero and Blog Routes
+app.use("/api/hero", heroRoutes);
+app.use("/api/blogs", blogRoutes);
+
 // Test route for CORS
 app.options("/api/auth/login", (req, res) => {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, Origin");
   res.header("Access-Control-Allow-Credentials", "true");
   res.status(200).send();
 });
@@ -157,23 +218,53 @@ app.use((req, res) => {
       "/api/health",
       "/api/auth/register",
       "/api/auth/login", 
+      "/api/auth/logout",
+      "/api/auth/me",
       "/api/products",
+      "/api/products/:id",
       "/api/categories",
       "/api/users",
+      "/api/users/profile",
       "/api/orders",
+      "/api/orders/myorders",
       "/api/cart",
+      "/api/cart/my-cart",
       "/api/reviews",
+      "/api/reviews/product/:productId",
       "/api/addresses",
+      "/api/addresses/my-addresses",
       "/api/wishlist",
+      "/api/wishlist/my-wishlist",
       "/api/coupons",
-      "/api/payments"
-    ]
+      "/api/coupons/validate",
+      "/api/payments",
+      "/api/payments/create-intent",
+      "/api/hero",
+      "/api/hero/active",
+      "/api/hero/:id",
+      "/api/blogs",
+      "/api/blogs/slider",
+      "/api/blogs/:slug",
+      "/api/blogs/categories",
+      "/api/blogs/tags/popular",
+      // Blogs (Admin) ✅ ADD THESE
+      "/api/admin/blogs",
+      "/api/admin/blogs/stats",
+      "/api/admin/blogs/:id",
+      "/api/admin/blogs/:id/status",
+      "/api/admin/blogs/bulk-status",
+      "/api/admin/blogs/:id/slider"
+
+
+    ],
+    note: "Use GET /api/health for complete endpoint documentation"
   });
 });
 
 // Global error handler
 app.use((error, req, res, next) => {
-  console.error("Error:", error);
+  console.error("❌ Error:", error.message);
+  console.error("Stack:", error.stack);
 
   // Mongoose validation error
   if (error.name === "ValidationError") {
@@ -189,10 +280,13 @@ app.use((error, req, res, next) => {
   // Mongoose duplicate key error
   if (error.code === 11000) {
     const field = Object.keys(error.keyValue)[0];
+    const value = error.keyValue[field];
     return res.status(400).json({
       success: false,
       error: true,
-      message: `${field} already exists`,
+      message: `Duplicate field value: ${field} '${value}' already exists`,
+      field: field,
+      value: value
     });
   }
 
@@ -201,7 +295,7 @@ app.use((error, req, res, next) => {
     return res.status(401).json({
       success: false,
       error: true,
-      message: "Invalid token",
+      message: "Invalid token. Please log in again.",
     });
   }
 
@@ -209,7 +303,7 @@ app.use((error, req, res, next) => {
     return res.status(401).json({
       success: false,
       error: true,
-      message: "Token expired",
+      message: "Token expired. Please log in again.",
     });
   }
 
@@ -218,48 +312,120 @@ app.use((error, req, res, next) => {
     return res.status(403).json({
       success: false,
       error: true,
+      message: "CORS Error: " + error.message,
+      allowedOrigins: allowedOrigins
+    });
+  }
+
+  // File upload errors
+  if (error.message && error.message.includes('File')) {
+    return res.status(400).json({
+      success: false,
+      error: true,
       message: error.message,
     });
   }
 
+  // Multer errors
+  if (error.name === 'MulterError') {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        error: true,
+        message: 'File too large. Maximum size is 10MB.',
+      });
+    }
+    if (error.code === 'LIMIT_FILE_TYPE') {
+      return res.status(400).json({
+        success: false,
+        error: true,
+        message: 'Invalid file type. Only images are allowed.',
+      });
+    }
+  }
+
   // Default error
-  res.status(error.statusCode || 500).json({
+  const statusCode = error.statusCode || 500;
+  const message = error.message || "Internal Server Error";
+  
+  res.status(statusCode).json({
     success: false,
     error: true,
-    message: error.message || "Internal Server Error",
-    ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
+    message: message,
+    ...(process.env.NODE_ENV === "development" && { 
+      stack: error.stack,
+      fullError: error.toString() 
+    }),
   });
 });
 
 // Database connection and server start
-connectDb()
-  .then(() => {
+const startServer = async () => {
+  try {
+    await connectDb();
     const PORT = process.env.PORT || 5000;
     const server = app.listen(PORT, () => {
-      console.log(`✅ Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-      console.log(`📍 Health Check: http://localhost:${PORT}/api/health`);
-      console.log(`🚀 API Ready for testing!`);
-      console.log(`🌐 Allowed Origins:`, allowedOrigins);
+      console.log( );
+      
+      console.log(`🌐 Allowed Origins:`);
+      allowedOrigins.forEach(origin => console.log(`   • ${origin}`));
+      
+      console.log(`
+📋 API Endpoints Overview:
+   • GET    /api/hero/active      - Get active hero sections
+   • GET    /api/blogs/slider     - Get blogs for slider
+   • POST   /api/hero             - Create hero section (Admin)
+   • POST   /api/blogs            - Create blog (Admin)
+      `);
     });
+
+    // Handle graceful shutdown
+    const gracefulShutdown = (signal) => {
+      console.log(`\n${signal} received. Starting graceful shutdown...`);
+      server.close(() => {
+        console.log('💤 Server shut down gracefully.');
+        process.exit(0);
+      });
+
+      // Force shutdown after 10 seconds
+      setTimeout(() => {
+        console.error('⚠️ Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 10000);
+    };
 
     // Handle unhandled promise rejections
     process.on("unhandledRejection", (err, promise) => {
-      console.log("❌ Unhandled Rejection at:", promise, "reason:", err);
+      console.error("❌ Unhandled Rejection at:", promise, "reason:", err);
+      // Don't exit in production, just log
+      if (process.env.NODE_ENV === "production") {
+        console.error("Continuing in production despite unhandled rejection");
+      } else {
+        server.close(() => {
+          process.exit(1);
+        });
+      }
+    });
+
+    // Handle uncaught exceptions
+    process.on("uncaughtException", (err) => {
+      console.error("❌ Uncaught Exception:", err);
       server.close(() => {
         process.exit(1);
       });
     });
 
-    process.on("SIGTERM", () => {
-      console.log("👋 SIGTERM received");
-      server.close(() => {
-        console.log("💥 Process terminated");
-      });
-    });
-  })
-  .catch((error) => {
-    console.error("❌ Database connection failed:", error);
-    process.exit(1);
-  });
+    // Handle termination signals
+    process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
-export default app;  
+  } catch (error) {
+    console.error("❌ Failed to start server:", error);
+    process.exit(1);
+  }
+};
+
+// Start the server
+startServer();
+
+export default app;

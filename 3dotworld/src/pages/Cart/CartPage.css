@@ -1,0 +1,39 @@
+/* CartPage.css */
+.container {
+  max-width: 1280px;
+}
+
+.sticky {
+  position: sticky;
+}
+
+/* Animation for loading spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Transition effects */
+.transition {
+  transition: all 0.3s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .cart-item-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .item-actions {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+}

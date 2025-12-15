@@ -8,6 +8,7 @@ const COUPONS = {
   'SAVE20': 0.20, // 20% discount
   'WELCOME15': 0.15, // 15% discount
   'FREESHIP': 0.05 // 5% discount
+  
 };
 
 // Get user cart
