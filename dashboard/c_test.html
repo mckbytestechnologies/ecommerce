@@ -536,6 +536,7 @@
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
+      position: relative;
     }
 
     .image-upload-container:hover {
@@ -928,7 +929,7 @@
                   <i class="fas fa-cloud-upload-alt"></i>
                   <h5>Drag & Drop Image Here</h5>
                   <p class="text-muted">or click to browse</p>
-                  <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                  <input type="file" id="imageFile" accept="image/*" style="display: none;">
                 </div>
                 
                 <div id="imagePreview" class="text-center mb-3"></div>
@@ -999,11 +1000,6 @@
       window.location.href = 'login.html';
     }
 
-    const authHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
-
     // Initialize Date
     function updateCurrentDate() {
       const now = new Date();
@@ -1048,7 +1044,12 @@
         const searchTerm = elements.globalSearch.value;
         
         const url = showInactive ? `${CATEGORIES_API}?includeInactive=true` : CATEGORIES_API;
-        const res = await fetch(url, { headers: authHeaders });
+        
+        const headers = {
+          'Authorization': `Bearer ${token}`
+        };
+
+        const res = await fetch(url, { headers });
 
         if (res.status === 401) {
           localStorage.removeItem('token');
@@ -1213,6 +1214,14 @@
       document.getElementById('subCategories').textContent = sub;
     }
 
+    // Clear Image
+    function clearImage() {
+      document.getElementById('imageFile').value = '';
+      document.getElementById('imagePreview').innerHTML = '';
+      document.getElementById('imageUrl').value = '';
+      document.getElementById('imagePublicId').value = '';
+    }
+
     // Open Add Category Modal
     function openAddCategoryModal(parentId = null) {
       const isSubcategory = !!parentId;
@@ -1224,13 +1233,15 @@
       document.getElementById('categoryId').value = '';
       document.getElementById('isSubcategory').value = isSubcategory;
       document.getElementById('isActive').checked = true;
-      document.getElementById('imagePreview').innerHTML = '';
+      clearImage();
       
       // Set parent category if provided
       if (parentId) {
-        document.getElementById('parentCategory').value = parentId;
+        setTimeout(() => {
+          $('#parentCategory').val(parentId).trigger('change');
+        }, 100);
       } else {
-        document.getElementById('parentCategory').value = '';
+        $('#parentCategory').val('').trigger('change');
       }
       
       loadParentCategories();
@@ -1245,7 +1256,11 @@
     // Load Parent Categories
     async function loadParentCategories() {
       try {
-        const res = await fetch(CATEGORIES_API, { headers: authHeaders });
+        const headers = {
+          'Authorization': `Bearer ${token}`
+        };
+        
+        const res = await fetch(CATEGORIES_API, { headers });
         const data = await res.json();
         
         const parentSelect = document.getElementById('parentCategory');
@@ -1273,7 +1288,12 @@
     window.editCategory = async (categoryId) => {
       try {
         showLoading();
-        const res = await fetch(`${CATEGORIES_API}/${categoryId}`, { headers: authHeaders });
+        
+        const headers = {
+          'Authorization': `Bearer ${token}`
+        };
+        
+        const res = await fetch(`${CATEGORIES_API}/${categoryId}`, { headers });
         const data = await res.json();
         
         if (data.success) {
@@ -1292,6 +1312,8 @@
             document.getElementById('imagePreview').innerHTML = `
               <img src="${category.image.url}" class="img-fluid rounded" style="max-height: 200px;">
             `;
+          } else {
+            clearImage();
           }
           
           await loadParentCategories();
@@ -1319,58 +1341,96 @@
     // Save Category
     async function saveCategory() {
       const categoryId = document.getElementById('categoryId').value;
-      const categoryData = {
-        name: document.getElementById('name').value.trim(),
-        description: document.getElementById('description').value.trim(),
-        parentCategory: $('#parentCategory').val() || null,
-        isActive: document.getElementById('isActive').checked
-      };
-
-      // Image data
-      const imageUrl = document.getElementById('imageUrl').value.trim();
-      const imagePublicId = document.getElementById('imagePublicId').value.trim();
-      if (imageUrl && imagePublicId) {
-        categoryData.image = {
-          url: imageUrl,
-          public_id: imagePublicId
-        };
-      }
-
+      const imageFile = document.getElementById('imageFile').files[0];
+      const name = document.getElementById('name').value.trim();
+      
       // Validation
-      if (!categoryData.name) {
+      if (!name) {
         showAlert('Category name is required', 'warning');
+        document.getElementById('name').focus();
         return;
       }
 
       try {
         showLoading();
+        
         const url = categoryId ? `${CATEGORIES_API}/${categoryId}` : CATEGORIES_API;
         const method = categoryId ? 'PUT' : 'POST';
 
-        const res = await fetch(url, {
-          method,
-          headers: authHeaders,
-          body: JSON.stringify(categoryData)
-        });
+        // If image file is selected, use FormData
+        if (imageFile) {
+          const formData = new FormData();
+          formData.append('name', name);
+          formData.append('description', document.getElementById('description').value.trim());
+          formData.append('isActive', document.getElementById('isActive').checked);
+          formData.append('image', imageFile);
+          
+          const parentCategory = $('#parentCategory').val();
+          if (parentCategory) {
+            formData.append('parentCategory', parentCategory);
+          }
 
-        const data = await res.json();
+          const res = await fetch(url, {
+            method,
+            headers: {
+              'Authorization': `Bearer ${token}`
+            },
+            body: formData
+          });
 
-        if (res.ok && data.success) {
-          showAlert(
-            categoryId ? 'Category updated successfully!' : 'Category created successfully!',
-            'success'
-          );
-          categoryModalInstance.hide();
-          loadCategories();
+          const data = await res.json();
+          handleSaveResponse(data, categoryId);
         } else {
-          const errorMsg = data.message || (data.errors ? data.errors.map(e => e.message).join(', ') : 'Operation failed');
-          showAlert(errorMsg, 'danger');
+          // Use JSON for non-image updates
+          const categoryData = {
+            name: name,
+            description: document.getElementById('description').value.trim(),
+            parentCategory: $('#parentCategory').val() || null,
+            isActive: document.getElementById('isActive').checked
+          };
+
+          // Add image data if URL and Public ID are provided
+          const imageUrl = document.getElementById('imageUrl').value.trim();
+          const imagePublicId = document.getElementById('imagePublicId').value.trim();
+          if (imageUrl && imagePublicId) {
+            categoryData.image = {
+              url: imageUrl,
+              public_id: imagePublicId
+            };
+          }
+
+          const res = await fetch(url, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(categoryData)
+          });
+
+          const data = await res.json();
+          handleSaveResponse(data, categoryId);
         }
       } catch (error) {
         console.error('Error saving category:', error);
         showAlert('Error saving category: ' + error.message, 'danger');
       } finally {
         hideLoading();
+      }
+    }
+
+    // Handle Save Response
+    function handleSaveResponse(data, categoryId) {
+      if (data.success) {
+        showAlert(
+          categoryId ? 'Category updated successfully!' : 'Category created successfully!',
+          'success'
+        );
+        categoryModalInstance.hide();
+        loadCategories();
+      } else {
+        const errorMsg = data.message || (data.errors ? data.errors.map(e => e.message || e.msg).join(', ') : 'Operation failed');
+        showAlert(errorMsg, 'danger');
       }
     }
 
@@ -1382,9 +1442,14 @@
 
       try {
         showLoading();
+        
+        const headers = {
+          'Authorization': `Bearer ${token}`
+        };
+        
         const res = await fetch(`${CATEGORIES_API}/${categoryId}`, {
           method: 'DELETE',
-          headers: authHeaders
+          headers
         });
 
         const data = await res.json();
@@ -1393,7 +1458,7 @@
           showAlert('Category deleted successfully!', 'success');
           loadCategories();
         } else {
-          showAlert(data.message || 'Delete failed', 'danger');
+          showAlert(data.message || 'Delete failed. Category may have products or subcategories.', 'danger');
         }
       } catch (error) {
         console.error('Error deleting category:', error);
@@ -1414,6 +1479,29 @@
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('token');
         window.location.href = 'login.html';
+      }
+    }
+
+    // Preview Image
+    function previewImage(file) {
+      const preview = document.getElementById('imagePreview');
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.innerHTML = `
+            <div class="alert alert-info alert-dismissible fade show mb-2" role="alert">
+              <i class="fas fa-info-circle me-2"></i>New image selected
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">
+          `;
+          // Clear URL fields when uploading new file
+          document.getElementById('imageUrl').value = '';
+          document.getElementById('imagePublicId').value = '';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.innerHTML = '';
       }
     }
 
@@ -1457,26 +1545,50 @@
       // Global search
       elements.globalSearch.addEventListener('input', debounceSearch());
       
-      // Image upload
+      // Image upload area
       const imageUploadArea = document.getElementById('imageUploadArea');
-      const imageInput = document.getElementById('imageInput');
+      const imageFileInput = document.getElementById('imageFile');
       
-      imageUploadArea.addEventListener('click', () => imageInput.click());
+      imageUploadArea.addEventListener('click', () => imageFileInput.click());
       
-      imageInput.addEventListener('change', function(e) {
+      imageFileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            document.getElementById('imagePreview').innerHTML = `
-              <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">
-            `;
-            
-            // Here you would typically upload to your server
-            // and get back the URL and public_id
-            showAlert('Image selected. Upload will happen when saving.', 'info');
-          };
-          reader.readAsDataURL(file);
+          previewImage(file);
+        }
+      });
+      
+      // Drag and drop for image upload
+      imageUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        imageUploadArea.style.borderColor = 'var(--primary-red)';
+        imageUploadArea.style.background = 'var(--primary-red-light)';
+      });
+      
+      imageUploadArea.addEventListener('dragleave', () => {
+        imageUploadArea.style.borderColor = 'var(--gray-300)';
+        imageUploadArea.style.background = '';
+      });
+      
+      imageUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        imageUploadArea.style.borderColor = 'var(--gray-300)';
+        imageUploadArea.style.background = '';
+        
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+          imageFileInput.files = e.dataTransfer.files;
+          previewImage(file);
+        } else {
+          showAlert('Please drop an image file only', 'warning');
+        }
+      });
+      
+      // Image URL input change
+      document.getElementById('imageUrl').addEventListener('change', function() {
+        if (this.value && !this.value.startsWith('http')) {
+          showAlert('Please enter a valid URL starting with http or https', 'warning');
+          this.value = '';
         }
       });
     }

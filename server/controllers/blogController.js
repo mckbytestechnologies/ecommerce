@@ -1,311 +1,198 @@
+// controllers/blogController.js - UPDATED & SIMPLIFIED
 import Blog from "../models/Blog.js";
 import asyncHandler from "express-async-handler";
-import { uploadImage } from "../Utilis/uploadHelper.js";
+import path from "path";
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// @desc    Get all blogs with filtering
-// @route   GET /api/blogs
-// @access  Public
-export const getAllBlogs = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 9;
-  const skip = (page - 1) * limit;
-
-  // Build query
-  let query = { isPublished: true };
-  
-  // Filter by category
-  if (req.query.category) {
-    query.category = req.query.category;
-  }
-  
-  // Filter by tag
-  if (req.query.tag) {
-    query.tags = req.query.tag;
-  }
-  
-  // Search by keyword
-  if (req.query.search) {
-    query.$or = [
-      { title: { $regex: req.query.search, $options: "i" } },
-      { excerpt: { $regex: req.query.search, $options: "i" } },
-      { tags: { $regex: req.query.search, $options: "i" } }
-    ];
-  }
-
-  const [blogs, total] = await Promise.all([
-    Blog.find(query)
-      .populate("author", "name email avatar")
-      .select("-content")
-      .sort({ publishedAt: -1, createdAt: -1 })
-      .skip(skip)
-      .limit(limit),
-    Blog.countDocuments(query)
-  ]);
-
-  res.json({
-    success: true,
-    count: blogs.length,
-    total,
-    totalPages: Math.ceil(total / limit),
-    currentPage: page,
-    data: blogs
-  });
-});
-
-// @desc    Get blogs for slider
-// @route   GET /api/blogs/slider
-// @access  Public
-export const getBlogSlider = asyncHandler(async (req, res) => {
-  const limit = parseInt(req.query.limit) || 5;
-  
-  const blogs = await Blog.find({
-    isPublished: true,
-    featuredInSlider: true
-  })
-  .populate("author", "name")
-  .select("title excerpt featuredImage slug formattedDate readTime category")
-  .sort({ sliderOrder: 1, publishedAt: -1 })
-  .limit(limit);
-
-  res.json({
-    success: true,
-    count: blogs.length,
-    data: blogs
-  });
-});
-
-// @desc    Get single blog by slug
-// @route   GET /api/blogs/:slug
-// @access  Public
-export const getBlogBySlug = asyncHandler(async (req, res) => {
-  const blog = await Blog.findOne({ slug: req.params.slug })
-    .populate("author", "name email bio avatar");
-
-  if (!blog) {
-    res.status(404);
-    throw new Error("Blog not found");
-  }
-
-  // Increment view count
-  blog.views += 1;
-  await blog.save();
-
-  res.json({
-    success: true,
-    data: blog
-  });
-});
-
-// @desc    Create new blog
-// @route   POST /api/blogs
-// @access  Private/Admin
+// Create blog with image upload
 export const createBlog = asyncHandler(async (req, res) => {
-  const {
-    title,
-    excerpt,
-    content,
-    category,
-    tags,
-    isPublished,
-    featuredInSlider,
-    sliderOrder,
-    seoTitle,
-    seoDescription,
-    seoKeywords,
-    readTime
-  } = req.body;
-
-  // Validate required fields
-  if (!title || !excerpt || !content || !category) {
-    res.status(400);
-    throw new Error("Title, excerpt, content, and category are required");
-  }
-
-  // Handle image upload if file is present
-  let imageUrl = req.body.featuredImage;
-  if (req.file) {
-    try {
-      const uploadResult = await uploadImage(req.file, "blog-images");
-      imageUrl = uploadResult.url;
-    } catch (error) {
-      res.status(400);
-      throw new Error("Failed to upload image: " + error.message);
+  try {
+    const { title, content, category } = req.body;
+    
+    if (!title || !content || !category) {
+      return res.status(400).json({
+        success: false,
+        message: "Title, content, and category are required"
+      });
     }
+
+    console.log("Request body:", req.body);
+    console.log("Request file:", req.file);
+    console.log("Request user:", req.user);
+
+    // Handle image upload
+    let imageData = null;
+    if (req.file) {
+      console.log("File received:", {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      });
+
+      // Create image data object matching your model
+      imageData = {
+        public_id: `blog-${Date.now()}`,
+        url: `/uploads/${req.file.filename}`
+      };
+      console.log("Image data to save:", imageData);
+    }
+
+    const blog = await Blog.create({
+      title,
+      content,
+      category,
+      image: imageData,
+      author: req.user._id
+    });
+
+    console.log("Blog created:", blog);
+
+    res.status(201).json({
+      success: true,
+      message: "Blog created successfully",
+      data: blog
+    });
+  } catch (error) {
+    console.error("Create blog error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
-
-  if (!imageUrl) {
-    res.status(400);
-    throw new Error("Featured image is required");
-  }
-
-  // Process tags
-  const processedTags = tags ? tags.split(",").map(tag => tag.trim()) : [];
-
-  const blog = await Blog.create({
-    title,
-    excerpt,
-    content,
-    featuredImage: imageUrl,
-    author: req.user._id,
-    category,
-    tags: processedTags,
-    isPublished: isPublished || false,
-    featuredInSlider: featuredInSlider || false,
-    sliderOrder: sliderOrder || 0,
-    seoTitle: seoTitle || title,
-    seoDescription: seoDescription || excerpt.substring(0, 160),
-    seoKeywords: seoKeywords ? seoKeywords.split(",").map(kw => kw.trim()) : [],
-    readTime: readTime || 5
-  });
-
-  const populatedBlog = await Blog.findById(blog._id)
-    .populate("author", "name email");
-
-  res.status(201).json({
-    success: true,
-    message: "Blog created successfully",
-    data: populatedBlog
-  });
 });
 
-// @desc    Update blog
-// @route   PUT /api/blogs/:id
-// @access  Private/Admin
+// Get all blogs
+export const getBlogs = asyncHandler(async (req, res) => {
+  try {
+    const blogs = await Blog.find()
+      .populate('author', 'name email')
+      .sort({ createdAt: -1 });
+    
+    console.log("Blogs found:", blogs.length);
+    
+    res.json({
+      success: true,
+      count: blogs.length,
+      data: blogs
+    });
+  } catch (error) {
+    console.error("Get blogs error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Get single blog
+export const getBlogById = asyncHandler(async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id).populate('author', 'name email');
+    
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found"
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: blog
+    });
+  } catch (error) {
+    console.error("Get blog by id error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Update blog
 export const updateBlog = asyncHandler(async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
-
-  if (!blog) {
-    res.status(404);
-    throw new Error("Blog not found");
-  }
-
-  // Handle image upload if new file is present
-  let imageUrl = req.body.featuredImage || blog.featuredImage;
-  if (req.file) {
-    try {
-      const uploadResult = await uploadImage(req.file, "blog-images");
-      imageUrl = uploadResult.url;
-    } catch (error) {
-      res.status(400);
-      throw new Error("Failed to upload image: " + error.message);
+  try {
+    const blog = await Blog.findById(req.params.id);
+    
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found"
+      });
     }
-  }
 
-  // Update fields
-  const updates = { ...req.body };
-  
-  // Process tags if provided
-  if (req.body.tags) {
-    updates.tags = req.body.tags.split(",").map(tag => tag.trim());
-  }
-  
-  // Process SEO keywords if provided
-  if (req.body.seoKeywords) {
-    updates.seoKeywords = req.body.seoKeywords.split(",").map(kw => kw.trim());
-  }
-  
-  updates.featuredImage = imageUrl;
+    console.log("Update request:", {
+      body: req.body,
+      file: req.file ? "File exists" : "No file"
+    });
 
-  const updatedBlog = await Blog.findByIdAndUpdate(
-    req.params.id,
-    { $set: updates },
-    { new: true, runValidators: true }
-  ).populate("author", "name email");
+    // Handle image update
+    if (req.file) {
+      console.log("New file received:", req.file.filename);
+      
+      // Update image data
+      req.body.image = {
+        public_id: `blog-${Date.now()}`,
+        url: `/uploads/${req.file.filename}`
+      };
+    } else if (req.body.removeImage === 'true') {
+      // If removeImage flag is set
+      req.body.image = null;
+    }
 
-  res.json({
-    success: true,
-    message: "Blog updated successfully",
-    data: updatedBlog
-  });
+    // Remove the removeImage field from body to prevent schema validation error
+    if (req.body.removeImage) {
+      delete req.body.removeImage;
+    }
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    ).populate('author', 'name email');
+
+    console.log("Blog updated:", updatedBlog);
+
+    res.json({
+      success: true,
+      message: "Blog updated successfully",
+      data: updatedBlog
+    });
+  } catch (error) {
+    console.error("Update blog error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
 });
 
-// @desc    Update blog slider status
-// @route   PUT /api/blogs/:id/slider
-// @access  Private/Admin
-export const updateBlogSliderStatus = asyncHandler(async (req, res) => {
-  const { featuredInSlider, sliderOrder } = req.body;
-  
-  const blog = await Blog.findById(req.params.id);
-  
-  if (!blog) {
-    res.status(404);
-    throw new Error("Blog not found");
-  }
-  
-  const updates = {};
-  if (featuredInSlider !== undefined) updates.featuredInSlider = featuredInSlider;
-  if (sliderOrder !== undefined) updates.sliderOrder = sliderOrder;
-  
-  const updatedBlog = await Blog.findByIdAndUpdate(
-    req.params.id,
-    { $set: updates },
-    { new: true }
-  );
-  
-  res.json({
-    success: true,
-    message: "Blog slider status updated",
-    data: updatedBlog
-  });
-});
-
-// @desc    Delete blog
-// @route   DELETE /api/blogs/:id
-// @access  Private/Admin
+// Delete blog
 export const deleteBlog = asyncHandler(async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
+  try {
+    const blog = await Blog.findById(req.params.id);
+    
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found"
+      });
+    }
 
-  if (!blog) {
-    res.status(404);
-    throw new Error("Blog not found");
+    await blog.deleteOne();
+
+    res.json({
+      success: true,
+      message: "Blog deleted successfully"
+    });
+  } catch (error) {
+    console.error("Delete blog error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
-
-  await blog.deleteOne();
-
-  res.json({
-    success: true,
-    message: "Blog deleted successfully"
-  });
-});
-
-// @desc    Get blog categories
-// @route   GET /api/blogs/categories
-// @access  Public
-export const getBlogCategories = asyncHandler(async (req, res) => {
-  const categories = await Blog.aggregate([
-    { $match: { isPublished: true } },
-    { $group: { 
-      _id: "$category", 
-      count: { $sum: 1 },
-      latest: { $max: "$publishedAt" }
-    }},
-    { $sort: { count: -1 } }
-  ]);
-
-  res.json({
-    success: true,
-    data: categories
-  });
-});
-
-// @desc    Get popular tags
-// @route   GET /api/blogs/tags/popular
-// @access  Public
-export const getPopularTags = asyncHandler(async (req, res) => {
-  const tags = await Blog.aggregate([
-    { $match: { isPublished: true } },
-    { $unwind: "$tags" },
-    { $group: { 
-      _id: "$tags", 
-      count: { $sum: 1 }
-    }},
-    { $sort: { count: -1 } },
-    { $limit: 20 }
-  ]);
-
-  res.json({
-    success: true,
-    data: tags
-  });
 });

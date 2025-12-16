@@ -1,436 +1,955 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
 import { 
-  Package, 
-  Truck, 
-  CheckCircle, 
-  Clock, 
-  ChevronRight, 
-  MapPin, 
-  CreditCard, 
-  FileText,
-  ShoppingBag,
-  ArrowLeft,
-  ExternalLink
-} from "lucide-react";
+  Container, 
+  Typography, 
+  Button, 
+  Grid, 
+  Card, 
+  CardContent,
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow,
+  Chip,
+  IconButton,
+  TextField,
+  InputAdornment,
+  Box,
+  Paper,
+  Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Select,
+  FormControl,
+  InputLabel,
+  Divider,
+  CircularProgress,
+  Badge,
+  Tooltip,
+  LinearProgress,
+  MenuItem,
+  Tabs,
+  Tab
+} from "@mui/material";
+import {
+  Search as SearchIcon,
+  FilterList as FilterIcon,
+  Visibility as VisibilityIcon,
+  LocalShipping as ShippingIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  Edit as EditIcon,
+  Refresh as RefreshIcon,
+  Download as DownloadIcon,
+  TrendingUp as TrendingUpIcon,
+  ShoppingCart as CartIcon,
+  AccessTime as PendingIcon,
+  CheckCircleOutline as ConfirmedIcon,
+  Build as ProcessingIcon,
+  DeliveryDining as DeliveredIcon,
+  Person as PersonIcon,
+  CalendarToday as CalendarIcon,
+  MonetizationOn as MoneyIcon,
+  MoreVert as MoreIcon,
+  ArrowUpward as ArrowUpIcon,
+  ArrowDownward as ArrowDownIcon,
+  Star as StarIcon,
+  Chat as ChatIcon,
+  Phone as PhoneIcon,
+  Email as EmailIcon,
+  Home as HomeIcon
+} from "@mui/icons-material";
+import { styled } from "@mui/material/styles";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-export default function MyOrders() {
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [filter, setFilter] = useState("all");
+// Styled Components
+const RedCard = styled(Card)(({ theme }) => ({
+  background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)',
+  color: 'white',
+  borderRadius: '16px',
+  position: 'relative',
+  overflow: 'hidden',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: '100px',
+    height: '100px',
+    background: 'rgba(255,255,255,0.1)',
+    borderRadius: '50%',
+    transform: 'translate(30%, -30%)',
+  }
+}));
 
-  const orders = [
-    {
-      id: "ORD-58291",
-      date: "28 Nov 2025",
-      status: "Delivered",
-      amount: 149.99,
-      items: [
-        { name: "Nike Air Max 270", qty: 1, price: 129.99, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop" },
-        { name: "Sport Socks Pack", qty: 2, price: 10.00, image: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w-400&h=400&fit=crop" }
-      ],
-      shipping: {
-        address: "123 Main St, Bangalore, KA 560001",
-        carrier: "BlueDart Express",
-        tracking: "BDX5829174832"
-      },
-      payment: "Credit Card (•••• 4532)"
-    },
-    {
-      id: "ORD-58142",
-      date: "22 Nov 2025",
-      status: "Shipped",
-      amount: 89.50,
-      items: [
-        { name: "Wireless Earbuds", qty: 1, price: 89.50, image: "https://images.unsplash.com/photo-1588423771073-b8903fbb85b5?w=400&h=400&fit=crop" }
-      ],
-      shipping: {
-        address: "456 Park Ave, Mumbai, MH 400001",
-        carrier: "Delhivery",
-        tracking: "DLV5814298765"
-      },
-      payment: "UPI"
-    },
-    {
-      id: "ORD-58010",
-      date: "18 Nov 2025",
-      status: "Processing",
-      amount: 39.99,
-      items: [
-        { name: "Leather Wallet", qty: 1, price: 39.99, image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400&h=400&fit=crop" }
-      ],
-      shipping: {
-        address: "789 MG Road, Delhi, DL 110001",
-        carrier: "ShipRocket",
-        tracking: "SRT5801054321"
-      },
-      payment: "Credit Card (•••• 7890)"
-    },
-    {
-      id: "ORD-57985",
-      date: "15 Nov 2025",
-      status: "Delivered",
-      amount: 245.75,
-      items: [
-        { name: "Casual Backpack", qty: 1, price: 89.99, image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop" },
-        { name: "Water Bottle", qty: 1, price: 25.99, image: "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=400&h=400&fit=crop" },
-        { name: "Notebook Set", qty: 3, price: 43.25, image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=400&fit=crop" }
-      ],
-      shipping: {
-        address: "101 Tech Park, Hyderabad, TS 500081",
-        carrier: "FedEx",
-        tracking: "FDX5798567890"
-      },
-      payment: "Net Banking"
+const WhiteCard = styled(Card)(({ theme }) => ({
+  background: 'white',
+  borderRadius: '16px',
+  border: '1px solid #ffebee',
+  boxShadow: '0 4px 20px rgba(211, 47, 47, 0.08)',
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 8px 30px rgba(211, 47, 47, 0.15)',
+  }
+}));
+
+const StatusBadge = styled(Chip)(({ status, theme }) => {
+  const colors = {
+    pending: { bg: '#fff3e0', text: '#e65100', icon: <PendingIcon /> },
+    confirmed: { bg: '#e3f2fd', text: '#1565c0', icon: <ConfirmedIcon /> },
+    processing: { bg: '#f3e5f5', text: '#7b1fa2', icon: <ProcessingIcon /> },
+    shipped: { bg: '#e8f5e8', text: '#2e7d32', icon: <ShippingIcon /> },
+    delivered: { bg: '#e8f5e8', text: '#1b5e20', icon: <DeliveredIcon /> },
+    cancelled: { bg: '#ffebee', text: '#c62828', icon: <CancelIcon /> }
+  };
+  
+  return {
+    backgroundColor: colors[status]?.bg || '#f5f5f5',
+    color: colors[status]?.text || '#616161',
+    fontWeight: 600,
+    padding: '4px 12px',
+    borderRadius: '20px',
+    '& .MuiChip-icon': {
+      color: colors[status]?.text,
+      marginLeft: '4px'
     }
-  ];
+  };
+});
 
-  const getStatusConfig = (status) => {
-    const configs = {
-      Delivered: {
-        icon: <CheckCircle className="text-white" size={18} />,
-        bg: "bg-gradient-to-r from-green-500 to-emerald-600",
-        text: "text-green-700",
-        label: "Delivered",
-        progress: 100
-      },
-      Shipped: {
-        icon: <Truck className="text-white" size={18} />,
-        bg: "bg-gradient-to-r from-blue-500 to-indigo-600",
-        text: "text-blue-700",
-        label: "Shipped",
-        progress: 75
-      },
-      Processing: {
-        icon: <Clock className="text-white" size={18} />,
-        bg: "bg-gradient-to-r from-amber-500 to-orange-600",
-        text: "text-amber-700",
-        label: "Processing",
-        progress: 40
-      }
-    };
-    return configs[status] || configs.Processing;
+const ActionButton = styled(Button)(({ theme }) => ({
+  borderRadius: '12px',
+  textTransform: 'none',
+  fontWeight: 600,
+  padding: '8px 20px',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+  }
+}));
+
+const MyOrders = () => {
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [selectedTab, setSelectedTab] = useState(0);
+  
+  // Dialog states
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  
+  // Stats
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    confirmed: 0,
+    shipped: 0,
+    delivered: 0,
+    cancelled: 0,
+    revenue: 0,
+    avgOrderValue: 0
+  });
+
+  // Get auth token
+  const getToken = () => {
+    return localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
   };
 
-  const filteredOrders = filter === "all" 
-    ? orders 
-    : orders.filter(order => order.status.toLowerCase() === filter.toLowerCase());
+  // Fetch orders
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const token = getToken();
+      
+      if (!token) {
+        navigate("/auth");
+        return;
+      }
 
-  const totalSpent = orders.reduce((sum, order) => sum + order.amount, 0);
-  const totalOrders = orders.length;
+      const response = await axios.get("http://localhost:5000/api/orders", {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-  const OrderDetails = ({ order, onClose }) => (
-    <motion.div
-      initial={{ opacity: 0, x: 50 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 50 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="sticky top-0 bg-white p-6 border-b flex items-center justify-between rounded-t-3xl">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition"
-            >
-              <ArrowLeft size={24} />
-            </button>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{order.id}</h2>
-              <p className="text-gray-500">Ordered on {order.date}</p>
-            </div>
-          </div>
-          <div className={`px-4 py-2 rounded-full ${getStatusConfig(order.status).bg} text-white font-medium`}>
-            {order.status}
-          </div>
-        </div>
+      if (response.data.success) {
+        const ordersData = response.data.data || [];
+        setOrders(ordersData);
+        setFilteredOrders(ordersData);
+        calculateStats(ordersData);
+      }
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      if (err.response?.status === 401) {
+        navigate("/auth");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Items */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <ShoppingBag size={20} />
-              Order Items
-            </h3>
-            <div className="space-y-3">
-              {order.items.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-                  <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
-                    <img 
-                      src={item.image} 
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium">{item.name}</h4>
-                    <p className="text-sm text-gray-500">Quantity: {item.qty}</p>
-                  </div>
-                  <div className="font-semibold">₹{item.price}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
-          {/* Shipping & Payment */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-2xl">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <MapPin size={20} />
-                Shipping Info
-              </h3>
-              <p className="text-gray-700 mb-2">{order.shipping.address}</p>
-              <div className="text-sm text-gray-500">
-                <p>Carrier: {order.shipping.carrier}</p>
-                <p>Tracking: {order.shipping.tracking}</p>
-              </div>
-            </div>
+  // Calculate statistics
+  const calculateStats = (ordersData) => {
+    const total = ordersData.length;
+    const pending = ordersData.filter(o => o.order_status === "pending").length;
+    const confirmed = ordersData.filter(o => o.order_status === "confirmed").length;
+    const shipped = ordersData.filter(o => o.order_status === "shipped").length;
+    const delivered = ordersData.filter(o => o.order_status === "delivered").length;
+    const cancelled = ordersData.filter(o => o.order_status === "cancelled").length;
+    const revenue = ordersData.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+    const avgOrderValue = total > 0 ? revenue / total : 0;
 
-            <div className="bg-gradient-to-br from-emerald-50 to-green-50 p-5 rounded-2xl">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <CreditCard size={20} />
-                Payment Info
-              </h3>
-              <p className="text-gray-700">{order.payment}</p>
-              <div className="mt-4 pt-4 border-t">
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total Amount</span>
-                  <span>₹{order.amount}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+    setStats({
+      total, pending, confirmed, shipped, delivered, cancelled, revenue, avgOrderValue
+    });
+  };
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4">
-            <button className="flex-1 bg-gray-900 text-white py-3 rounded-xl font-medium hover:bg-black transition">
-              Track Order
-            </button>
-            <button className="flex-1 border-2 border-gray-300 text-gray-700 py-3 rounded-xl font-medium hover:border-gray-400 transition">
-              Download Invoice
-            </button>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
+  // Apply filters and search
+  useEffect(() => {
+    let result = orders;
+
+    // Apply tab filter
+    if (selectedTab > 0) {
+      const statusMap = ['all', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
+      result = result.filter(order => order.order_status === statusMap[selectedTab]);
+    }
+
+    // Apply search
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(order => 
+        order.order_id.toLowerCase().includes(term) ||
+        (order.user?.name?.toLowerCase().includes(term)) ||
+        (order.user?.email?.toLowerCase().includes(term))
+      );
+    }
+
+    // Apply sorting
+    result = [...result].sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case "oldest":
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case "price-high":
+          return b.total_amount - a.total_amount;
+        case "price-low":
+          return a.total_amount - b.total_amount;
+        default:
+          return 0;
+      }
+    });
+
+    setFilteredOrders(result);
+  }, [orders, searchTerm, selectedTab, sortBy]);
+
+  // Handle view order
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
+    setViewDialogOpen(true);
+  };
+
+  // Handle update status
+  const handleUpdateStatus = (order, newStatus) => {
+    // Implement API call to update status
+    console.log(`Update order ${order._id} to ${newStatus}`);
+  };
+
+  // Format currency
+  const formatCurrency = (amount) => `₹${amount?.toFixed(2) || "0.00"}`;
+
+  // Format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  };
+
+  // Get payment method icon
+  const getPaymentIcon = (method) => {
+    switch (method) {
+      case "card": return <MoneyIcon fontSize="small" />;
+      case "upi": return <PhoneIcon fontSize="small" />;
+      case "cod": return <MoneyIcon fontSize="small" />;
+      default: return <MoneyIcon fontSize="small" />;
+    }
+  };
+
+  // Tabs
+  const tabs = [
+    { label: "All Orders", count: stats.total },
+    { label: "Pending", count: stats.pending },
+    { label: "Confirmed", count: stats.confirmed },
+    { label: "Shipped", count: stats.shipped },
+    { label: "Delivered", count: stats.delivered },
+    { label: "Cancelled", count: stats.cancelled }
+  ];
+
+  if (loading) {
+    return (
+      <Container maxWidth="xl" sx={{ py: 8 }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
+          <CircularProgress sx={{ color: '#d32f2f' }} />
+        </Box>
+      </Container>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-                My Orders
-              </h1>
-              <p className="text-gray-600">
-                {totalOrders} orders • ₹{totalSpent.toFixed(2)} total spent
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search orders..."
-                  className="pl-10 pr-4 py-3 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box sx={{ mb: 6 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+          <Box>
+            <Typography variant="h3" component="h1" gutterBottom fontWeight="800" sx={{ color: '#b71c1c' }}>
+              Order Dashboard
+            </Typography>
+            <Typography variant="h6" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CartIcon fontSize="small" />
+              Manage and track all customer orders
+            </Typography>
+          </Box>
+          <Box display="flex" gap={2}>
+            <ActionButton
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={fetchOrders}
+              sx={{ borderColor: '#d32f2f', color: '#d32f2f' }}
+            >
+              Refresh
+            </ActionButton>
+            <ActionButton
+              variant="contained"
+              startIcon={<DownloadIcon />}
+              sx={{ 
+                background: 'linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #b71c1c 0%, #8b0000 100%)',
+                }
+              }}
+            >
+              Export Report
+            </ActionButton>
+          </Box>
+        </Box>
+
+        {/* Stats Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <RedCard>
+              <CardContent>
+                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                  <Box>
+                    <Typography variant="h2" fontWeight="800">
+                      {stats.total}
+                    </Typography>
+                    <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                      Total Orders
+                    </Typography>
+                  </Box>
+                  <CartIcon sx={{ fontSize: 40, opacity: 0.3 }} />
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                    <ArrowUpIcon fontSize="small" /> 12% from last month
+                  </Typography>
+                </Box>
+              </CardContent>
+            </RedCard>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <WhiteCard>
+              <CardContent>
+                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                  <Box>
+                    <Typography variant="h3" fontWeight="800" color="#e65100">
+                      {stats.pending}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Pending Orders
+                    </Typography>
+                  </Box>
+                  <PendingIcon sx={{ fontSize: 40, color: '#ff9800' }} />
+                </Box>
+                <LinearProgress 
+                  variant="determinate" 
+                  value={(stats.pending / stats.total) * 100} 
+                  sx={{ mt: 2, bgcolor: '#ffccbc', '& .MuiLinearProgress-bar': { bgcolor: '#ff9800' } }}
                 />
-              </div>
-            </div>
-          </div>
+              </CardContent>
+            </WhiteCard>
+          </Grid>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <div className="text-2xl font-bold text-gray-900">{totalOrders}</div>
-              <div className="text-gray-500 text-sm">Total Orders</div>
-            </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <div className="text-2xl font-bold text-green-600">
-                {orders.filter(o => o.status === 'Delivered').length}
-              </div>
-              <div className="text-gray-500 text-sm">Delivered</div>
-            </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <div className="text-2xl font-bold text-blue-600">
-                {orders.filter(o => o.status === 'Shipped').length}
-              </div>
-              <div className="text-gray-500 text-sm">Shipped</div>
-            </div>
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <div className="text-2xl font-bold text-amber-600">
-                {orders.filter(o => o.status === 'Processing').length}
-              </div>
-              <div className="text-gray-500 text-sm">Processing</div>
-            </div>
-          </div>
+          <Grid item xs={12} sm={6} md={3}>
+            <WhiteCard>
+              <CardContent>
+                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                  <Box>
+                    <Typography variant="h3" fontWeight="800" color="#2e7d32">
+                      {stats.delivered}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Delivered Orders
+                    </Typography>
+                  </Box>
+                  <DeliveredIcon sx={{ fontSize: 40, color: '#4caf50' }} />
+                </Box>
+                <Typography variant="caption" color="success.main" sx={{ mt: 2, display: 'block' }}>
+                  <ArrowUpIcon fontSize="small" /> 95% satisfaction rate
+                </Typography>
+              </CardContent>
+            </WhiteCard>
+          </Grid>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-full transition ${filter === "all" ? 'bg-gray-900 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
-            >
-              All Orders
-            </button>
-            <button
-              onClick={() => setFilter("processing")}
-              className={`px-4 py-2 rounded-full transition ${filter === "processing" ? 'bg-amber-100 text-amber-700' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
-            >
-              Processing
-            </button>
-            <button
-              onClick={() => setFilter("shipped")}
-              className={`px-4 py-2 rounded-full transition ${filter === "shipped" ? 'bg-blue-100 text-blue-700' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
-            >
-              Shipped
-            </button>
-            <button
-              onClick={() => setFilter("delivered")}
-              className={`px-4 py-2 rounded-full transition ${filter === "delivered" ? 'bg-green-100 text-green-700' : 'bg-white text-gray-600 hover:bg-gray-100'}`}
-            >
-              Delivered
-            </button>
-          </div>
-        </motion.div>
+          <Grid item xs={12} sm={6} md={3}>
+            <WhiteCard>
+              <CardContent>
+                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                  <Box>
+                    <Typography variant="h3" fontWeight="800" color="#1565c0">
+                      {formatCurrency(stats.revenue)}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      Total Revenue
+                    </Typography>
+                  </Box>
+                  <TrendingUpIcon sx={{ fontSize: 40, color: '#2196f3' }} />
+                </Box>
+                <Typography variant="caption" color="primary.main" sx={{ mt: 2, display: 'block' }}>
+                  Avg. order: {formatCurrency(stats.avgOrderValue)}
+                </Typography>
+              </CardContent>
+            </WhiteCard>
+          </Grid>
+        </Grid>
+      </Box>
 
-        {/* Orders List */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {filteredOrders.map((order, index) => {
-            const statusConfig = getStatusConfig(order.status);
-            return (
-              <motion.div
-                key={order.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -4 }}
-                className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all cursor-pointer group"
-                onClick={() => setSelectedOrder(order)}
-              >
-                {/* Order Header */}
-                <div className="p-6 border-b">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className={`p-2 rounded-full ${statusConfig.bg}`}>
-                          {statusConfig.icon}
-                        </div>
-                        <span className={`font-semibold ${statusConfig.text}`}>
-                          {statusConfig.label}
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900">{order.id}</h3>
-                      <p className="text-gray-500 text-sm">Ordered • {order.date}</p>
-                    </div>
-                    <ChevronRight className="text-gray-400 group-hover:text-gray-600 transition-transform group-hover:translate-x-1" />
-                  </div>
+      {/* Main Content */}
+      <WhiteCard>
+        <CardContent>
+          {/* Search and Filter Bar */}
+          <Box sx={{ mb: 4 }}>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  placeholder="Search orders by ID, customer, email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: '#d32f2f' }} />
+                      </InputAdornment>
+                    ),
+                    sx: { 
+                      borderRadius: '12px',
+                      '&:hover': { borderColor: '#d32f2f' }
+                    }
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <FormControl fullWidth>
+                  <InputLabel>Sort By</InputLabel>
+                  <Select
+                    value={sortBy}
+                    label="Sort By"
+                    onChange={(e) => setSortBy(e.target.value)}
+                    sx={{ borderRadius: '12px' }}
+                  >
+                    <MenuItem value="newest">Newest First</MenuItem>
+                    <MenuItem value="oldest">Oldest First</MenuItem>
+                    <MenuItem value="price-high">Amount: High to Low</MenuItem>
+                    <MenuItem value="price-low">Amount: Low to High</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<FilterIcon />}
+                  onClick={() => {
+                    setSearchTerm("");
+                    setSelectedTab(0);
+                    setSortBy("newest");
+                  }}
+                  sx={{ 
+                    borderRadius: '12px',
+                    borderColor: '#d32f2f',
+                    color: '#d32f2f',
+                    '&:hover': {
+                      borderColor: '#b71c1c',
+                      backgroundColor: '#ffebee'
+                    }
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
 
-                  {/* Progress Bar */}
-                  <div className="mt-4">
-                    <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${statusConfig.progress}%` }}
-                        transition={{ delay: 0.5 }}
-                        className={`h-full ${statusConfig.bg.replace('bg-gradient-to-r', '').split(' ')[0]}`}
+          {/* Tabs */}
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs 
+              value={selectedTab} 
+              onChange={(e, newValue) => setSelectedTab(newValue)}
+              variant="scrollable"
+              scrollButtons="auto"
+              sx={{
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  minHeight: 48,
+                },
+                '& .Mui-selected': {
+                  color: '#d32f2f !important',
+                },
+                '& .MuiTabs-indicator': {
+                  backgroundColor: '#d32f2f',
+                }
+              }}
+            >
+              {tabs.map((tab, index) => (
+                <Tab 
+                  key={index}
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      {tab.label}
+                      <Badge
+                        badgeContent={tab.count}
+                        color={index === 0 ? "error" : "default"}
+                        sx={{
+                          '& .MuiBadge-badge': index === 0 ? {
+                            backgroundColor: '#d32f2f',
+                            color: 'white'
+                          } : {}
+                        }}
                       />
-                    </div>
-                  </div>
-                </div>
+                    </Box>
+                  }
+                />
+              ))}
+            </Tabs>
+          </Box>
 
-                {/* Order Items */}
-                <div className="p-6">
-                  <div className="flex -space-x-3 mb-4">
-                    {order.items.slice(0, 3).map((item, idx) => (
-                      <div key={idx} className="w-12 h-12 bg-gray-200 rounded-lg border-2 border-white overflow-hidden">
-                        <img 
-                          src={item.image} 
-                          alt={item.name}
-                          className="w-full h-full object-cover"
+          {/* Orders Table */}
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ 
+                  backgroundColor: '#ffebee',
+                  '& th': { 
+                    fontWeight: 700,
+                    color: '#b71c1c',
+                    fontSize: '0.875rem',
+                    padding: '16px 12px'
+                  }
+                }}>
+                  <TableCell>ORDER DETAILS</TableCell>
+                  <TableCell>CUSTOMER</TableCell>
+                  <TableCell>DATE</TableCell>
+                  <TableCell>AMOUNT</TableCell>
+                  <TableCell>STATUS</TableCell>
+                  <TableCell>PAYMENT</TableCell>
+                  <TableCell align="center">ACTIONS</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredOrders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
+                      <Box sx={{ textAlign: 'center' }}>
+                        <CartIcon sx={{ fontSize: 60, color: '#e0e0e0', mb: 2 }} />
+                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                          No orders found
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {searchTerm ? 'Try a different search term' : 'No orders available'}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <TableRow 
+                      key={order._id} 
+                      hover
+                      sx={{ 
+                        '&:hover': { backgroundColor: '#fff8f8' },
+                        '& td': { padding: '20px 12px' }
+                      }}
+                    >
+                      <TableCell>
+                        <Box>
+                          <Typography variant="subtitle2" fontWeight="700" color="#b71c1c">
+                            {order.order_id}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                            <CartIcon fontSize="small" />
+                            {order.items?.length || 0} items
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" alignItems="center" gap={2}>
+                          <Avatar 
+                            sx={{ 
+                              width: 40, 
+                              height: 40,
+                              bgcolor: '#d32f2f',
+                              fontWeight: 600
+                            }}
+                          >
+                            {order.user?.name?.charAt(0)?.toUpperCase() || "C"}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="body2" fontWeight="600">
+                              {order.user?.name || "Customer"}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                              <EmailIcon fontSize="small" />
+                              {order.user?.email || "No email"}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box>
+                          <Typography variant="body2" fontWeight="500">
+                            {formatDate(order.createdAt)}
+                          </Typography>
+                          {order.expected_delivery && (
+                            <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                              <CalendarIcon fontSize="small" />
+                              Expected: {formatDate(order.expected_delivery)}
+                            </Typography>
+                          )}
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="h6" fontWeight="700" color="#d32f2f">
+                          {formatCurrency(order.total_amount)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge 
+                          label={order.order_status?.toUpperCase()} 
+                          status={order.order_status}
+                          icon={(() => {
+                            switch(order.order_status) {
+                              case 'pending': return <PendingIcon />;
+                              case 'confirmed': return <ConfirmedIcon />;
+                              case 'processing': return <ProcessingIcon />;
+                              case 'shipped': return <ShippingIcon />;
+                              case 'delivered': return <DeliveredIcon />;
+                              case 'cancelled': return <CancelIcon />;
+                              default: return null;
+                            }
+                          })()}
                         />
-                      </div>
-                    ))}
-                    {order.items.length > 3 && (
-                      <div className="w-12 h-12 bg-gray-800 rounded-lg border-2 border-white flex items-center justify-center">
-                        <span className="text-white font-semibold">+{order.items.length - 3}</span>
-                      </div>
-                    )}
-                  </div>
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          {getPaymentIcon(order.payment_method)}
+                          <Typography variant="body2" fontWeight="500">
+                            {order.payment_method?.toUpperCase()}
+                          </Typography>
+                          <Chip
+                            label={order.payment_status}
+                            size="small"
+                            sx={{
+                              ml: 1,
+                              bgcolor: order.payment_status === 'completed' ? '#e8f5e8' : '#fff3e0',
+                              color: order.payment_status === 'completed' ? '#2e7d32' : '#e65100',
+                              fontWeight: 500
+                            }}
+                          />
+                        </Box>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Box display="flex" justifyContent="center" gap={1}>
+                          <Tooltip title="View Details">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleViewOrder(order)}
+                              sx={{ 
+                                bgcolor: '#ffebee',
+                                color: '#d32f2f',
+                                '&:hover': { bgcolor: '#ffcdd2' }
+                              }}
+                            >
+                              <VisibilityIcon />
+                            </IconButton>
+                          </Tooltip>
+                          {order.order_status !== 'delivered' && order.order_status !== 'cancelled' && (
+                            <Tooltip title="Update Status">
+                              <IconButton
+                                size="small"
+                                onClick={() => handleUpdateStatus(order, 'next')}
+                                sx={{ 
+                                  bgcolor: '#e3f2fd',
+                                  color: '#1976d2',
+                                  '&:hover': { bgcolor: '#bbdefb' }
+                                }}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-                  <div className="space-y-2">
-                    {order.items.slice(0, 2).map((item, idx) => (
-                      <div key={idx} className="flex justify-between items-center">
-                        <span className="text-gray-700">{item.name}</span>
-                        <span className="text-gray-500 text-sm">x{item.qty}</span>
-                      </div>
-                    ))}
-                    {order.items.length > 2 && (
-                      <p className="text-blue-600 text-sm font-medium">
-                        +{order.items.length - 2} more items
-                      </p>
-                    )}
-                  </div>
+          {/* Pagination Info */}
+          <Box display="flex" justifyContent="space-between" alignItems="center" mt={4}>
+            <Typography variant="body2" color="text.secondary">
+              Showing {filteredOrders.length} of {orders.length} orders
+            </Typography>
+            <Box display="flex" gap={1}>
+              <Button
+                size="small"
+                disabled
+                sx={{ color: '#d32f2f' }}
+              >
+                Previous
+              </Button>
+              <Button
+                size="small"
+                sx={{ color: '#d32f2f' }}
+              >
+                Next
+              </Button>
+            </Box>
+          </Box>
+        </CardContent>
+      </WhiteCard>
 
-                  <div className="mt-6 pt-4 border-t border-gray-100">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm text-gray-500">Total Amount</p>
-                        <p className="text-2xl font-bold text-gray-900">₹{order.amount}</p>
-                      </div>
-                      <button className="px-5 py-2.5 bg-gradient-to-r from-gray-900 to-black text-white rounded-xl font-medium hover:opacity-90 transition-all flex items-center gap-2">
-                        View Details
-                        <ExternalLink size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Empty State */}
-        {filteredOrders.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Package className="text-gray-400" size={48} />
-            </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              No orders found
-            </h3>
-            <p className="text-gray-500">
-              Try changing your filter or check back later
-            </p>
-          </motion.div>
-        )}
-      </div>
-
-      {/* Order Details Modal */}
-      <AnimatePresence>
+      {/* View Order Dialog */}
+      <Dialog
+        open={viewDialogOpen}
+        onClose={() => setViewDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: '16px' }
+        }}
+      >
         {selectedOrder && (
-          <OrderDetails
-            order={selectedOrder}
-            onClose={() => setSelectedOrder(null)}
-          />
+          <>
+            <DialogTitle sx={{ 
+              bgcolor: '#d32f2f', 
+              color: 'white',
+              borderBottom: '1px solid #ffcdd2'
+            }}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Typography variant="h6" fontWeight="600">
+                  Order #{selectedOrder.order_id}
+                </Typography>
+                <StatusBadge 
+                  label={selectedOrder.order_status?.toUpperCase()} 
+                  status={selectedOrder.order_status}
+                  sx={{ color: 'white', bgcolor: 'rgba(255,255,255,0.2)' }}
+                />
+              </Box>
+            </DialogTitle>
+            <DialogContent dividers sx={{ p: 0 }}>
+              <Grid container>
+                <Grid item xs={12} md={7}>
+                  <Box sx={{ p: 3 }}>
+                    <Typography variant="h6" gutterBottom fontWeight="600" color="#b71c1c">
+                      Order Items
+                    </Typography>
+                    {selectedOrder.items?.map((item, index) => (
+                      <Box 
+                        key={index} 
+                        sx={{ 
+                          p: 2, 
+                          mb: 2, 
+                          borderRadius: '12px',
+                          bgcolor: '#fafafa',
+                          border: '1px solid #ffebee'
+                        }}
+                      >
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid item xs={2}>
+                            <Avatar
+                              src={item.image}
+                              variant="rounded"
+                              sx={{ width: 60, height: 60 }}
+                            />
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Typography variant="subtitle2" fontWeight="600">
+                              {item.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              Qty: {item.quantity} × {formatCurrency(item.price)}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={4} textAlign="right">
+                            <Typography variant="h6" fontWeight="700" color="#d32f2f">
+                              {formatCurrency(item.price * item.quantity)}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    ))}
+                  </Box>
+                </Grid>
+                <Grid item xs={12} md={5}>
+                  <Box sx={{ p: 3, bgcolor: '#fafafa', height: '100%' }}>
+                    {/* Order Summary */}
+                    <Box sx={{ mb: 4 }}>
+                      <Typography variant="h6" gutterBottom fontWeight="600" color="#b71c1c">
+                        Order Summary
+                      </Typography>
+                      <Box sx={{ mt: 2 }}>
+                        {[
+                          { label: 'Subtotal', value: selectedOrder.subtotal },
+                          { label: 'Shipping', value: selectedOrder.shipping_charge },
+                          { label: 'Tax', value: selectedOrder.tax_amount },
+                          { label: 'Discount', value: -selectedOrder.discount_amount },
+                        ].map((item, index) => (
+                          item.value !== 0 && (
+                            <Box key={index} display="flex" justifyContent="space-between" mb={1}>
+                              <Typography variant="body2" color="text.secondary">
+                                {item.label}
+                              </Typography>
+                              <Typography variant="body2" fontWeight="500">
+                                {formatCurrency(Math.abs(item.value))}
+                              </Typography>
+                            </Box>
+                          )
+                        ))}
+                        <Divider sx={{ my: 2 }} />
+                        <Box display="flex" justifyContent="space-between">
+                          <Typography variant="h6" fontWeight="700">
+                            Total
+                          </Typography>
+                          <Typography variant="h5" fontWeight="800" color="#d32f2f">
+                            {formatCurrency(selectedOrder.total_amount)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Customer Info */}
+                    <Box>
+                      <Typography variant="h6" gutterBottom fontWeight="600" color="#b71c1c">
+                        Customer Information
+                      </Typography>
+                      <Box sx={{ p: 2, bgcolor: 'white', borderRadius: '12px', border: '1px solid #ffebee' }}>
+                        <Box display="flex" alignItems="center" gap={2} mb={2}>
+                          <Avatar sx={{ bgcolor: '#d32f2f' }}>
+                            {selectedOrder.user?.name?.charAt(0)?.toUpperCase()}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="subtitle2" fontWeight="600">
+                              {selectedOrder.user?.name}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {selectedOrder.user?.email}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        {selectedOrder.user?.phone && (
+                          <Box display="flex" alignItems="center" gap={1} mb={1}>
+                            <PhoneIcon fontSize="small" color="action" />
+                            <Typography variant="body2">
+                              {selectedOrder.user.phone}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    </Box>
+
+                    {/* Timeline */}
+                    {selectedOrder.order_status !== 'cancelled' && (
+                      <Box sx={{ mt: 4 }}>
+                        <Typography variant="h6" gutterBottom fontWeight="600" color="#b71c1c">
+                          Order Timeline
+                        </Typography>
+                        <Box sx={{ position: 'relative', pl: 3, mt: 2 }}>
+                          {['Order Placed', 'Confirmed', 'Processing', 'Shipped', 'Delivered'].map((step, index) => (
+                            <Box key={index} sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                              <Box
+                                sx={{
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: '50%',
+                                  bgcolor: index <= ['pending', 'confirmed', 'processing', 'shipped', 'delivered'].indexOf(selectedOrder.order_status) ? '#d32f2f' : '#e0e0e0',
+                                  border: '2px solid white',
+                                  position: 'absolute',
+                                  left: 0,
+                                  ml: -1.5
+                                }}
+                              />
+                              <Box sx={{ ml: 3 }}>
+                                <Typography variant="body2" fontWeight="500">
+                                  {step}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  {index <= ['pending', 'confirmed', 'processing', 'shipped', 'delivered'].indexOf(selectedOrder.order_status) ? 'Completed' : 'Pending'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+                  </Box>
+                </Grid>
+              </Grid>
+            </DialogContent>
+            <DialogActions sx={{ p: 3, borderTop: '1px solid #ffebee' }}>
+              <Button 
+                onClick={() => setViewDialogOpen(false)}
+                sx={{ color: '#d32f2f' }}
+              >
+                Close
+              </Button>
+              <Button 
+                variant="contained"
+                sx={{ 
+                  bgcolor: '#d32f2f',
+                  '&:hover': { bgcolor: '#b71c1c' }
+                }}
+                onClick={() => {
+                  // Handle action
+                }}
+              >
+                Print Invoice
+              </Button>
+            </DialogActions>
+          </>
         )}
-      </AnimatePresence>
-    </div>
+      </Dialog>
+    </Container>
   );
-}
+};
+
+export default MyOrders;

@@ -1,1313 +1,1953 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Management System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #34495e;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .navbar {
-            background-color: var(--secondary-color);
-        }
-        
-        .sidebar {
-            background-color: var(--dark-color);
-            min-height: calc(100vh - 56px);
-            color: white;
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            border-radius: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .sidebar .nav-link i {
-            margin-right: 0.5rem;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            margin-bottom: 1.5rem;
-        }
-        
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-            font-weight: 600;
-        }
-        
-        .status-badge {
-            padding: 0.35em 0.65em;
-            font-size: 0.75em;
-            font-weight: 600;
-        }
-        
-        .order-item {
-            border-bottom: 1px solid #eee;
-            padding: 0.75rem 0;
-        }
-        
-        .order-item:last-child {
-            border-bottom: none;
-        }
-        
-        .stats-card {
-            text-align: center;
-            padding: 1.5rem;
-        }
-        
-        .stats-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stats-label {
-            font-size: 0.875rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .action-btn {
-            margin-right: 0.25rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .table th {
-            border-top: none;
-            font-weight: 600;
-            color: var(--secondary-color);
-        }
-        
-        .order-details-section {
-            background-color: white;
-            border-radius: 0.375rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .order-details-section h5 {
-            color: var(--secondary-color);
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .order-timeline {
-            position: relative;
-            padding-left: 2rem;
-        }
-        
-        .order-timeline::before {
-            content: '';
-            position: absolute;
-            left: 0.75rem;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: #e9ecef;
-        }
-        
-        .timeline-item {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-        
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -1.75rem;
-            top: 0.25rem;
-            width: 0.75rem;
-            height: 0.75rem;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            border: 2px solid white;
-            box-shadow: 0 0 0 2px var(--primary-color);
-        }
-        
-        .timeline-item.completed::before {
-            background-color: var(--success-color);
-            box-shadow: 0 0 0 2px var(--success-color);
-        }
-        
-        .timeline-item.current::before {
-            background-color: white;
-            box-shadow: 0 0 0 2px var(--primary-color);
-        }
-        
-        .timeline-date {
-            font-size: 0.75rem;
-            color: #6c757d;
-        }
-        
-        .product-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 0.375rem;
-        }
-        
-        .form-section {
-            background-color: white;
-            border-radius: 0.375rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                min-height: auto;
-                margin-bottom: 1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+  <style>
+    :root {
+      --primary-red: #dc3545;
+      --primary-red-dark: #c82333;
+      --primary-red-light: #f8d7da;
+      --secondary-red: #e74c3c;
+      --accent-red: #ff6b6b;
+      --dark-bg: #1a1a2e;
+      --dark-card: #16213e;
+      --text-light: #f8f9fa;
+      --text-muted: #adb5bd;
+      --border-color: #2d3748;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --gray-100: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-300: #dee2e6;
+      --gray-800: #343a40;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      background: linear-gradient(180deg, var(--dark-bg) 0%, #0f0f23 100%);
+      color: var(--text-light);
+      width: 280px;
+      min-height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 3px 0 20px rgba(0,0,0,0.1);
+      border-right: 1px solid var(--border-color);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--dark-card);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand-logo i {
+      color: var(--primary-red);
+      font-size: 1.8rem;
+    }
+
+    .brand-text h3 {
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.4rem;
+      background: linear-gradient(45deg, #ff6b6b, #dc3545);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text small {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .nav-links {
+      padding: 1rem 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .nav-item {
+      margin: 0.25rem 1rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary-red);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-link:hover:before,
+    .nav-link.active:before {
+      transform: translateX(0);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+      transform: translateX(5px);
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    /* Main Content */
+    #main-content {
+      margin-left: 280px;
+      padding: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      width: 300px;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      outline: none;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-800);
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .page-title h1 {
+      font-weight: 700;
+      color: var(--dark-bg);
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    .page-title p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(45deg, var(--primary-red-dark), var(--primary-red));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.3s ease;
+      border: 1px solid transparent;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary-red-light);
+      box-shadow: 0 8px 25px rgba(220, 53, 69, 0.15);
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .stat-content {
+      flex: 1;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .stat-trend {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .trend-up {
+      color: var(--success);
+    }
+
+    .trend-down {
+      color: var(--primary-red);
+    }
+
+    /* Filters Card */
+    .filters-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .filters-card .form-label {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-select, .form-control {
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-select:focus, .form-control:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    /* Orders Table Card */
+    .orders-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, var(--dark-bg), var(--dark-card));
+      color: white;
+      padding: 1.25rem 1.5rem;
+      border-bottom: none;
+    }
+
+    .card-header h5 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .dataTables_wrapper {
+      padding: 0;
+    }
+
+    .dataTables_length select {
+      border: 2px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 0.375rem 2rem 0.375rem 0.75rem;
+    }
+
+    .dataTables_filter input {
+      border: 2px solid var(--gray-300);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      margin-left: 0.5rem;
+    }
+
+    .dataTables_filter input:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      outline: none;
+    }
+
+    .table {
+      margin: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table thead th {
+      border-bottom: 2px solid var(--gray-200);
+      font-weight: 600;
+      color: var(--gray-800);
+      padding: 1rem;
+      background: var(--gray-100);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table tbody tr:hover {
+      background-color: var(--primary-red-light);
+      transform: scale(1.002);
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+    }
+
+    .customer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--gray-200);
+      transition: all 0.3s ease;
+    }
+
+    .customer-avatar:hover {
+      transform: scale(1.1);
+      border-color: var(--primary-red);
+    }
+
+    .customer-name {
+      font-weight: 600;
+      color: var(--dark-bg);
+      margin-bottom: 0.25rem;
+    }
+
+    .customer-email {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .order-id {
+      font-family: 'Monaco', 'Consolas', monospace;
+      background: var(--gray-100);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: var(--dark-bg);
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      border: 1px solid transparent;
+    }
+
+    .status-badge.pending {
+      background: #fff3cd;
+      color: #856404;
+      border-color: #ffeaa7;
+    }
+
+    .status-badge.confirmed {
+      background: #cce5ff;
+      color: #004085;
+      border-color: #b8daff;
+    }
+
+    .status-badge.processing {
+      background: #d1ecf1;
+      color: #0c5460;
+      border-color: #bee5eb;
+    }
+
+    .status-badge.shipped {
+      background: #d4edda;
+      color: #155724;
+      border-color: #c3e6cb;
+    }
+
+    .status-badge.delivered {
+      background: #d1e7dd;
+      color: #0f5132;
+      border-color: #badbcc;
+    }
+
+    .status-badge.cancelled {
+      background: #f8d7da;
+      color: #721c24;
+      border-color: #f5c6cb;
+    }
+
+    .payment-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .payment-badge.completed {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .payment-badge.pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .payment-badge.failed {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .amount {
+      font-weight: 700;
+      color: var(--primary-red);
+      font-size: 1.1rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-view {
+      background: rgba(23, 162, 184, 0.1);
+      color: var(--info);
+    }
+
+    .btn-view:hover {
+      background: var(--info);
+      color: white;
+    }
+
+    .btn-edit {
+      background: rgba(255, 193, 7, 0.1);
+      color: var(--warning);
+    }
+
+    .btn-edit:hover {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-delete {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+    }
+
+    .btn-delete:hover {
+      background: var(--primary-red);
+      color: white;
+    }
+
+    /* Alert Box */
+    .alert-box {
+      position: fixed;
+      top: 100px;
+      right: 30px;
+      z-index: 9999;
+      min-width: 300px;
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 1.5rem;
+    }
+
+    .modal-header .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+    }
+
+    .modal-header .btn-close:hover {
+      opacity: 1;
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .order-details-section {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .order-details-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .order-details-section h5 {
+      color: var(--dark-bg);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .order-items {
+      background: var(--gray-100);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--gray-200);
+      background: white;
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+
+    .order-item-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 1rem;
+    }
+
+    .order-item-details {
+      flex: 1;
+    }
+
+    .order-item-name {
+      font-weight: 600;
+      color: var(--dark-bg);
+      margin-bottom: 0.25rem;
+    }
+
+    .order-item-price {
+      color: var(--primary-red);
+      font-weight: 600;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 1rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--gray-300);
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2rem;
+      top: 0.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid var(--gray-300);
+    }
+
+    .timeline-item.completed::before {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .timeline-item.current::before {
+      background: var(--primary-red);
+      border-color: var(--primary-red);
+    }
+
+    .timeline-date {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    /* Loading Spinner */
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--gray-300);
+      border-top: 5px solid var(--primary-red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      #sidebar {
+        width: 80px;
+      }
+      
+      #sidebar .nav-link span {
+        display: none;
+      }
+      
+      #main-content {
+        margin-left: 80px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      #sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar-show {
+        transform: translateX(0);
+      }
+      
+      #main-content {
+        margin-left: 0;
+      }
+      
+      .search-box input {
+        width: 200px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .search-box input {
+        width: 100%;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      
+      .btn-icon {
+        width: 28px;
+        height: 28px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .alert-box {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+      }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-200);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-red-dark);
+    }
+  </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-shopping-bag me-2"></i>
-                Order Management System
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i> John Doe
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="nav-item">
-                                    <a class="nav-link" href="index.html">
-                                        <i class="fas fa-tachometer-alt"></i>
-                                        Dashboard
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="users.html">
-                                        <i class="fas fa-users"></i>
-                                        Users
-                                    </a>
-                                </li>
-                                <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
-
-                                <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="orders.html">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        Orders
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="payment.html">
-                                        <i class="fas fa-credit-card"></i>
-                                        Payments
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-chart-bar"></i>
-                                        Analytics
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-cog"></i>
-                                        Settings
-                                    </a>
-                                </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand-logo">
+        <i class="fas fa-store"></i>
+        <div class="brand-text">
+          <h3>E-Shop</h3>
+          <small>Admin Panel</small>
         </div>
-    </nav>
+      </a>
+    </div>
+    
+    <div class="nav-links">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="products.html" class="nav-link">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="categories.html" class="nav-link">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="orders.html" class="nav-link active">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Orders</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="users.html" class="nav-link">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="settings.html" class="nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i> John Doe
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="nav-item">
-                                    <a class="nav-link" href="index.html">
-                                        <i class="fas fa-tachometer-alt"></i>
-                                        Dashboard
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="users.html">
-                                        <i class="fas fa-users"></i>
-                                        Users
-                                    </a>
-                                </li>
-                                <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
-
-                                <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="orders.html">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        Orders
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="payment.html">
-                                        <i class="fas fa-credit-card"></i>
-                                        Payments
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-chart-bar"></i>
-                                        Analytics
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-cog"></i>
-                                        Settings
-                                    </a>
-                                </li>
-                        </ul>
-                    </li>
-                </ul>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <main class="col-lg-10 col-md-9 ms-sm-auto px-md-4 py-4">
-                <!-- Page Header -->
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">Order Management</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrderModal">
-                            <i class="fas fa-plus me-1"></i> Create New Order
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Stats Cards -->
-                <div class="row mb-4">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card">
-                            <div class="stats-value text-primary">156</div>
-                            <div class="stats-label">Total Orders</div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card">
-                            <div class="stats-value text-warning">24</div>
-                            <div class="stats-label">Pending Orders</div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card">
-                            <div class="stats-value text-success">128</div>
-                            <div class="stats-label">Completed Orders</div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card">
-                            <div class="stats-value text-danger">4</div>
-                            <div class="stats-label">Cancelled Orders</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Orders Table -->
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Recent Orders</h5>
-                        <div class="d-flex">
-                            <input type="text" class="form-control form-control-sm me-2" placeholder="Search orders...">
-                            <select class="form-select form-select-sm" style="width: auto;">
-                                <option>All Status</option>
-                                <option>Pending</option>
-                                <option>Confirmed</option>
-                                <option>Processing</option>
-                                <option>Shipped</option>
-                                <option>Delivered</option>
-                                <option>Cancelled</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Order ID</th>
-                                        <th>Customer</th>
-                                        <th>Date</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Payment</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ordersTableBody">
-                                    <!-- Orders will be populated here by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <nav aria-label="Order pagination">
-                            <ul class="pagination justify-content-end">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#" tabindex="-1">Previous</a>
-                                </li>
-                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Next</a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </main>
-        </div>
+  <!-- Main Content -->
+  <div id="main-content">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalSearch" placeholder="Search orders by ID, customer, email...">
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted me-2" id="currentDate"></span>
+        <button class="btn btn-outline-danger btn-sm">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
     </div>
 
-    <!-- Create Order Modal -->
-    <div class="modal fade" id="createOrderModal" tabindex="-1" aria-labelledby="createOrderModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createOrderModalLabel">Create New Order</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="createOrderForm">
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="user" class="form-label">Customer</label>
-                                <select class="form-select" id="user" required>
-                                    <option value="">Select Customer</option>
-                                    <!-- Options will be populated by JavaScript -->
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="paymentMethod" class="form-label">Payment Method</label>
-                                <select class="form-select" id="paymentMethod" required>
-                                    <option value="">Select Payment Method</option>
-                                    <option value="card">Credit/Debit Card</option>
-                                    <option value="upi">UPI</option>
-                                    <option value="netbanking">Net Banking</option>
-                                    <option value="cod">Cash on Delivery</option>
-                                    <option value="wallet">Wallet</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="shippingAddress" class="form-label">Shipping Address</label>
-                                <select class="form-select" id="shippingAddress" required>
-                                    <option value="">Select Shipping Address</option>
-                                    <!-- Options will be populated by JavaScript -->
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="billingAddress" class="form-label">Billing Address</label>
-                                <select class="form-select" id="billingAddress">
-                                    <option value="">Same as Shipping Address</option>
-                                    <!-- Options will be populated by JavaScript -->
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Order Items</label>
-                            <div id="orderItemsContainer">
-                                <div class="order-item row mb-2">
-                                    <div class="col-md-5">
-                                        <select class="form-select product-select" required>
-                                            <option value="">Select Product</option>
-                                            <!-- Options will be populated by JavaScript -->
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="number" class="form-control quantity-input" min="1" value="1" required>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control price-input" readonly>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <button type="button" class="btn btn-danger btn-sm remove-item-btn">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addItemBtn">
-                                <i class="fas fa-plus me-1"></i> Add Item
-                            </button>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label for="subtotal" class="form-label">Subtotal</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control" id="subtotal" readonly>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="shippingCharge" class="form-label">Shipping Charge</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control" id="shippingCharge" value="0" min="0" step="0.01">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="totalAmount" class="form-label">Total Amount</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" class="form-control" id="totalAmount" readonly>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Order Notes</label>
-                            <textarea class="form-control" id="notes" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="submitOrderBtn">Create Order</button>
-                </div>
-            </div>
-        </div>
+    <!-- Alert Box -->
+    <div class="alert-box" id="alertBox"></div>
+
+    <!-- Page Header -->
+    <div class="page-header fade-in">
+      <div class="page-title">
+        <h1><i class="fas fa-shopping-cart text-danger me-2"></i>Order Management</h1>
+        <p>Manage and track all customer orders efficiently</p>
+      </div>
+      <div>
+        <button class="btn btn-primary me-2" onclick="refreshOrders()">
+          <i class="fas fa-sync-alt me-2"></i>Refresh
+        </button>
+        <button class="btn btn-outline-danger">
+          <i class="fas fa-download me-2"></i>Export
+        </button>
+      </div>
     </div>
 
-    <!-- View Order Modal -->
-    <div class="modal fade" id="viewOrderModal" tabindex="-1" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="viewOrderModalLabel">Order Details - <span id="orderIdHeader"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- Stats Cards -->
+    <div class="stats-grid fade-in">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, var(--primary-red), var(--accent-red)); color: white;">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="totalOrders">0</div>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 12% from last month
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #28a745, #20c997); color: white;">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="deliveredOrders">0</div>
+          <div class="stat-label">Delivered</div>
+          <div class="stat-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 95% success rate
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107, #fd7e14); color: white;">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="pendingOrders">0</div>
+          <div class="stat-label">Pending</div>
+          <div class="stat-trend trend-down">
+            <i class="fas fa-arrow-down"></i> 8% from last week
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon" style="background: linear-gradient(135deg, #17a2b8, #0dcaf0); color: white;">
+          <i class="fas fa-rupee-sign"></i>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="totalRevenue">₹0</div>
+          <div class="stat-label">Revenue</div>
+          <div class="stat-trend trend-up">
+            <i class="fas fa-arrow-up"></i> 18% from last month
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="filters-card fade-in">
+      <div class="row g-3">
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label">Payment Status</label>
+          <select class="form-select" id="paymentFilter">
+            <option value="">All Payments</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label">Date Range</label>
+          <select class="form-select" id="dateFilter">
+            <option value="">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label">Payment Method</label>
+          <select class="form-select" id="paymentMethodFilter">
+            <option value="">All Methods</option>
+            <option value="cod">Cash on Delivery</option>
+            <option value="card">Credit/Debit Card</option>
+            <option value="upi">UPI</option>
+            <option value="netbanking">Net Banking</option>
+            <option value="wallet">Wallet</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Table Card -->
+    <div class="orders-card fade-in">
+      <div class="card-header">
+        <h5 class="mb-0">Recent Orders</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover" id="ordersTable">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr>
+                <td colspan="7" class="text-center py-5">
+                  <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="mt-2 text-muted">Loading orders...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle"><i class="fas fa-receipt me-2"></i>Order Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Order Header -->
+          <div class="order-details-section">
+            <div class="row">
+              <div class="col-md-6">
+                <h6 class="text-muted">ORDER ID</h6>
+                <h4 id="orderId" class="fw-bold">#ORD123456</h4>
+              </div>
+              <div class="col-md-6 text-end">
+                <h6 class="text-muted">ORDER DATE</h6>
+                <h5 id="orderDate" class="fw-bold">01 Jan, 2024</h5>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Status -->
+          <div class="order-details-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5>Order Status</h5>
+              <div>
+                <span class="status-badge pending" id="orderStatusBadge">Pending</span>
+              </div>
+            </div>
+            
+            <div class="timeline">
+              <div class="timeline-item completed">
+                <div class="timeline-date">01 Jan, 2024 10:30 AM</div>
+                <h6>Order Placed</h6>
+                <p class="text-muted mb-0">Order has been placed by customer</p>
+              </div>
+              <div class="timeline-item completed">
+                <div class="timeline-date">01 Jan, 2024 11:15 AM</div>
+                <h6>Order Confirmed</h6>
+                <p class="text-muted mb-0">Order has been confirmed</p>
+              </div>
+              <div class="timeline-item current">
+                <div class="timeline-date">02 Jan, 2024 09:00 AM</div>
+                <h6>Processing</h6>
+                <p class="text-muted mb-0">Order is being processed</p>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">--</div>
+                <h6>Shipped</h6>
+                <p class="text-muted mb-0">Order will be shipped</p>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-date">--</div>
+                <h6>Delivered</h6>
+                <p class="text-muted mb-0">Order will be delivered</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Items -->
+          <div class="order-details-section">
+            <h5>Order Items</h5>
+            <div class="order-items" id="orderItems">
+              <!-- Items will be populated by JavaScript -->
+            </div>
+            
+            <div class="row mt-4">
+              <div class="col-md-8"></div>
+              <div class="col-md-4">
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Subtotal:</span>
+                  <span id="subtotalAmount">₹0.00</span>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <!-- Order Items -->
-                            <div class="order-details-section">
-                                <h5>Order Items</h5>
-                                <div id="orderItemsDetails">
-                                    <!-- Items will be populated by JavaScript -->
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-8"></div>
-                                    <div class="col-md-4">
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span>Subtotal:</span>
-                                            <span id="detailSubtotal">$0.00</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span>Shipping:</span>
-                                            <span id="detailShipping">$0.00</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span>Tax:</span>
-                                            <span id="detailTax">$0.00</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span>Discount:</span>
-                                            <span id="detailDiscount">$0.00</span>
-                                        </div>
-                                        <hr>
-                                        <div class="d-flex justify-content-between fw-bold">
-                                            <span>Total:</span>
-                                            <span id="detailTotal">$0.00</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Order Timeline -->
-                            <div class="order-details-section">
-                                <h5>Order Timeline</h5>
-                                <div class="order-timeline" id="orderTimeline">
-                                    <!-- Timeline items will be populated by JavaScript -->
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <!-- Order Summary -->
-                            <div class="order-details-section">
-                                <h5>Order Summary</h5>
-                                <div class="mb-3">
-                                    <strong>Order Status:</strong>
-                                    <span class="badge status-badge bg-primary ms-2" id="detailOrderStatus">Pending</span>
-                                </div>
-                                <div class="mb-3">
-                                    <strong>Payment Status:</strong>
-                                    <span class="badge status-badge bg-success ms-2" id="detailPaymentStatus">Completed</span>
-                                </div>
-                                <div class="mb-3">
-                                    <strong>Payment Method:</strong>
-                                    <span id="detailPaymentMethod">Credit Card</span>
-                                </div>
-                                <div class="mb-3">
-                                    <strong>Order Date:</strong>
-                                    <span id="detailOrderDate">Jan 1, 2023</span>
-                                </div>
-                                <div class="mb-3">
-                                    <strong>Expected Delivery:</strong>
-                                    <span id="detailExpectedDelivery">Jan 5, 2023</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Customer Information -->
-                            <div class="order-details-section">
-                                <h5>Customer Information</h5>
-                                <div class="mb-3">
-                                    <strong>Name:</strong>
-                                    <span id="detailCustomerName">John Doe</span>
-                                </div>
-                                <div class="mb-3">
-                                    <strong>Email:</strong>
-                                    <span id="detailCustomerEmail">john.doe@example.com</span>
-                                </div>
-                                <div class="mb-3">
-                                    <strong>Phone:</strong>
-                                    <span id="detailCustomerPhone">+1 (555) 123-4567</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Shipping & Billing -->
-                            <div class="order-details-section">
-                                <h5>Shipping Address</h5>
-                                <div id="detailShippingAddress">
-                                    <!-- Address will be populated by JavaScript -->
-                                </div>
-                                
-                                <h5 class="mt-3">Billing Address</h5>
-                                <div id="detailBillingAddress">
-                                    <!-- Address will be populated by JavaScript -->
-                                </div>
-                            </div>
-                        </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Shipping:</span>
+                  <span id="shippingAmount">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Tax:</span>
+                  <span id="taxAmount">₹0.00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Discount:</span>
+                  <span id="discountAmount" class="text-success">-₹0.00</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                  <span>Total:</span>
+                  <span id="totalAmount" class="text-danger">₹0.00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Customer Information -->
+          <div class="order-details-section">
+            <h5>Customer Information</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="card border-0 bg-light">
+                  <div class="card-body">
+                    <h6>Shipping Address</h6>
+                    <div id="shippingAddress">
+                      <p class="mb-1">John Doe</p>
+                      <p class="mb-1">123 Main Street</p>
+                      <p class="mb-1">New York, NY 10001</p>
+                      <p class="mb-1">United States</p>
+                      <p class="mb-0">Phone: +1 (555) 123-4567</p>
                     </div>
+                  </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-warning" id="cancelOrderBtn">Cancel Order</button>
-                    <button type="button" class="btn btn-primary" id="updateStatusBtn">Update Status</button>
+              </div>
+              <div class="col-md-6">
+                <div class="card border-0 bg-light">
+                  <div class="card-body">
+                    <h6>Billing Address</h6>
+                    <div id="billingAddress">
+                      <p class="mb-1">John Doe</p>
+                      <p class="mb-1">123 Main Street</p>
+                      <p class="mb-1">New York, NY 10001</p>
+                      <p class="mb-1">United States</p>
+                      <p class="mb-0">Phone: +1 (555) 123-4567</p>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Update Status Modal -->
-    <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateStatusModalLabel">Update Order Status</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            
+            <div class="row mt-4">
+              <div class="col-md-4">
+                <div class="card border-0 bg-light">
+                  <div class="card-body">
+                    <h6>Contact Info</h6>
+                    <p class="mb-1" id="customerEmail">john.doe@example.com</p>
+                    <p class="mb-0" id="customerPhone">+1 (555) 123-4567</p>
+                  </div>
                 </div>
-                <div class="modal-body">
-                    <form id="updateStatusForm">
-                        <div class="mb-3">
-                            <label for="orderStatus" class="form-label">Order Status</label>
-                            <select class="form-select" id="orderStatus" required>
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="trackingNumber" class="form-label">Tracking Number</label>
-                            <input type="text" class="form-control" id="trackingNumber">
-                        </div>
-                        <div class="mb-3">
-                            <label for="shippingCarrier" class="form-label">Shipping Carrier</label>
-                            <input type="text" class="form-control" id="shippingCarrier">
-                        </div>
-                        <div class="mb-3">
-                            <label for="expectedDelivery" class="form-label">Expected Delivery</label>
-                            <input type="date" class="form-control" id="expectedDelivery">
-                        </div>
-                    </form>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-0 bg-light">
+                  <div class="card-body">
+                    <h6>Payment Method</h6>
+                    <p class="mb-0" id="paymentMethod">Credit Card</p>
+                    <span class="payment-badge completed" id="paymentStatus">Completed</span>
+                  </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="saveStatusBtn">Save Changes</button>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-0 bg-light">
+                  <div class="card-body">
+                    <h6>Delivery</h6>
+                    <p class="mb-1">Standard Delivery</p>
+                    <p class="mb-0" id="expectedDelivery">05 Jan, 2024</p>
+                  </div>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger" onclick="printInvoice()">
+            <i class="fas fa-print me-2"></i>Print Invoice
+          </button>
+          <button type="button" class="btn btn-primary" onclick="updateOrderStatus()">
+            <i class="fas fa-edit me-2"></i>Update Status
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Sample data for demonstration
-        const sampleData = {
-            users: [
-                { _id: 'user1', name: 'John Doe', email: 'john.doe@example.com', phone: '+1 (555) 123-4567' },
-                { _id: 'user2', name: 'Jane Smith', email: 'jane.smith@example.com', phone: '+1 (555) 987-6543' },
-                { _id: 'user3', name: 'Robert Johnson', email: 'robert.j@example.com', phone: '+1 (555) 456-7890' }
-            ],
-            addresses: [
-                { _id: 'addr1', user: 'user1', type: 'shipping', street: '123 Main St', city: 'New York', state: 'NY', zipCode: '10001', country: 'USA' },
-                { _id: 'addr2', user: 'user1', type: 'billing', street: '123 Main St', city: 'New York', state: 'NY', zipCode: '10001', country: 'USA' },
-                { _id: 'addr3', user: 'user2', type: 'shipping', street: '456 Oak Ave', city: 'Los Angeles', state: 'CA', zipCode: '90001', country: 'USA' },
-                { _id: 'addr4', user: 'user3', type: 'shipping', street: '789 Pine Rd', city: 'Chicago', state: 'IL', zipCode: '60007', country: 'USA' }
-            ],
-            products: [
-                { _id: 'prod1', name: 'Wireless Headphones', price: 99.99, image: 'https://via.placeholder.com/60' },
-                { _id: 'prod2', name: 'Smartphone', price: 699.99, image: 'https://via.placeholder.com/60' },
-                { _id: 'prod3', name: 'Laptop', price: 1299.99, image: 'https://via.placeholder.com/60' },
-                { _id: 'prod4', name: 'Smart Watch', price: 249.99, image: 'https://via.placeholder.com/60' },
-                { _id: 'prod5', name: 'Tablet', price: 499.99, image: 'https://via.placeholder.com/60' }
-            ],
-            orders: [
-                {
-                    _id: 'order1',
-                    order_id: 'ORD123456789',
-                    user: 'user1',
-                    items: [
-                        { product: 'prod1', quantity: 1, price: 99.99, name: 'Wireless Headphones', image: 'https://via.placeholder.com/60' },
-                        { product: 'prod4', quantity: 2, price: 249.99, name: 'Smart Watch', image: 'https://via.placeholder.com/60' }
-                    ],
-                    shipping_address: 'addr1',
-                    billing_address: 'addr2',
-                    payment_method: 'card',
-                    payment_status: 'completed',
-                    order_status: 'shipped',
-                    subtotal: 599.97,
-                    shipping_charge: 10.00,
-                    tax_amount: 48.00,
-                    discount_amount: 0.00,
-                    total_amount: 657.97,
-                    tracking_number: 'TRK123456789',
-                    shipping_carrier: 'FedEx',
-                    expected_delivery: '2023-06-15',
-                    createdAt: '2023-06-10T10:30:00Z',
-                    notes: 'Please deliver after 5 PM'
-                },
-                {
-                    _id: 'order2',
-                    order_id: 'ORD987654321',
-                    user: 'user2',
-                    items: [
-                        { product: 'prod2', quantity: 1, price: 699.99, name: 'Smartphone', image: 'https://via.placeholder.com/60' }
-                    ],
-                    shipping_address: 'addr3',
-                    billing_address: 'addr3',
-                    payment_method: 'upi',
-                    payment_status: 'completed',
-                    order_status: 'delivered',
-                    subtotal: 699.99,
-                    shipping_charge: 0.00,
-                    tax_amount: 56.00,
-                    discount_amount: 50.00,
-                    total_amount: 705.99,
-                    tracking_number: 'TRK987654321',
-                    shipping_carrier: 'UPS',
-                    expected_delivery: '2023-06-12',
-                    createdAt: '2023-06-08T14:45:00Z',
-                    notes: ''
-                },
-                {
-                    _id: 'order3',
-                    order_id: 'ORD456123789',
-                    user: 'user3',
-                    items: [
-                        { product: 'prod3', quantity: 1, price: 1299.99, name: 'Laptop', image: 'https://via.placeholder.com/60' },
-                        { product: 'prod5', quantity: 1, price: 499.99, name: 'Tablet', image: 'https://via.placeholder.com/60' }
-                    ],
-                    shipping_address: 'addr4',
-                    billing_address: 'addr4',
-                    payment_method: 'netbanking',
-                    payment_status: 'pending',
-                    order_status: 'confirmed',
-                    subtotal: 1799.98,
-                    shipping_charge: 15.00,
-                    tax_amount: 144.00,
-                    discount_amount: 100.00,
-                    total_amount: 1858.98,
-                    tracking_number: '',
-                    shipping_carrier: '',
-                    expected_delivery: '2023-06-20',
-                    createdAt: '2023-06-11T09:15:00Z',
-                    notes: 'Gift wrapping requested'
-                }
-            ]
-        };
+  <!-- Update Status Modal -->
+  <div class="modal fade" id="updateStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Update Order Status</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Select New Status</label>
+            <select class="form-select" id="newOrderStatus">
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tracking Number</label>
+            <input type="text" class="form-control" id="trackingNumber" placeholder="Enter tracking number">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Shipping Carrier</label>
+            <input type="text" class="form-control" id="shippingCarrier" placeholder="e.g., FedEx, UPS, DHL">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Expected Delivery Date</label>
+            <input type="date" class="form-control" id="expectedDeliveryDate">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Notes (Optional)</label>
+            <textarea class="form-control" id="statusNotes" rows="3" placeholder="Add any notes about status update"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="saveStatusUpdate()">
+            <i class="fas fa-save me-2"></i>Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // DOM elements
-        const ordersTableBody = document.getElementById('ordersTableBody');
-        const createOrderForm = document.getElementById('createOrderForm');
-        const orderItemsContainer = document.getElementById('orderItemsContainer');
-        const addItemBtn = document.getElementById('addItemBtn');
-        const submitOrderBtn = document.getElementById('submitOrderBtn');
-        const userSelect = document.getElementById('user');
-        const shippingAddressSelect = document.getElementById('shippingAddress');
-        const billingAddressSelect = document.getElementById('billingAddress');
-        const subtotalInput = document.getElementById('subtotal');
-        const shippingChargeInput = document.getElementById('shippingCharge');
-        const totalAmountInput = document.getElementById('totalAmount');
-        const viewOrderModal = new bootstrap.Modal(document.getElementById('viewOrderModal'));
-        const updateStatusModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
-        const saveStatusBtn = document.getElementById('saveStatusBtn');
-        const cancelOrderBtn = document.getElementById('cancelOrderBtn');
-        const updateStatusBtn = document.getElementById('updateStatusBtn');
+  <!-- Loading Overlay -->
+  <div class="spinner-overlay" id="loadingOverlay" style="display: none;">
+    <div class="spinner"></div>
+  </div>
 
-        // Current order being viewed
-        let currentOrder = null;
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+  <script>
+    // API Configuration
+    const API_BASE = "http://localhost:5000/api";
+    const ORDERS_API = `${API_BASE}/orders`;
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            populateUserDropdown();
-            populateProductDropdowns();
-            displayOrders();
-            
-            // Event listeners
-            addItemBtn.addEventListener('click', addOrderItem);
-            submitOrderBtn.addEventListener('click', createOrder);
-            shippingChargeInput.addEventListener('input', calculateTotal);
-            userSelect.addEventListener('change', updateAddressDropdowns);
-            saveStatusBtn.addEventListener('click', updateOrderStatus);
-            cancelOrderBtn.addEventListener('click', cancelOrder);
-            updateStatusBtn.addEventListener('click', showUpdateStatusModal);
-        });
+    // Sample Data (Replace with API calls)
+    const sampleOrders = [
+      {
+        _id: "ord_001",
+        order_id: "ORD123456",
+        user: {
+          _id: "user_001",
+          name: "John Doe",
+          email: "john.doe@example.com",
+          avatar: "https://i.pravatar.cc/150?img=1"
+        },
+        items: [
+          {
+            product: "prod_001",
+            name: "Wireless Headphones",
+            price: 2999,
+            quantity: 1,
+            image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=150&h=150&fit=crop"
+          },
+          {
+            product: "prod_002",
+            name: "Smart Watch",
+            price: 1499,
+            quantity: 2,
+            image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=150&h=150&fit=crop"
+          }
+        ],
+        shipping_address: {
+          name: "John Doe",
+          address_line: "123 Main Street",
+          city: "New York",
+          state: "NY",
+          pincode: "10001",
+          country: "United States",
+          phone: "+1 (555) 123-4567"
+        },
+        billing_address: {
+          name: "John Doe",
+          address_line: "123 Main Street",
+          city: "New York",
+          state: "NY",
+          pincode: "10001",
+          country: "United States",
+          phone: "+1 (555) 123-4567"
+        },
+        payment_method: "card",
+        payment_status: "completed",
+        order_status: "processing",
+        subtotal: 5997,
+        shipping_charge: 50,
+        tax_amount: 1079.46,
+        discount_amount: 300,
+        total_amount: 6826.46,
+        coupon_applied: "WELCOME10",
+        tracking_number: "TRK789456123",
+        shipping_carrier: "FedEx",
+        expected_delivery: "2024-01-05",
+        createdAt: "2024-01-01T10:30:00Z",
+        notes: "Please deliver after 5 PM"
+      },
+      {
+        _id: "ord_002",
+        order_id: "ORD789123",
+        user: {
+          _id: "user_002",
+          name: "Jane Smith",
+          email: "jane.smith@example.com",
+          avatar: "https://i.pravatar.cc/150?img=2"
+        },
+        items: [
+          {
+            product: "prod_003",
+            name: "Laptop",
+            price: 89999,
+            quantity: 1,
+            image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=150&h=150&fit=crop"
+          }
+        ],
+        shipping_address: {
+          name: "Jane Smith",
+          address_line: "456 Oak Avenue",
+          city: "Los Angeles",
+          state: "CA",
+          pincode: "90001",
+          country: "United States",
+          phone: "+1 (555) 987-6543"
+        },
+        billing_address: {
+          name: "Jane Smith",
+          address_line: "456 Oak Avenue",
+          city: "Los Angeles",
+          state: "CA",
+          pincode: "90001",
+          country: "United States",
+          phone: "+1 (555) 987-6543"
+        },
+        payment_method: "upi",
+        payment_status: "completed",
+        order_status: "delivered",
+        subtotal: 89999,
+        shipping_charge: 0,
+        tax_amount: 16199.82,
+        discount_amount: 2000,
+        total_amount: 104198.82,
+        coupon_applied: null,
+        tracking_number: "TRK123789456",
+        shipping_carrier: "UPS",
+        expected_delivery: "2024-01-03",
+        createdAt: "2023-12-28T14:45:00Z",
+        notes: "Gift wrapping requested"
+      },
+      {
+        _id: "ord_003",
+        order_id: "ORD456789",
+        user: {
+          _id: "user_003",
+          name: "Robert Johnson",
+          email: "robert.j@example.com",
+          avatar: "https://i.pravatar.cc/150?img=3"
+        },
+        items: [
+          {
+            product: "prod_004",
+            name: "Smartphone",
+            price: 49999,
+            quantity: 1,
+            image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=150&h=150&fit=crop"
+          },
+          {
+            product: "prod_005",
+            name: "Tablet",
+            price: 34999,
+            quantity: 1,
+            image: "https://images.unsplash.com/photo-1546054452-ae5c1248f6d0?w=150&h=150&fit=crop"
+          }
+        ],
+        shipping_address: {
+          name: "Robert Johnson",
+          address_line: "789 Pine Road",
+          city: "Chicago",
+          state: "IL",
+          pincode: "60007",
+          country: "United States",
+          phone: "+1 (555) 456-7890"
+        },
+        billing_address: {
+          name: "Robert Johnson",
+          address_line: "789 Pine Road",
+          city: "Chicago",
+          state: "IL",
+          pincode: "60007",
+          country: "United States",
+          phone: "+1 (555) 456-7890"
+        },
+        payment_method: "cod",
+        payment_status: "pending",
+        order_status: "confirmed",
+        subtotal: 84998,
+        shipping_charge: 100,
+        tax_amount: 15299.64,
+        discount_amount: 5000,
+        total_amount: 95397.64,
+        coupon_applied: "FLAT5000",
+        tracking_number: null,
+        shipping_carrier: null,
+        expected_delivery: "2024-01-06",
+        createdAt: "2023-12-30T09:15:00Z",
+        notes: "Please call before delivery"
+      }
+    ];
 
-        // Populate user dropdown
-        function populateUserDropdown() {
-            userSelect.innerHTML = '<option value="">Select Customer</option>';
-            sampleData.users.forEach(user => {
-                const option = document.createElement('option');
-                option.value = user._id;
-                option.textContent = `${user.name} (${user.email})`;
-                userSelect.appendChild(option);
-            });
+    // Global Variables
+    let currentOrders = [];
+    let currentOrder = null;
+    let ordersTable = null;
+    let orderModalInstance = null;
+    let updateStatusModalInstance = null;
+
+    // DOM Elements
+    const elements = {
+      ordersTable: document.getElementById('ordersTable'),
+      ordersTableBody: document.getElementById('ordersTableBody'),
+      orderModal: document.getElementById('orderModal'),
+      updateStatusModal: document.getElementById('updateStatusModal'),
+      alertBox: document.getElementById('alertBox'),
+      globalSearch: document.getElementById('globalSearch'),
+      statusFilter: document.getElementById('statusFilter'),
+      paymentFilter: document.getElementById('paymentFilter'),
+      dateFilter: document.getElementById('dateFilter'),
+      paymentMethodFilter: document.getElementById('paymentMethodFilter'),
+      loadingOverlay: document.getElementById('loadingOverlay'),
+      
+      // Stats elements
+      totalOrders: document.getElementById('totalOrders'),
+      deliveredOrders: document.getElementById('deliveredOrders'),
+      pendingOrders: document.getElementById('pendingOrders'),
+      totalRevenue: document.getElementById('totalRevenue')
+    };
+
+    // Authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    const authHeaders = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+
+    // Initialize Application
+    document.addEventListener('DOMContentLoaded', () => {
+      // Update date
+      updateCurrentDate();
+      
+      // Initialize modals
+      orderModalInstance = new bootstrap.Modal(document.getElementById('orderModal'));
+      updateStatusModalInstance = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+      
+      // Initialize DataTable
+      initializeDataTable();
+      
+      // Load data
+      loadOrders();
+      
+      // Initialize event listeners
+      initializeEventListeners();
+    });
+
+    // Update Current Date
+    function updateCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Show Loading
+    function showLoading() {
+      elements.loadingOverlay.style.display = 'flex';
+    }
+
+    // Hide Loading
+    function hideLoading() {
+      elements.loadingOverlay.style.display = 'none';
+    }
+
+    // Show Alert
+    function showAlert(message, type = 'info') {
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} alert-dismissible fade show`;
+      alert.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      elements.alertBox.appendChild(alert);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.remove();
         }
+      }, 5000);
+    }
 
-        // Populate product dropdowns
-        function populateProductDropdowns() {
-            const productSelects = document.querySelectorAll('.product-select');
-            productSelects.forEach(select => {
-                select.innerHTML = '<option value="">Select Product</option>';
-                sampleData.products.forEach(product => {
-                    const option = document.createElement('option');
-                    option.value = product._id;
-                    option.textContent = `${product.name} - $${product.price}`;
-                    option.dataset.price = product.price;
-                    select.appendChild(option);
-                });
-                
-                // Add event listener for price update
-                select.addEventListener('change', function() {
-                    const priceInput = this.closest('.order-item').querySelector('.price-input');
-                    const selectedOption = this.options[this.selectedIndex];
-                    if (selectedOption.value) {
-                        priceInput.value = selectedOption.dataset.price;
-                    } else {
-                        priceInput.value = '';
-                    }
-                    calculateSubtotal();
-                });
-            });
+    // Initialize DataTable
+    function initializeDataTable() {
+      ordersTable = $('#ordersTable').DataTable({
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        order: [[2, 'desc']], // Sort by date descending
+        language: {
+          search: "",
+          searchPlaceholder: "Search orders...",
+          lengthMenu: "Show _MENU_ entries",
+          info: "Showing _START_ to _END_ of _TOTAL_ orders",
+          infoEmpty: "Showing 0 to 0 of 0 orders",
+          paginate: {
+            first: "First",
+            last: "Last",
+            next: "Next",
+            previous: "Previous"
+          }
+        },
+        columnDefs: [
+          { orderable: false, targets: [6] } // Disable sorting on actions column
+        ],
+        dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+        initComplete: function() {
+          $('.dataTables_filter input').attr('placeholder', 'Search orders...');
         }
+      });
+    }
 
-        // Update address dropdowns based on selected user
-        function updateAddressDropdowns() {
-            const userId = userSelect.value;
-            
-            // Clear and populate shipping address dropdown
-            shippingAddressSelect.innerHTML = '<option value="">Select Shipping Address</option>';
-            sampleData.addresses
-                .filter(addr => addr.user === userId)
-                .forEach(addr => {
-                    const option = document.createElement('option');
-                    option.value = addr._id;
-                    option.textContent = `${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}`;
-                    shippingAddressSelect.appendChild(option);
-                });
-            
-            // Clear and populate billing address dropdown
-            billingAddressSelect.innerHTML = '<option value="">Same as Shipping Address</option>';
-            sampleData.addresses
-                .filter(addr => addr.user === userId)
-                .forEach(addr => {
-                    const option = document.createElement('option');
-                    option.value = addr._id;
-                    option.textContent = `${addr.street}, ${addr.city}, ${addr.state} ${addr.zipCode}`;
-                    billingAddressSelect.appendChild(option);
-                });
-        }
+    // Load Orders
+    async function loadOrders() {
+      try {
+        showLoading();
+        
+        // In production, use this API call:
+        // const res = await fetch(ORDERS_API, { headers: authHeaders });
+        // const data = await res.json();
+        // if (data.success) {
+        //   currentOrders = data.data || [];
+        //   renderOrders(currentOrders);
+        //   updateStats(currentOrders);
+        // }
 
-        // Add new order item row
-        function addOrderItem() {
-            const newItem = document.createElement('div');
-            newItem.className = 'order-item row mb-2';
-            newItem.innerHTML = `
-                <div class="col-md-5">
-                    <select class="form-select product-select" required>
-                        <option value="">Select Product</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <input type="number" class="form-control quantity-input" min="1" value="1" required>
-                </div>
-                <div class="col-md-3">
-                    <input type="text" class="form-control price-input" readonly>
-                </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-danger btn-sm remove-item-btn">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            `;
-            
-            orderItemsContainer.appendChild(newItem);
-            populateProductDropdowns();
-            
-            // Add event listener for remove button
-            newItem.querySelector('.remove-item-btn').addEventListener('click', function() {
-                newItem.remove();
-                calculateSubtotal();
-            });
-            
-            // Add event listener for quantity change
-            newItem.querySelector('.quantity-input').addEventListener('input', calculateSubtotal);
-        }
+        // For demo, use sample data
+        setTimeout(() => {
+          currentOrders = sampleOrders;
+          renderOrders(currentOrders);
+          updateStats(currentOrders);
+          hideLoading();
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        showAlert('Error loading orders: ' + error.message, 'danger');
+        hideLoading();
+      }
+    }
 
-        // Calculate subtotal
-        function calculateSubtotal() {
-            let subtotal = 0;
-            const items = document.querySelectorAll('.order-item');
-            
-            items.forEach(item => {
-                const quantity = parseInt(item.querySelector('.quantity-input').value) || 0;
-                const price = parseFloat(item.querySelector('.price-input').value) || 0;
-                subtotal += quantity * price;
-            });
-            
-            subtotalInput.value = subtotal.toFixed(2);
-            calculateTotal();
-        }
+    // Render Orders
+    function renderOrders(orders) {
+      if (!orders || orders.length === 0) {
+        const tbody = ordersTable.table().body();
+        $(tbody).html(`
+          <tr>
+            <td colspan="7" class="text-center py-5">
+              <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">No orders found</h5>
+              <p class="text-muted">No orders have been placed yet</p>
+            </td>
+          </tr>
+        `);
+        return;
+      }
 
-        // Calculate total amount
-        function calculateTotal() {
-            const subtotal = parseFloat(subtotalInput.value) || 0;
-            const shipping = parseFloat(shippingChargeInput.value) || 0;
-            const total = subtotal + shipping;
-            totalAmountInput.value = total.toFixed(2);
-        }
+      ordersTable.clear();
+      
+      orders.forEach(order => {
+        const row = [
+          `<span class="order-id">${order.order_id}</span>`,
+          `
+            <div class="d-flex align-items-center">
+              <img src="${order.user?.avatar || 'https://i.pravatar.cc/150'}" 
+                   alt="${order.user?.name}" 
+                   class="customer-avatar me-3"
+                   onerror="this.src='https://i.pravatar.cc/150'">
+              <div>
+                <div class="customer-name">${order.user?.name || 'Customer'}</div>
+                <div class="customer-email">${order.user?.email || ''}</div>
+              </div>
+            </div>
+          `,
+          formatDate(order.createdAt),
+          `<span class="amount">₹${formatCurrency(order.total_amount)}</span>`,
+          `<span class="status-badge ${order.order_status}">${order.order_status}</span>`,
+          `
+            <span class="payment-badge ${order.payment_status}">${order.payment_status}</span>
+            <div class="text-muted small mt-1">${order.payment_method?.toUpperCase() || 'N/A'}</div>
+          `,
+          `
+            <div class="action-buttons">
+              <button class="btn-icon btn-view" onclick="viewOrder('${order._id}')" title="View Details">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn-icon btn-edit" onclick="updateOrder('${order._id}')" title="Update Status">
+                <i class="fas fa-edit"></i>
+              </button>
+            </div>
+          `
+        ];
+        
+        ordersTable.row.add(row);
+      });
+      
+      ordersTable.draw();
+    }
 
-        // Create new order
-        function createOrder() {
-            // Validate form
-            if (!createOrderForm.checkValidity()) {
-                createOrderForm.reportValidity();
-                return;
-            }
-            
-            // Collect order data
-            const orderData = {
-                user: userSelect.value,
-                items: [],
-                shipping_address: shippingAddressSelect.value,
-                billing_address: billingAddressSelect.value || shippingAddressSelect.value,
-                payment_method: document.getElementById('paymentMethod').value,
-                subtotal: parseFloat(subtotalInput.value),
-                shipping_charge: parseFloat(shippingChargeInput.value),
-                total_amount: parseFloat(totalAmountInput.value),
-                notes: document.getElementById('notes').value
+    // Update Stats
+    function updateStats(orders) {
+      const total = orders.length;
+      const delivered = orders.filter(o => o.order_status === 'delivered').length;
+      const pending = orders.filter(o => o.order_status === 'pending').length;
+      const revenue = orders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+      
+      elements.totalOrders.textContent = total;
+      elements.deliveredOrders.textContent = delivered;
+      elements.pendingOrders.textContent = pending;
+      elements.totalRevenue.textContent = `₹${formatCurrency(revenue)}`;
+    }
+
+    // View Order Details
+    window.viewOrder = (orderId) => {
+      const order = currentOrders.find(o => o._id === orderId);
+      if (!order) return;
+      
+      currentOrder = order;
+      
+      // Update modal content
+      document.getElementById('orderId').textContent = `#${order.order_id}`;
+      document.getElementById('orderDate').textContent = formatDate(order.createdAt, true);
+      document.getElementById('orderStatusBadge').className = `status-badge ${order.order_status}`;
+      document.getElementById('orderStatusBadge').textContent = order.order_status;
+      
+      // Update order items
+      const orderItemsContainer = document.getElementById('orderItems');
+      orderItemsContainer.innerHTML = '';
+      
+      order.items.forEach(item => {
+        orderItemsContainer.innerHTML += `
+          <div class="order-item">
+            <img src="${item.image || 'https://via.placeholder.com/60'}" 
+                 alt="${item.name}" 
+                 class="order-item-image"
+                 onerror="this.src='https://via.placeholder.com/60'">
+            <div class="order-item-details">
+              <div class="order-item-name">${item.name}</div>
+              <div class="text-muted small">Quantity: ${item.quantity} × ₹${formatCurrency(item.price)}</div>
+            </div>
+            <div class="order-item-price">₹${formatCurrency(item.price * item.quantity)}</div>
+          </div>
+        `;
+      });
+      
+      // Update amounts
+      document.getElementById('subtotalAmount').textContent = `₹${formatCurrency(order.subtotal)}`;
+      document.getElementById('shippingAmount').textContent = `₹${formatCurrency(order.shipping_charge)}`;
+      document.getElementById('taxAmount').textContent = `₹${formatCurrency(order.tax_amount)}`;
+      document.getElementById('discountAmount').textContent = `-₹${formatCurrency(order.discount_amount)}`;
+      document.getElementById('totalAmount').textContent = `₹${formatCurrency(order.total_amount)}`;
+      
+      // Update customer info
+      document.getElementById('customerEmail').textContent = order.user?.email || '';
+      document.getElementById('customerPhone').textContent = order.shipping_address?.phone || '';
+      
+      // Update addresses
+      const shippingAddress = document.getElementById('shippingAddress');
+      const billingAddress = document.getElementById('billingAddress');
+      
+      if (order.shipping_address) {
+        shippingAddress.innerHTML = `
+          <p class="mb-1">${order.shipping_address.name}</p>
+          <p class="mb-1">${order.shipping_address.address_line}</p>
+          <p class="mb-1">${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.pincode}</p>
+          <p class="mb-1">${order.shipping_address.country}</p>
+          <p class="mb-0">Phone: ${order.shipping_address.phone}</p>
+        `;
+      }
+      
+      if (order.billing_address) {
+        billingAddress.innerHTML = `
+          <p class="mb-1">${order.billing_address.name}</p>
+          <p class="mb-1">${order.billing_address.address_line}</p>
+          <p class="mb-1">${order.billing_address.city}, ${order.billing_address.state} ${order.billing_address.pincode}</p>
+          <p class="mb-1">${order.billing_address.country}</p>
+          <p class="mb-0">Phone: ${order.billing_address.phone}</p>
+        `;
+      }
+      
+      // Update payment info
+      document.getElementById('paymentMethod').textContent = order.payment_method?.toUpperCase() || 'N/A';
+      document.getElementById('paymentStatus').className = `payment-badge ${order.payment_status}`;
+      document.getElementById('paymentStatus').textContent = order.payment_status;
+      
+      // Update delivery info
+      document.getElementById('expectedDelivery').textContent = order.expected_delivery ? formatDate(order.expected_delivery) : 'Not set';
+      
+      // Show modal
+      orderModalInstance.show();
+    };
+
+    // Update Order Status
+    window.updateOrder = (orderId) => {
+      const order = currentOrders.find(o => o._id === orderId);
+      if (!order) return;
+      
+      currentOrder = order;
+      
+      // Set current status
+      document.getElementById('newOrderStatus').value = order.order_status;
+      document.getElementById('trackingNumber').value = order.tracking_number || '';
+      document.getElementById('shippingCarrier').value = order.shipping_carrier || '';
+      
+      if (order.expected_delivery) {
+        document.getElementById('expectedDeliveryDate').value = order.expected_delivery.split('T')[0];
+      }
+      
+      updateStatusModalInstance.show();
+    };
+
+    // Save Status Update
+    window.saveStatusUpdate = async () => {
+      if (!currentOrder) return;
+      
+      const newStatus = document.getElementById('newOrderStatus').value;
+      const trackingNumber = document.getElementById('trackingNumber').value.trim();
+      const shippingCarrier = document.getElementById('shippingCarrier').value.trim();
+      const expectedDelivery = document.getElementById('expectedDeliveryDate').value;
+      const notes = document.getElementById('statusNotes').value.trim();
+      
+      try {
+        showLoading();
+        
+        // In production, use this API call:
+        // const res = await fetch(`${ORDERS_API}/${currentOrder._id}/status`, {
+        //   method: 'PUT',
+        //   headers: authHeaders,
+        //   body: JSON.stringify({
+        //     status: newStatus,
+        //     trackingNumber,
+        //     shippingCarrier,
+        //     expectedDelivery,
+        //     notes
+        //   })
+        // });
+        
+        // For demo, simulate API call
+        setTimeout(() => {
+          // Update order in local data
+          const orderIndex = currentOrders.findIndex(o => o._id === currentOrder._id);
+          if (orderIndex !== -1) {
+            currentOrders[orderIndex] = {
+              ...currentOrders[orderIndex],
+              order_status: newStatus,
+              tracking_number: trackingNumber,
+              shipping_carrier: shippingCarrier,
+              expected_delivery: expectedDelivery
             };
             
-            // Collect items
-            document.querySelectorAll('.order-item').forEach(item => {
-                const productSelect = item.querySelector('.product-select');
-                const quantity = item.querySelector('.quantity-input').value;
-                const price = item.querySelector('.price-input').value;
-                
-                if (productSelect.value) {
-                    orderData.items.push({
-                        product: productSelect.value,
-                        quantity: parseInt(quantity),
-                        price: parseFloat(price)
-                    });
-                }
-            });
+            // Update UI
+            renderOrders(currentOrders);
+            updateStats(currentOrders);
             
-            // In a real application, you would send this data to the backend
-            console.log('Creating order:', orderData);
+            showAlert('Order status updated successfully!', 'success');
+            updateStatusModalInstance.hide();
             
-            // Simulate API call
-            setTimeout(() => {
-                alert('Order created successfully!');
-                bootstrap.Modal.getInstance(document.getElementById('createOrderModal')).hide();
-                createOrderForm.reset();
-                orderItemsContainer.innerHTML = `
-                    <div class="order-item row mb-2">
-                        <div class="col-md-5">
-                            <select class="form-select product-select" required>
-                                <option value="">Select Product</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="number" class="form-control quantity-input" min="1" value="1" required>
-                        </div>
-                        <div class="col-md-3">
-                            <input type="text" class="form-control price-input" readonly>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-danger btn-sm remove-item-btn">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                populateProductDropdowns();
-                displayOrders();
-            }, 1000);
-        }
-
-        // Display orders in the table
-        function displayOrders() {
-            ordersTableBody.innerHTML = '';
-            
-            sampleData.orders.forEach(order => {
-                const user = sampleData.users.find(u => u._id === order.user);
-                const shippingAddress = sampleData.addresses.find(a => a._id === order.shipping_address);
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${order.order_id}</td>
-                    <td>${user ? user.name : 'Unknown'}</td>
-                    <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                    <td>$${order.total_amount.toFixed(2)}</td>
-                    <td>
-                        <span class="badge status-badge ${getStatusBadgeClass(order.order_status)}">
-                            ${order.order_status.charAt(0).toUpperCase() + order.order_status.slice(1)}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="badge status-badge ${getPaymentBadgeClass(order.payment_status)}">
-                            ${order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary action-btn view-order-btn" data-id="${order._id}">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning action-btn update-status-btn" data-id="${order._id}">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger action-btn cancel-order-btn" data-id="${order._id}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </td>
-                `;
-                
-                ordersTableBody.appendChild(row);
-            });
-            
-            // Add event listeners to action buttons
-            document.querySelectorAll('.view-order-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const orderId = this.getAttribute('data-id');
-                    viewOrder(orderId);
-                });
-            });
-            
-            document.querySelectorAll('.update-status-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const orderId = this.getAttribute('data-id');
-                    showUpdateStatusModal(orderId);
-                });
-            });
-            
-            document.querySelectorAll('.cancel-order-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const orderId = this.getAttribute('data-id');
-                    if (confirm('Are you sure you want to cancel this order?')) {
-                        cancelOrder(orderId);
-                    }
-                });
-            });
-        }
-
-        // Get status badge class
-        function getStatusBadgeClass(status) {
-            switch(status) {
-                case 'pending': return 'bg-secondary';
-                case 'confirmed': return 'bg-info';
-                case 'processing': return 'bg-primary';
-                case 'shipped': return 'bg-warning';
-                case 'delivered': return 'bg-success';
-                case 'cancelled': return 'bg-danger';
-                default: return 'bg-secondary';
+            // If viewing the order, refresh the view
+            if (orderModalInstance._isShown) {
+              viewOrder(currentOrder._id);
             }
-        }
+          }
+          hideLoading();
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Error updating order status:', error);
+        showAlert('Error updating order status: ' + error.message, 'danger');
+        hideLoading();
+      }
+    };
 
-        // Get payment badge class
-        function getPaymentBadgeClass(status) {
-            switch(status) {
-                case 'pending': return 'bg-warning';
-                case 'processing': return 'bg-info';
-                case 'completed': return 'bg-success';
-                case 'failed': return 'bg-danger';
-                case 'refunded': return 'bg-secondary';
-                default: return 'bg-secondary';
-            }
-        }
+    // Print Invoice
+    window.printInvoice = () => {
+      window.print();
+    };
 
-        // View order details
-        function viewOrder(orderId) {
-            currentOrder = sampleData.orders.find(o => o._id === orderId);
-            if (!currentOrder) return;
-            
-            const user = sampleData.users.find(u => u._id === currentOrder.user);
-            const shippingAddress = sampleData.addresses.find(a => a._id === currentOrder.shipping_address);
-            const billingAddress = sampleData.addresses.find(a => a._id === currentOrder.billing_address);
-            
-            // Update modal header
-            document.getElementById('orderIdHeader').textContent = currentOrder.order_id;
-            
-            // Update order items
-            const orderItemsDetails = document.getElementById('orderItemsDetails');
-            orderItemsDetails.innerHTML = '';
-            
-            currentOrder.items.forEach(item => {
-                const product = sampleData.products.find(p => p._id === item.product);
-                const itemElement = document.createElement('div');
-                itemElement.className = 'order-item row';
-                itemElement.innerHTML = `
-                    <div class="col-md-1">
-                        <img src="${item.image || product.image}" alt="${item.name}" class="product-image">
-                    </div>
-                    <div class="col-md-5">
-                        <div class="fw-bold">${item.name}</div>
-                        <div class="text-muted small">SKU: ${item.product}</div>
-                    </div>
-                    <div class="col-md-2 text-center">${item.quantity}</div>
-                    <div class="col-md-2 text-end">$${item.price.toFixed(2)}</div>
-                    <div class="col-md-2 text-end fw-bold">$${(item.quantity * item.price).toFixed(2)}</div>
-                `;
-                orderItemsDetails.appendChild(itemElement);
-            });
-            
-            // Update order totals
-            document.getElementById('detailSubtotal').textContent = `$${currentOrder.subtotal.toFixed(2)}`;
-            document.getElementById('detailShipping').textContent = `$${currentOrder.shipping_charge.toFixed(2)}`;
-            document.getElementById('detailTax').textContent = `$${currentOrder.tax_amount.toFixed(2)}`;
-            document.getElementById('detailDiscount').textContent = `-$${currentOrder.discount_amount.toFixed(2)}`;
-            document.getElementById('detailTotal').textContent = `$${currentOrder.total_amount.toFixed(2)}`;
-            
-            // Update order summary
-            document.getElementById('detailOrderStatus').textContent = 
-                currentOrder.order_status.charAt(0).toUpperCase() + currentOrder.order_status.slice(1);
-            document.getElementById('detailOrderStatus').className = 
-                `badge status-badge ${getStatusBadgeClass(currentOrder.order_status)}`;
-            
-            document.getElementById('detailPaymentStatus').textContent = 
-                currentOrder.payment_status.charAt(0).toUpperCase() + currentOrder.payment_status.slice(1);
-            document.getElementById('detailPaymentStatus').className = 
-                `badge status-badge ${getPaymentBadgeClass(currentOrder.payment_status)}`;
-            
-            document.getElementById('detailPaymentMethod').textContent = 
-                currentOrder.payment_method.charAt(0).toUpperCase() + currentOrder.payment_method.slice(1);
-            
-            document.getElementById('detailOrderDate').textContent = 
-                new Date(currentOrder.createdAt).toLocaleDateString();
-            
-            document.getElementById('detailExpectedDelivery').textContent = 
-                currentOrder.expected_delivery ? new Date(currentOrder.expected_delivery).toLocaleDateString() : 'Not set';
-            
-            // Update customer information
-            if (user) {
-                document.getElementById('detailCustomerName').textContent = user.name;
-                document.getElementById('detailCustomerEmail').textContent = user.email;
-                document.getElementById('detailCustomerPhone').textContent = user.phone;
-            }
-            
-            // Update addresses
-            if (shippingAddress) {
-                document.getElementById('detailShippingAddress').innerHTML = `
-                    <div>${shippingAddress.street}</div>
-                    <div>${shippingAddress.city}, ${shippingAddress.state} ${shippingAddress.zipCode}</div>
-                    <div>${shippingAddress.country}</div>
-                `;
-            }
-            
-            if (billingAddress) {
-                document.getElementById('detailBillingAddress').innerHTML = `
-                    <div>${billingAddress.street}</div>
-                    <div>${billingAddress.city}, ${billingAddress.state} ${billingAddress.zipCode}</div>
-                    <div>${billingAddress.country}</div>
-                `;
-            }
-            
-            // Update order timeline
-            updateOrderTimeline(currentOrder);
-            
-            // Show the modal
-            viewOrderModal.show();
-        }
+    // Refresh Orders
+    window.refreshOrders = () => {
+      loadOrders();
+      showAlert('Orders refreshed successfully!', 'info');
+    };
 
-        // Update order timeline
-        function updateOrderTimeline(order) {
-            const orderTimeline = document.getElementById('orderTimeline');
-            orderTimeline.innerHTML = '';
-            
-            const statuses = [
-                { status: 'pending', label: 'Order Placed', date: order.createdAt },
-                { status: 'confirmed', label: 'Order Confirmed', date: order.order_status === 'confirmed' || 
-                    order.order_status === 'processing' || order.order_status === 'shipped' || 
-                    order.order_status === 'delivered' ? new Date(order.createdAt).toISOString() : null },
-                { status: 'processing', label: 'Processing', date: order.order_status === 'processing' || 
-                    order.order_status === 'shipped' || order.order_status === 'delivered' ? 
-                    new Date(order.createdAt).toISOString() : null },
-                { status: 'shipped', label: 'Shipped', date: order.tracking_number ? 
-                    new Date(order.createdAt).toISOString() : null },
-                { status: 'delivered', label: 'Delivered', date: order.order_status === 'delivered' ? 
-                    new Date(order.createdAt).toISOString() : null }
-            ];
-            
-            statuses.forEach((item, index) => {
-                const timelineItem = document.createElement('div');
-                timelineItem.className = 'timeline-item';
-                
-                if (item.date) {
-                    timelineItem.classList.add('completed');
-                }
-                
-                if (order.order_status === item.status) {
-                    timelineItem.classList.add('current');
-                }
-                
-                timelineItem.innerHTML = `
-                    <div class="fw-bold">${item.label}</div>
-                    <div class="timeline-date">${item.date ? new Date(item.date).toLocaleDateString() : 'Pending'}</div>
-                `;
-                
-                orderTimeline.appendChild(timelineItem);
-            });
-        }
+    // Format Currency
+    function formatCurrency(amount) {
+      if (!amount) return '0.00';
+      return parseFloat(amount).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
 
-        // Show update status modal
-        function showUpdateStatusModal(orderId = null) {
-            if (orderId) {
-                currentOrder = sampleData.orders.find(o => o._id === orderId);
-            }
-            
-            if (!currentOrder) return;
-            
-            // Pre-fill form with current values
-            document.getElementById('orderStatus').value = currentOrder.order_status;
-            document.getElementById('trackingNumber').value = currentOrder.tracking_number || '';
-            document.getElementById('shippingCarrier').value = currentOrder.shipping_carrier || '';
-            document.getElementById('expectedDelivery').value = currentOrder.expected_delivery || '';
-            
-            updateStatusModal.show();
-        }
+    // Format Date
+    function formatDate(dateString, includeTime = false) {
+      if (!dateString) return 'N/A';
+      
+      const date = new Date(dateString);
+      const options = { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric'
+      };
+      
+      if (includeTime) {
+        options.hour = '2-digit';
+        options.minute = '2-digit';
+      }
+      
+      return date.toLocaleDateString('en-IN', options);
+    }
 
-        // Update order status
-        function updateOrderStatus() {
-            if (!currentOrder) return;
-            
-            const newStatus = document.getElementById('orderStatus').value;
-            const trackingNumber = document.getElementById('trackingNumber').value;
-            const shippingCarrier = document.getElementById('shippingCarrier').value;
-            const expectedDelivery = document.getElementById('expectedDelivery').value;
-            
-            // In a real application, you would send this data to the backend
-            console.log('Updating order status:', {
-                orderId: currentOrder._id,
-                order_status: newStatus,
-                tracking_number: trackingNumber,
-                shipping_carrier: shippingCarrier,
-                expected_delivery: expectedDelivery
-            });
-            
-            // Simulate API call
-            setTimeout(() => {
-                // Update the order in our sample data
-                currentOrder.order_status = newStatus;
-                currentOrder.tracking_number = trackingNumber;
-                currentOrder.shipping_carrier = shippingCarrier;
-                currentOrder.expected_delivery = expectedDelivery;
-                
-                alert('Order status updated successfully!');
-                updateStatusModal.hide();
-                viewOrderModal.hide();
-                displayOrders();
-            }, 1000);
-        }
+    // Initialize Event Listeners
+    function initializeEventListeners() {
+      // Filter event listeners
+      [elements.statusFilter, elements.paymentFilter, elements.dateFilter, elements.paymentMethodFilter].forEach(filter => {
+        filter.addEventListener('change', applyFilters);
+      });
+      
+      // Global search
+      elements.globalSearch.addEventListener('input', () => {
+        ordersTable.search(elements.globalSearch.value).draw();
+      });
+    }
 
-        // Cancel order
-        function cancelOrder(orderId = null) {
-            if (orderId) {
-                currentOrder = sampleData.orders.find(o => o._id === orderId);
-            }
-            
-            if (!currentOrder) return;
-            
-            // In a real application, you would send this request to the backend
-            console.log('Cancelling order:', currentOrder._id);
-            
-            // Simulate API call
-            setTimeout(() => {
-                // Update the order in our sample data
-                currentOrder.order_status = 'cancelled';
-                
-                alert('Order cancelled successfully!');
-                if (viewOrderModal._isShown) {
-                    viewOrderModal.hide();
-                }
-                displayOrders();
-            }, 1000);
-        }
-    </script>
+    // Apply Filters
+    function applyFilters() {
+      const status = elements.statusFilter.value;
+      const payment = elements.paymentFilter.value;
+      const date = elements.dateFilter.value;
+      const method = elements.paymentMethodFilter.value;
+      
+      // For demo, just show all orders
+      // In production, you would filter the orders array here
+      
+      showAlert('Filters applied successfully!', 'info');
+    }
+  </script>
 </body>
 </html>

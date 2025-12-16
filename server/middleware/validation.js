@@ -184,28 +184,27 @@ export const validateAddress = [
 ];
 
 // Order validation
+// Update the validateOrder schema in your validation file
 export const validateOrder = [
   body("shippingAddressId")
     .isMongoId()
     .withMessage("Valid shipping address ID is required"),
-  
-  body("billingAddressId")
-    .optional()
-    .isMongoId()
-    .withMessage("Valid billing address ID is required"),
-  
+
   body("paymentMethod")
-    .isIn(["card", "upi", "netbanking", "cod", "wallet"])
-    .withMessage("Invalid payment method"),
-  
+    .isIn(["cod", "card", "upi", "netbanking", "wallet", "razorpay"])
+    .withMessage(
+      "Invalid payment method. Allowed: cod, card, upi, netbanking, wallet, razorpay"
+    ),
+
   body("couponCode")
     .optional()
     .trim()
     .isLength({ max: 20 })
     .withMessage("Coupon code cannot exceed 20 characters"),
-  
+
   handleValidationErrors,
 ];
+
 
 // Coupon validation
 export const validateCoupon = [

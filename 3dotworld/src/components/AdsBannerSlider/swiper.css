@@ -1,111 +1,35 @@
-/* swiper.css - Premium Brand Style */
+/* swiper.css */
 .adsBannerSwiper {
-  width: 100%;
-  height: 100%;
+  padding: 4px 4px 24px 4px;
 }
 
-.adsBannerSwiper .swiper-slide {
-  text-align: center;
-  background: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-
-.adsBannerSwiper .swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Consistent banner size */
-.adsBannerSwiper .swiper-slide > div {
-  width: 100%;
-  height: 100%;
-}
-
-/* Premium Pagination */
 .custom-pagination {
-  position: relative !important;
-  margin-top: 2rem !important;
-  height: 4px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  position: relative;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .custom-bullet {
-  width: 6px;
-  height: 6px;
-  background: #d1d5db;
+  width: 8px;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
   border-radius: 50%;
-  opacity: 0.4;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 0 3px !important;
   cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0.6;
 }
 
 .custom-bullet-active {
-  width: 20px;
-  background: #000;
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+  background-color: rgba(0, 0, 0, 0.8);
   opacity: 1;
-  border-radius: 3px;
 }
 
-/* Smooth transitions */
-.adsBannerSwiper .swiper-slide {
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.adsBannerSwiper .swiper-slide-active {
-  transform: translateZ(0);
-}
-
-/* Mobile optimizations */
-@media (max-width: 768px) {
-  .adsBannerSwiper {
-    padding: 0 1px;
-  }
-  
-  .custom-pagination {
-    margin-top: 1.5rem !important;
-  }
-  
-  .custom-bullet {
-    width: 5px;
-    height: 5px;
-  }
-  
-  .custom-bullet-active {
-    width: 16px;
-  }
-}
-
-/* Touch device enhancements */
-@media (hover: none) and (pointer: coarse) {
-  .adsBannerSwiper .swiper-slide {
-    cursor: default;
-  }
-}
-
-/* Prevent layout shift */
-.adsBannerSwiper .swiper-wrapper {
-  align-items: stretch;
-}
-
-.adsBannerSwiper .swiper-slide {
-  height: auto;
-}
-
-/* Loading state optimization */
-.adsBannerSwiper .swiper-lazy-preloader {
-  border-color: #000 transparent transparent transparent;
-}
-
-/* Focus states for accessibility */
-.custom-bullet:focus {
-  outline: 2px solid #000;
-  outline-offset: 2px;
+/* Hide default Swiper pagination */
+.swiper-pagination {
+  display: none !important;
 }

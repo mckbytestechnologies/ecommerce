@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid"; // npm i uuid
 import Order from "../models/Order.js";
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
@@ -48,12 +49,15 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    const billingAddress = billingAddressId 
+    const billingAddress = billingAddressId
       ? await Address.findOne({ _id: billingAddressId, user: req.user.id })
       : shippingAddress;
 
-    // Calculate totals
-    let subtotal = cart.totalAmount;
+    // Calculate subtotal dynamically from cart items
+    let subtotal = cart.items.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0
+    );
     let discountAmount = cart.discountAmount || 0;
     let shippingCharge = calculateShippingCharge(subtotal);
     let taxAmount = calculateTaxAmount(subtotal);
@@ -63,9 +67,8 @@ export const createOrder = async (req, res) => {
     let couponApplied = null;
     if (couponCode) {
       const coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
-      
+
       if (coupon && coupon.is_available) {
-        // Recalculate discount for order validation
         if (coupon.discount_type === "percentage") {
           discountAmount = (subtotal * coupon.discount_value) / 100;
           if (coupon.max_discount_amount && discountAmount > coupon.max_discount_amount) {
@@ -74,12 +77,11 @@ export const createOrder = async (req, res) => {
         } else {
           discountAmount = Math.min(coupon.discount_value, subtotal);
         }
-        
+
         discountAmount = Math.round(discountAmount * 100) / 100;
         totalAmount = subtotal + shippingCharge + taxAmount - discountAmount;
         couponApplied = coupon._id;
 
-        // Increment coupon usage
         coupon.used_count += 1;
         await coupon.save();
       }
@@ -89,18 +91,22 @@ export const createOrder = async (req, res) => {
     const orderItems = cart.items.map(item => ({
       product: item.product._id,
       quantity: item.quantity,
-      price: item.price,
+      price: item.product.price,
       name: item.product.name,
-      image: item.product.images[0]?.url || "",
+      image: item.product.images?.[0]?.url || "",
     }));
+
+    // Generate unique order_id
+    const orderId = "ORD-" + uuidv4().split("-")[0].toUpperCase();
 
     // Create order
     const order = await Order.create({
+      order_id: orderId, // ✅ Added order_id
       user: req.user.id,
       items: orderItems,
       shipping_address: shippingAddress._id,
       billing_address: billingAddress._id,
-      payment_method: paymentMethod,
+      payment_method: paymentMethod.toLowerCase(),
       subtotal,
       shipping_charge: shippingCharge,
       tax_amount: taxAmount,
@@ -111,10 +117,9 @@ export const createOrder = async (req, res) => {
 
     // Update product stock
     for (const item of cart.items) {
-      await Product.findByIdAndUpdate(
-        item.product._id,
-        { $inc: { stock: -item.quantity } }
-      );
+      await Product.findByIdAndUpdate(item.product._id, {
+        $inc: { stock: -item.quantity },
+      });
     }
 
     // Clear cart
@@ -135,11 +140,11 @@ export const createOrder = async (req, res) => {
       message: "Order created successfully",
     });
   } catch (error) {
-    console.error("Create order error:", error);
+    console.error("❌ CREATE ORDER ERROR:", error);
     res.status(500).json({
       success: false,
       error: true,
-      message: "Server error",
+      message: error.message || "Server error",
     });
   }
 };
@@ -150,11 +155,9 @@ export const createOrder = async (req, res) => {
 export const getOrders = async (req, res) => {
   try {
     const { page = 1, limit = 10, status } = req.query;
-    
+
     let filter = { user: req.user.id };
-    if (status) {
-      filter.order_status = status;
-    }
+    if (status) filter.order_status = status;
 
     const orders = await Order.find(filter)
       .populate("items.product", "name images")
@@ -175,11 +178,11 @@ export const getOrders = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get orders error:", error);
+    console.error("❌ GET ORDERS ERROR:", error);
     res.status(500).json({
       success: false,
       error: true,
-      message: "Server error",
+      message: error.message || "Server error",
     });
   }
 };
@@ -203,7 +206,6 @@ export const getOrder = async (req, res) => {
       });
     }
 
-    // Verify user owns the order
     if (order.user.toString() !== req.user.id && req.user.role !== "admin") {
       return res.status(403).json({
         success: false,
@@ -217,11 +219,11 @@ export const getOrder = async (req, res) => {
       data: order,
     });
   } catch (error) {
-    console.error("Get order error:", error);
+    console.error("❌ GET ORDER ERROR:", error);
     res.status(500).json({
       success: false,
       error: true,
-      message: "Server error",
+      message: error.message || "Server error",
     });
   }
 };
@@ -234,7 +236,6 @@ export const updateOrderStatus = async (req, res) => {
     const { status, trackingNumber, shippingCarrier, notes } = req.body;
 
     const order = await Order.findById(req.params.id);
-
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -244,21 +245,16 @@ export const updateOrderStatus = async (req, res) => {
     }
 
     order.order_status = status;
-    
     if (trackingNumber) order.tracking_number = trackingNumber;
     if (shippingCarrier) order.shipping_carrier = shippingCarrier;
     if (notes) order.notes = notes;
 
-    // Set expected delivery for shipped orders
     if (status === "shipped") {
-      order.expected_delivery = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+      order.expected_delivery = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     }
 
     await order.save();
-
     await order.populate("user", "name email");
-
-    // TODO: Send status update email/notification
 
     res.status(200).json({
       success: true,
@@ -266,11 +262,11 @@ export const updateOrderStatus = async (req, res) => {
       message: "Order status updated successfully",
     });
   } catch (error) {
-    console.error("Update order status error:", error);
+    console.error("❌ UPDATE ORDER STATUS ERROR:", error);
     res.status(500).json({
       success: false,
       error: true,
-      message: "Server error",
+      message: error.message || "Server error",
     });
   }
 };
@@ -283,7 +279,6 @@ export const cancelOrder = async (req, res) => {
     const { reason } = req.body;
 
     const order = await Order.findById(req.params.id);
-
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -292,7 +287,6 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
-    // Verify user owns the order
     if (order.user.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -301,7 +295,6 @@ export const cancelOrder = async (req, res) => {
       });
     }
 
-    // Check if order can be cancelled
     if (!["pending", "confirmed"].includes(order.order_status)) {
       return res.status(400).json({
         success: false,
@@ -313,12 +306,8 @@ export const cancelOrder = async (req, res) => {
     order.order_status = "cancelled";
     order.cancellation_reason = reason || "";
 
-    // Restore product stock
     for (const item of order.items) {
-      await Product.findByIdAndUpdate(
-        item.product,
-        { $inc: { stock: item.quantity } }
-      );
+      await Product.findByIdAndUpdate(item.product, { $inc: { stock: item.quantity } });
     }
 
     await order.save();
@@ -329,11 +318,11 @@ export const cancelOrder = async (req, res) => {
       message: "Order cancelled successfully",
     });
   } catch (error) {
-    console.error("Cancel order error:", error);
+    console.error("❌ CANCEL ORDER ERROR:", error);
     res.status(500).json({
       success: false,
       error: true,
-      message: "Server error",
+      message: error.message || "Server error",
     });
   }
 };
@@ -346,20 +335,20 @@ export const getOrderStats = async (req, res) => {
     const totalOrders = await Order.countDocuments();
     const pendingOrders = await Order.countDocuments({ order_status: "pending" });
     const completedOrders = await Order.countDocuments({ order_status: "delivered" });
-    
+
     const revenue = await Order.aggregate([
       { $match: { order_status: "delivered" } },
-      { $group: { _id: null, total: { $sum: "$total_amount" } } }
+      { $group: { _id: null, total: { $sum: "$total_amount" } } },
     ]);
 
     const monthlyRevenue = await Order.aggregate([
       {
         $match: {
           order_status: "delivered",
-          createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
-        }
+          createdAt: { $gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+        },
       },
-      { $group: { _id: null, total: { $sum: "$total_amount" } } }
+      { $group: { _id: null, total: { $sum: "$total_amount" } } },
     ]);
 
     res.status(200).json({
@@ -373,21 +362,21 @@ export const getOrderStats = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Get order stats error:", error);
+    console.error("❌ GET ORDER STATS ERROR:", error);
     res.status(500).json({
       success: false,
       error: true,
-      message: "Server error",
+      message: error.message || "Server error",
     });
   }
 };
 
 // Helper functions
 const calculateShippingCharge = (subtotal) => {
-  if (subtotal > 1000) return 0; // Free shipping above ₹1000
-  return 50; // Flat ₹50 shipping
+  if (subtotal > 1000) return 0;
+  return 50;
 };
 
 const calculateTaxAmount = (subtotal) => {
-  return subtotal * 0.18; // 18% GST
+  return subtotal * 0.18;
 };

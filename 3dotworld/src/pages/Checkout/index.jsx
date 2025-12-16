@@ -1,81 +1,297 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ShoppingCart, Trash2, CreditCard } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Typography,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  Stepper,
+  Step,
+  StepLabel,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Divider,
+  Box,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  Avatar,
+} from "@mui/material";
+import {
+  ShoppingCart,
+  LocationOn,
+  Payment,
+  CheckCircle,
+  ArrowBack,
+  Add,
+  LocalShipping,
+} from "@mui/icons-material";
+import axios from "axios";
 
-export default function CartCheckout() {
-  const [cart, setCart] = useState([
-    { id: 1, name: "Premium Headphones", price: 129.99, qty: 1, img: "https://i.pinimg.com/736x/9b/a3/93/9ba39306d8f19498878c8547bf17a041.jpg" },
-    { id: 2, name: "Wireless Mouse", price: 49.99, qty: 2, img: "https://i.pinimg.com/736x/b8/40/aa/b840aa9a99795fe2bee583caff2fba81.jpg" }
-  ]);
+const CheckoutPage = () => {
+  const navigate = useNavigate();
 
-  const updateQty = (id, delta) => {
-    setCart(cart.map(item => item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item));
+  const [activeStep, setActiveStep] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const [cart, setCart] = useState(null);
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+
+  const steps = ["Cart", "Address", "Payment", "Done"];
+
+  const getToken = () =>
+    localStorage.getItem("authToken") ||
+    sessionStorage.getItem("authToken");
+
+  /* ---------------------------------- LOAD DATA ---------------------------------- */
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const token = getToken();
+        if (!token) return navigate("/auth");
+
+        const cartRes = await axios.get("http://localhost:5000/api/cart", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const addrRes = await axios.get(
+          "http://localhost:5000/api/addresses",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        setCart(cartRes.data.data || {});
+        setAddresses(addrRes.data.data || []);
+
+        const defaultAddr = addrRes.data.data?.find((a) => a.is_default);
+        if (defaultAddr) setSelectedAddress(defaultAddr._id);
+      } catch (err) {
+        setError("Failed to load checkout data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [navigate]);
+
+  /* ---------------------------------- PLACE ORDER ---------------------------------- */
+
+  const handlePlaceOrder = async () => {
+    if (!selectedAddress) {
+      setError("Please select a delivery address");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = getToken();
+
+      const orderData = {
+        shippingAddressId: selectedAddress, // ✅ IMPORTANT FIX
+        paymentMethod,
+        couponCode: cart?.couponCode || "",
+      };
+
+      const res = await axios.post(
+        "http://localhost:5000/api/orders",
+        orderData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.data.success) {
+        setSuccess("Order placed successfully!");
+        setActiveStep(3);
+        setCart({ items: [] });
+        window.dispatchEvent(new Event("cartUpdated"));
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Order failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const removeItem = (id) => {
-    setCart(cart.filter(item => item.id !== id));
-  };
+  /* ---------------------------------- RENDER ---------------------------------- */
 
-  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
-  const tax = (subtotal * 0.18).toFixed(2);
-  const total = (parseFloat(subtotal) + parseFloat(tax)).toFixed(2);
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={10}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex justify-center items-start">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-5xl grid md:grid-cols-3 gap-6">
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+        {steps.map((s) => (
+          <Step key={s}>
+            <StepLabel>{s}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
 
-        {/* Cart Section */}
-        <div className="md:col-span-2 bg-white shadow-xl rounded-2xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ShoppingCart className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Your Cart</h2>
-          </div>
+      {/* ---------------- CART ---------------- */}
+      {activeStep === 0 && (
+        <Card>
+          <CardContent>
+            <Typography variant="h6">
+              <ShoppingCart /> Cart Items
+            </Typography>
+            <Divider sx={{ my: 2 }} />
 
-          {cart.length === 0 ? (
-            <p className="text-gray-500 text-center py-10">Your cart is empty.</p>
-          ) : (
-            cart.map(item => (
-              <div key={item.id} className="flex items-center justify-between py-4 border-b">
-                <div className="flex items-center gap-4">
-                  <img src={item.img} className="w-20 h-20 rounded-xl shadow" />
-                  <div>
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-gray-500 text-sm">₹ {item.price}</p>
+            {cart?.items?.map((item) => (
+              <Box key={item._id} display="flex" mb={2}>
+                <Avatar src={item.product?.images?.[0]} />
+                <Box ml={2}>
+                  <Typography>{item.product?.name}</Typography>
+                  <Typography variant="body2">
+                    Qty: {item.quantity}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
-                    <div className="flex items-center gap-2 mt-2">
-                      <button onClick={() => updateQty(item.id, -1)} className="px-3 py-1 bg-gray-200 rounded-lg">-</button>
-                      <span>{item.qty}</span>
-                      <button onClick={() => updateQty(item.id, 1)} className="px-3 py-1 bg-blue-500 text-white rounded-lg">+</button>
-                    </div>
-                  </div>
-                </div>
+      {/* ---------------- ADDRESS ---------------- */}
+      {activeStep === 1 && (
+        <Card>
+          <CardContent>
+            <Typography variant="h6">
+              <LocationOn /> Delivery Address
+            </Typography>
+            <Divider sx={{ my: 2 }} />
 
-                <div className="text-right">
-                  <p className="font-semibold mb-2">₹ {(item.price * item.qty).toFixed(2)}</p>
-                  <button onClick={() => removeItem(item.id)} className="text-red-500 hover:text-red-700 flex items-center gap-1">
-                    <Trash2 className="w-4 h-4" /> Remove
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+            <RadioGroup
+              value={selectedAddress}
+              onChange={(e) => setSelectedAddress(e.target.value)}
+            >
+              {addresses.map((addr) => (
+                <Paper key={addr._id} sx={{ p: 2, mb: 2 }}>
+                  <FormControlLabel
+                    value={addr._id}
+                    control={<Radio />}
+                    label={`${addr.address_line}, ${addr.city}`}
+                  />
+                </Paper>
+              ))}
+            </RadioGroup>
 
-        {/* Checkout Section */}
-        <div className="bg-white shadow-xl rounded-2xl p-6 h-fit sticky top-6">
-          <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+            <Button
+              startIcon={<Add />}
+              onClick={() => navigate("/profile/addresses")}
+            >
+              Add Address
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between"><span>Subtotal</span><span>₹ {subtotal}</span></div>
-            <div className="flex justify-between"><span>GST (18%)</span><span>₹ {tax}</span></div>
-            <div className="flex justify-between font-bold text-lg pt-2 border-t"><span>Total</span><span>₹ {total}</span></div>
-          </div>
+      {/* ---------------- PAYMENT ---------------- */}
+      {activeStep === 2 && (
+        <Card>
+          <CardContent>
+            <Typography variant="h6">
+              <Payment /> Payment Method
+            </Typography>
+            <Divider sx={{ my: 2 }} />
 
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 text-lg shadow-lg">
-            <CreditCard className="w-5 h-5" /> Proceed to Checkout
-          </motion.button>
-        </div>
-      </motion.div>
-    </div>
+            <RadioGroup
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+            >
+              <FormControlLabel
+                value="cod"
+                control={<Radio />}
+                label="Cash on Delivery"
+              />
+            </RadioGroup>
+
+            <Box mt={3}>
+              <Typography variant="body2">
+                <LocalShipping /> Estimated delivery: 3-5 days
+              </Typography>
+            </Box>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ---------------- SUCCESS ---------------- */}
+      {activeStep === 3 && (
+        <Box textAlign="center" mt={6}>
+          <CheckCircle color="success" sx={{ fontSize: 80 }} />
+          <Typography variant="h4" mt={2}>
+            Order Confirmed 🎉
+          </Typography>
+          <Button
+            sx={{ mt: 3 }}
+            variant="contained"
+            onClick={() => navigate("/my-order")}
+          >
+            View Orders
+          </Button>
+        </Box>
+      )}
+
+      {/* ---------------- NAV BUTTONS ---------------- */}
+      {activeStep < 3 && (
+        <Box display="flex" justifyContent="space-between" mt={4}>
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={() =>
+              activeStep === 0
+                ? navigate("/cart")
+                : setActiveStep((p) => p - 1)
+            }
+          >
+            Back
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={() =>
+              activeStep === 2
+                ? handlePlaceOrder()
+                : setActiveStep((p) => p + 1)
+            }
+          >
+            {activeStep === 2 ? "Place Order" : "Continue"}
+          </Button>
+        </Box>
+      )}
+
+      {/* ---------------- ALERTS ---------------- */}
+      <Snackbar open={!!error} autoHideDuration={5000} onClose={() => setError("")}>
+        <Alert severity="error">{error}</Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={!!success}
+        autoHideDuration={5000}
+        onClose={() => setSuccess("")}
+      >
+        <Alert severity="success">{success}</Alert>
+      </Snackbar>
+    </Container>
   );
-}
+};
+
+export default CheckoutPage;
