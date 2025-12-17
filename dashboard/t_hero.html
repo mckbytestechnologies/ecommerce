@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hero Sections - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-red: #dc3545;
+      --primary-red-dark: #c82333;
+      --primary-red-light: #f8d7da;
+      --secondary-red: #e74c3c;
+      --accent-red: #ff6b6b;
+      --dark-bg: #1a1a2e;
+      --dark-card: #16213e;
+      --text-light: #f8f9fa;
+      --text-muted: #adb5bd;
+      --border-color: #2d3748;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --gray-100: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-300: #dee2e6;
+      --gray-800: #343a40;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+      min-height: 100vh;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar */
+    #sidebar {
+      background: linear-gradient(180deg, var(--dark-bg) 0%, #0f0f23 100%);
+      color: var(--text-light);
+      width: 280px;
+      min-height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 3px 0 20px rgba(0,0,0,0.1);
+      border-right: 1px solid var(--border-color);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--dark-card);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: white;
+    }
+
+    .brand-logo i {
+      color: var(--primary-red);
+      font-size: 1.8rem;
+    }
+
+    .brand-text h3 {
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.4rem;
+      background: linear-gradient(45deg, #ff6b6b, #dc3545);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text small {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .nav-links {
+      padding: 1rem 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .nav-item {
+      margin: 0.25rem 1rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary-red);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-link:hover:before,
+    .nav-link.active:before {
+      transform: translateX(0);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+      transform: translateX(5px);
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    /* Main Content */
+    #main-content {
+      margin-left: 280px;
+      padding: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 100vh;
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      width: 300px;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      outline: none;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-800);
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-left: 5px solid var(--primary-red);
+    }
+
+    .page-title h1 {
+      font-weight: 700;
+      color: var(--dark-bg);
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    .page-title p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(45deg, var(--primary-red-dark), var(--primary-red));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Stats Cards */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .stat-card i {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card.total i { color: var(--primary-red); }
+    .stat-card.active i { color: var(--success); }
+    .stat-card.featured i { color: var(--warning); }
+    .stat-card.expiring i { color: var(--info); }
+
+    .stat-card h3 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--dark-bg);
+    }
+
+    .stat-card p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+      font-size: 0.9rem;
+    }
+
+    /* Filters Card */
+    .filters-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .filters-card .form-label {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-select, .form-control {
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-select:focus, .form-control:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    /* Slides Table Card */
+    .slides-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(90deg, var(--dark-bg), var(--dark-card));
+      color: white;
+      padding: 1.25rem 1.5rem;
+      border-bottom: none;
+    }
+
+    .card-header h5 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .table {
+      margin: 0;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .table thead th {
+      border-bottom: 2px solid var(--gray-200);
+      font-weight: 600;
+      color: var(--gray-800);
+      padding: 1rem;
+      background: var(--gray-100);
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .table tbody tr:hover {
+      background-color: var(--primary-red-light);
+      transform: scale(1.002);
+    }
+
+    .table tbody td {
+      padding: 1rem;
+      vertical-align: middle;
+    }
+
+    /* Slide Image */
+    .slide-image {
+      width: 80px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid var(--gray-200);
+      transition: all 0.3s ease;
+    }
+
+    .slide-image:hover {
+      transform: scale(1.1);
+      border-color: var(--primary-red);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .status-badge.active {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .status-badge.inactive {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    .featured-badge {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+    }
+
+    .expired-badge {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      transition: all 0.3s ease;
+    }
+
+    .btn-view {
+      background: rgba(23, 162, 184, 0.1);
+      color: var(--info);
+    }
+
+    .btn-view:hover {
+      background: var(--info);
+      color: white;
+    }
+
+    .btn-edit {
+      background: rgba(255, 193, 7, 0.1);
+      color: var(--warning);
+    }
+
+    .btn-edit:hover {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-delete {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+    }
+
+    .btn-delete:hover {
+      background: var(--primary-red);
+      color: white;
+    }
+
+    /* Alert Box */
+    .alert-box {
+      position: fixed;
+      top: 100px;
+      right: 30px;
+      z-index: 9999;
+      min-width: 300px;
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 1.5rem;
+    }
+
+    .modal-header .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+    }
+
+    .modal-header .btn-close:hover {
+      opacity: 1;
+    }
+
+    /* Image Preview */
+    .image-preview-container {
+      border: 2px dashed var(--gray-300);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      background: var(--gray-100);
+    }
+
+    .image-preview {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    /* Loading Spinner */
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--gray-300);
+      border-top: 5px solid var(--primary-red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      #sidebar {
+        width: 80px;
+      }
+      
+      #sidebar .nav-link span {
+        display: none;
+      }
+      
+      #main-content {
+        margin-left: 80px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      #sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar-show {
+        transform: translateX(0);
+      }
+      
+      #main-content {
+        margin-left: 0;
+      }
+      
+      .search-box input {
+        width: 200px;
+      }
+      
+      .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .search-box input {
+        width: 100%;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      
+      .btn-icon {
+        width: 28px;
+        height: 28px;
+      }
+      
+      .stats-cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .alert-box {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+      }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-200);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-red-dark);
+    }
+
+    /* Button Group */
+    .btn-group-sm .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand-logo">
+        <i class="fas fa-store"></i>
+        <div class="brand-text">
+          <h3>E-Shop</h3>
+          <small>Admin Panel</small>
+        </div>
+      </a>
+    </div>
+    
+    <div class="nav-links">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="products.html" class="nav-link">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="categories.html" class="nav-link">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="hero.html" class="nav-link active">
+            <i class="fas fa-images"></i>
+            <span>Hero Sections</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="orders.html" class="nav-link">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Orders</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="users.html" class="nav-link">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="settings.html" class="nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalSearch" placeholder="Search slides...">
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted me-2" id="currentDate"></span>
+        <button class="btn btn-outline-danger btn-sm" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Alert Box -->
+    <div class="alert-box" id="alertBox"></div>
+
+    <!-- Page Header -->
+    <div class="page-header fade-in">
+      <div class="page-title">
+        <h1><i class="fas fa-images text-danger me-2"></i>Hero Sections Management</h1>
+        <p>Manage your website hero banner slides</p>
+      </div>
+      <button class="btn btn-primary" id="addSlideBtn">
+        <i class="fas fa-plus me-2"></i>Add Slide
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-cards fade-in">
+      <div class="stat-card total">
+        <i class="fas fa-layer-group"></i>
+        <h3 id="totalSlides">0</h3>
+        <p>Total Slides</p>
+      </div>
+      <div class="stat-card active">
+        <i class="fas fa-check-circle"></i>
+        <h3 id="activeSlides">0</h3>
+        <p>Active Slides</p>
+      </div>
+      <div class="stat-card featured">
+        <i class="fas fa-star"></i>
+        <h3 id="featuredSlides">0</h3>
+        <p>Featured Slides</p>
+      </div>
+      <div class="stat-card expiring">
+        <i class="fas fa-clock"></i>
+        <h3 id="expiringSlides">0</h3>
+        <p>Expiring Soon</p>
+      </div>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="filters-card fade-in">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Featured</label>
+          <select class="form-select" id="featuredFilter">
+            <option value="">All Slides</option>
+            <option value="featured">Featured Only</option>
+            <option value="not-featured">Not Featured</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Order By</label>
+          <select class="form-select" id="orderFilter">
+            <option value="displayOrder">Display Order</option>
+            <option value="createdAt">Newest First</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="showInactiveToggle">
+            <label class="form-check-label" for="showInactiveToggle">Show Inactive</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slides Table Card -->
+    <div class="slides-card fade-in">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Slides List</h5>
+        <button class="btn btn-outline-light btn-sm" onclick="openReorderModal()">
+          <i class="fas fa-sort me-1"></i>Reorder Slides
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Title & Subtitle</th>
+                <th>Button & Link</th>
+                <th>Status</th>
+                <th>Dates</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="slidesTable">
+              <tr>
+                <td colspan="7" class="text-center py-5">
+                  <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </div>
+                  <p class="mt-2 text-muted">Loading slides...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state fade-in" style="display: none;">
+      <i class="fas fa-images"></i>
+      <h3 class="mb-2">No Slides Found</h3>
+      <p class="text-muted mb-4">Get started by creating your first hero slide</p>
+      <button class="btn btn-primary" onclick="openAddSlideModal()">
+        <i class="fas fa-plus me-2"></i>Create First Slide
+      </button>
+    </div>
+  </div>
+
+  <!-- Slide Modal -->
+  <div class="modal fade" id="slideModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle"><i class="fas fa-plus me-2"></i>Add New Slide</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="slideForm">
+            <input type="hidden" id="slideId">
+            
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" id="title" class="form-control" required maxlength="200" placeholder="Enter slide title">
+                <div class="form-text">
+                  <span id="titleCount">0</span>/200 characters
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Button Text</label>
+                <input type="text" id="buttonText" class="form-control" maxlength="50" placeholder="Get Started">
+                <div class="form-text">Leave empty for no button</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Subtitle <span class="text-danger">*</span></label>
+                <textarea id="subtitle" class="form-control" rows="3" required maxlength="500" placeholder="Enter slide subtitle"></textarea>
+                <div class="form-text">
+                  <span id="subtitleCount">0</span>/500 characters
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Button Link</label>
+                <input type="url" id="buttonLink" class="form-control" placeholder="https://example.com">
+                <div class="form-text">Link for the action button</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Background Image URL <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input type="text" id="backgroundImage" class="form-control" required placeholder="https://via.placeholder.com/1200x400">
+                  <button class="btn btn-outline-secondary" type="button" onclick="openImageUploadModal()">
+                    <i class="fas fa-upload me-1"></i>Upload
+                  </button>
+                </div>
+                <div class="form-text">Enter image URL or click upload</div>
+                
+                <!-- Image Preview -->
+                <div id="imagePreviewContainer" class="image-preview-container mt-3 d-none">
+                  <p class="small text-muted mb-2">Preview:</p>
+                  <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                </div>
+                
+                <!-- Current Image -->
+                <div id="currentImageContainer" class="image-preview-container mt-3 d-none">
+                  <p class="small text-muted mb-2">Current Image:</p>
+                  <img id="currentImage" class="image-preview" src="" alt="Current Image">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Display Order</label>
+                <input type="number" id="displayOrder" class="form-control" min="0" value="0">
+                <div class="form-text">Lower numbers appear first</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">End Date (Optional)</label>
+                <input type="datetime-local" id="endDate" class="form-control">
+                <div class="form-text">When this slide should expire</div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="isActive" checked>
+                  <label class="form-check-label" for="isActive">Active Slide</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch mt-2">
+                  <input class="form-check-input" type="checkbox" id="isFeatured">
+                  <label class="form-check-label" for="isFeatured">Featured Slide</label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" id="saveSlideBtn">
+            <i class="fas fa-save me-2"></i>Save Slide
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reorder Modal -->
+  <div class="modal fade" id="reorderModal" tabindex="-1" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fas fa-sort me-2"></i>Reorder Slides</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-muted mb-3">Drag and drop slides to reorder them or use the input fields to set order numbers.</p>
+          <div id="reorderList" class="list-group mb-3">
+            <!-- Dynamic content will be inserted here -->
+          </div>
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Slides will be displayed in ascending order (lowest number first).
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="saveReorder()">Save Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="spinner-overlay" id="loadingOverlay" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Main Script -->
+  <script>
+    // Mock data for offline functionality
+    let currentSlides = [];
+    let nextId = 1;
+
+    // DOM Elements
+    const slidesTable = document.getElementById('slidesTable');
+    const slideModalEl = document.getElementById('slideModal');
+    const alertBox = document.getElementById('alertBox');
+    const addSlideBtn = document.getElementById('addSlideBtn');
+    const saveSlideBtn = document.getElementById('saveSlideBtn');
+    const emptyState = document.getElementById('emptyState');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const slideForm = document.getElementById('slideForm');
+    const globalSearch = document.getElementById('globalSearch');
+    const statusFilter = document.getElementById('statusFilter');
+    const featuredFilter = document.getElementById('featuredFilter');
+    const orderFilter = document.getElementById('orderFilter');
+    const showInactiveToggle = document.getElementById('showInactiveToggle');
+
+    // Stats Elements
+    const totalSlidesEl = document.getElementById('totalSlides');
+    const activeSlidesEl = document.getElementById('activeSlides');
+    const featuredSlidesEl = document.getElementById('featuredSlides');
+    const expiringSlidesEl = document.getElementById('expiringSlides');
+
+    // Initialize Date
+    function updateCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    // Show Loading
+    function showLoading() {
+      loadingOverlay.style.display = 'flex';
+    }
+
+    // Hide Loading
+    function hideLoading() {
+      loadingOverlay.style.display = 'none';
+    }
+
+    // Show Alert
+    function showAlert(message, type = 'info') {
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} alert-dismissible fade show`;
+      alert.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      alertBox.appendChild(alert);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.remove();
+        }
+      }, 5000);
+    }
+
+    // Logout
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Initialize Mock Data
+    function initializeMockData() {
+      const mockSlides = [
+        {
+          id: nextId++,
+          title: "Summer Sale 2024",
+          subtitle: "Up to 50% off on all products. Limited time offer!",
+          buttonText: "Shop Now",
+          buttonLink: "/products/sale",
+          backgroundImage: "https://images.unsplash.com/photo-1591085686350-798c0f9faa7f?w=1200&h=400&fit=crop",
+          displayOrder: 1,
+          isActive: true,
+          isFeatured: true,
+          createdAt: new Date('2024-01-15').toISOString(),
+          endDate: new Date('2024-12-31').toISOString()
+        },
+        {
+          id: nextId++,
+          title: "New Arrivals",
+          subtitle: "Check out our latest collection of trendy products",
+          buttonText: "Explore",
+          buttonLink: "/new-arrivals",
+          backgroundImage: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400&fit=crop",
+          displayOrder: 2,
+          isActive: true,
+          isFeatured: false,
+          createdAt: new Date('2024-02-01').toISOString(),
+          endDate: null
+        },
+        {
+          id: nextId++,
+          title: "Free Shipping",
+          subtitle: "Free shipping on all orders over $50",
+          buttonText: "Learn More",
+          buttonLink: "/shipping",
+          backgroundImage: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&h=400&fit=crop",
+          displayOrder: 3,
+          isActive: false,
+          isFeatured: false,
+          createdAt: new Date('2024-01-10').toISOString(),
+          endDate: new Date('2024-03-01').toISOString()
+        }
+      ];
+      
+      // Load from localStorage if exists, otherwise use mock data
+      const savedSlides = localStorage.getItem('heroSlides');
+      if (savedSlides) {
+        currentSlides = JSON.parse(savedSlides);
+        nextId = Math.max(...currentSlides.map(s => s.id)) + 1;
+      } else {
+        currentSlides = mockSlides;
+        saveToLocalStorage();
+      }
+    }
+
+    // Save to localStorage
+    function saveToLocalStorage() {
+      localStorage.setItem('heroSlides', JSON.stringify(currentSlides));
+    }
+
+    // Load Slides
+    function loadSlides() {
+      showLoading();
+      setTimeout(() => {
+        try {
+          renderSlides();
+          updateStats();
+          initializeFilters();
+          showAlert('Slides loaded successfully!', 'success');
+        } catch (error) {
+          console.error('Error loading slides:', error);
+          showAlert('Failed to load slides. Please refresh the page.', 'danger');
+        } finally {
+          hideLoading();
+        }
+      }, 500); // Simulate network delay
+    }
+
+    // Render Slides
+    function renderSlides(slides = currentSlides) {
+      if (!slides || slides.length === 0) {
+        slidesTable.innerHTML = '';
+        slidesTable.parentElement.parentElement.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      slidesTable.parentElement.parentElement.style.display = 'block';
+      
+      slidesTable.innerHTML = slides.map((slide, index) => `
+        <tr data-slide-id="${slide.id}">
+          <td>
+            <div class="fw-bold">${slide.displayOrder || 0}</div>
+            <small class="text-muted">#${index + 1}</small>
+          </td>
+          <td>
+            <img src="${slide.backgroundImage || 'https://via.placeholder.com/80x50?text=No+Image'}" 
+                 alt="Slide Image" 
+                 class="slide-image"
+                 onerror="this.src='https://via.placeholder.com/80x50?text=Image+Error'">
+          </td>
+          <td>
+            <div class="fw-bold text-truncate" style="max-width: 200px;" title="${slide.title}">
+              ${slide.title || 'No Title'}
+            </div>
+            <small class="text-muted text-truncate d-block" style="max-width: 200px;" title="${slide.subtitle}">
+              ${slide.subtitle || 'No Subtitle'}
+            </small>
+          </td>
+          <td>
+            ${slide.buttonText ? `
+              <span class="badge bg-primary">${slide.buttonText}</span>
+              <br>
+              <small class="text-muted text-truncate d-block" style="max-width: 150px;" title="${slide.buttonLink}">
+                ${slide.buttonLink || 'No Link'}
+              </small>
+            ` : '<span class="text-muted">No Button</span>'}
+          </td>
+          <td>
+            ${getStatusBadges(slide)}
+          </td>
+          <td>
+            <small class="d-block">
+              <i class="far fa-calendar me-1"></i>
+              ${formatDate(slide.createdAt)}
+            </small>
+            ${slide.endDate ? `
+              <small class="d-block mt-1">
+                <i class="far fa-clock me-1"></i>
+                Expires: ${formatDate(slide.endDate)}
+              </small>
+            ` : ''}
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-view btn-icon" onclick="viewSlide(${slide.id})" title="View">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-edit btn-icon" onclick="openEditSlideModal(${slide.id})" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-delete btn-icon" onclick="confirmDeleteSlide(${slide.id})" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Get Status Badges
+    function getStatusBadges(slide) {
+      const badges = [];
+      
+      if (slide.isActive) {
+        badges.push('<span class="status-badge active"><i class="fas fa-check-circle me-1"></i>Active</span>');
+      } else {
+        badges.push('<span class="status-badge inactive"><i class="fas fa-times-circle me-1"></i>Inactive</span>');
+      }
+      
+      if (slide.isFeatured) {
+        badges.push('<span class="status-badge featured mt-1 d-inline-block"><i class="fas fa-star me-1"></i>Featured</span>');
+      }
+      
+      if (slide.endDate && new Date(slide.endDate) < new Date()) {
+        badges.push('<span class="status-badge expired mt-1 d-inline-block"><i class="fas fa-exclamation-triangle me-1"></i>Expired</span>');
+      }
+      
+      return badges.join('<br>');
+    }
+
+    // Format Date
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    // Update Stats
+    function updateStats() {
+      const now = new Date();
+      const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      
+      const stats = {
+        total: currentSlides.length,
+        active: currentSlides.filter(slide => slide.isActive).length,
+        featured: currentSlides.filter(slide => slide.isFeatured).length,
+        expiring: currentSlides.filter(slide => {
+          if (!slide.endDate || !slide.isActive) return false;
+          const endDate = new Date(slide.endDate);
+          return endDate > now && endDate <= oneWeekFromNow;
+        }).length
+      };
+      
+      totalSlidesEl.textContent = stats.total;
+      activeSlidesEl.textContent = stats.active;
+      featuredSlidesEl.textContent = stats.featured;
+      expiringSlidesEl.textContent = stats.expiring;
+    }
+
+    // Initialize Form
+    function initializeForm() {
+      const titleInput = document.getElementById('title');
+      const subtitleInput = document.getElementById('subtitle');
+      const titleCount = document.getElementById('titleCount');
+      const subtitleCount = document.getElementById('subtitleCount');
+      const backgroundImage = document.getElementById('backgroundImage');
+      const imagePreview = document.getElementById('imagePreview');
+      const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+      
+      // Character counters
+      titleInput.addEventListener('input', () => {
+        titleCount.textContent = titleInput.value.length;
+      });
+      
+      subtitleInput.addEventListener('input', () => {
+        subtitleCount.textContent = subtitleInput.value.length;
+      });
+      
+      // Image preview
+      backgroundImage.addEventListener('input', () => {
+        const url = backgroundImage.value.trim();
+        if (url && isValidUrl(url)) {
+          imagePreview.src = url;
+          imagePreviewContainer.classList.remove('d-none');
+        } else {
+          imagePreviewContainer.classList.add('d-none');
+        }
+      });
+      
+      // Add slide button
+      addSlideBtn.addEventListener('click', openAddSlideModal);
+      
+      // Save slide button
+      saveSlideBtn.addEventListener('click', saveSlide);
+    }
+
+    // Initialize Filters
+    function initializeFilters() {
+      globalSearch.addEventListener('input', filterSlides);
+      statusFilter.addEventListener('change', filterSlides);
+      featuredFilter.addEventListener('change', filterSlides);
+      orderFilter.addEventListener('change', filterSlides);
+      showInactiveToggle.addEventListener('change', filterSlides);
+    }
+
+    // Filter Slides
+    function filterSlides() {
+      const searchTerm = globalSearch.value.toLowerCase();
+      const statusValue = statusFilter.value;
+      const featuredValue = featuredFilter.value;
+      const orderValue = orderFilter.value;
+      const showInactive = showInactiveToggle.checked;
+      
+      let filteredSlides = [...currentSlides];
+      
+      // Search filter
+      if (searchTerm) {
+        filteredSlides = filteredSlides.filter(slide => 
+          (slide.title && slide.title.toLowerCase().includes(searchTerm)) ||
+          (slide.subtitle && slide.subtitle.toLowerCase().includes(searchTerm)) ||
+          (slide.buttonText && slide.buttonText.toLowerCase().includes(searchTerm))
+        );
+      }
+      
+      // Status filter
+      if (statusValue) {
+        filteredSlides = filteredSlides.filter(slide => 
+          statusValue === 'active' ? slide.isActive : !slide.isActive
+        );
+      }
+      
+      // Featured filter
+      if (featuredValue) {
+        filteredSlides = filteredSlides.filter(slide => 
+          featuredValue === 'featured' ? slide.isFeatured : !slide.isFeatured
+        );
+      }
+      
+      // Show inactive toggle
+      if (!showInactive) {
+        filteredSlides = filteredSlides.filter(slide => slide.isActive);
+      }
+      
+      // Order by
+      filteredSlides.sort((a, b) => {
+        if (orderValue === 'displayOrder') {
+          return (a.displayOrder || 0) - (b.displayOrder || 0);
+        } else {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+      });
+      
+      renderSlides(filteredSlides);
+    }
+
+    // Open Add Slide Modal
+    function openAddSlideModal() {
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus me-2"></i>Add New Slide';
+      slideForm.reset();
+      document.getElementById('slideId').value = '';
+      document.getElementById('titleCount').textContent = '0';
+      document.getElementById('subtitleCount').textContent = '0';
+      document.getElementById('imagePreviewContainer').classList.add('d-none');
+      document.getElementById('currentImageContainer').classList.add('d-none');
+      document.getElementById('isActive').checked = true;
+      document.getElementById('isFeatured').checked = false;
+      document.getElementById('displayOrder').value = currentSlides.length > 0 ? Math.max(...currentSlides.map(s => s.displayOrder || 0)) + 1 : 1;
+      
+      const now = new Date();
+      now.setMonth(now.getMonth() + 1);
+      document.getElementById('endDate').value = now.toISOString().slice(0, 16);
+      
+      const modal = bootstrap.Modal.getInstance(slideModalEl) || new bootstrap.Modal(slideModalEl);
+      modal.show();
+    }
+
+    // Open Edit Slide Modal
+    function openEditSlideModal(slideId) {
+      const slide = currentSlides.find(s => s.id == slideId);
+      if (!slide) {
+        showAlert('Slide not found!', 'danger');
+        return;
+      }
+      
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Slide';
+      document.getElementById('slideId').value = slide.id;
+      document.getElementById('title').value = slide.title || '';
+      document.getElementById('subtitle').value = slide.subtitle || '';
+      document.getElementById('buttonText').value = slide.buttonText || '';
+      document.getElementById('buttonLink').value = slide.buttonLink || '';
+      document.getElementById('backgroundImage').value = slide.backgroundImage || '';
+      document.getElementById('displayOrder').value = slide.displayOrder || 0;
+      document.getElementById('isActive').checked = slide.isActive || false;
+      document.getElementById('isFeatured').checked = slide.isFeatured || false;
+      
+      // Set end date if exists
+      if (slide.endDate) {
+        const endDate = new Date(slide.endDate);
+        document.getElementById('endDate').value = endDate.toISOString().slice(0, 16);
+      } else {
+        document.getElementById('endDate').value = '';
+      }
+      
+      // Update character counts
+      document.getElementById('titleCount').textContent = slide.title ? slide.title.length : 0;
+      document.getElementById('subtitleCount').textContent = slide.subtitle ? slide.subtitle.length : 0;
+      
+      // Show current image
+      if (slide.backgroundImage) {
+        document.getElementById('currentImage').src = slide.backgroundImage;
+        document.getElementById('currentImageContainer').classList.remove('d-none');
+      }
+      
+      // Hide preview
+      document.getElementById('imagePreviewContainer').classList.add('d-none');
+      
+      const modal = bootstrap.Modal.getInstance(slideModalEl) || new bootstrap.Modal(slideModalEl);
+      modal.show();
+    }
+
+    // Save Slide
+    function saveSlide() {
+      if (!slideForm.checkValidity()) {
+        slideForm.reportValidity();
+        return;
+      }
+      
+      const slideId = document.getElementById('slideId').value;
+      const isEdit = !!slideId;
+      
+      const slideData = {
+        title: document.getElementById('title').value.trim(),
+        subtitle: document.getElementById('subtitle').value.trim(),
+        buttonText: document.getElementById('buttonText').value.trim() || null,
+        buttonLink: document.getElementById('buttonLink').value.trim() || null,
+        backgroundImage: document.getElementById('backgroundImage').value.trim(),
+        displayOrder: parseInt(document.getElementById('displayOrder').value) || 0,
+        isActive: document.getElementById('isActive').checked,
+        isFeatured: document.getElementById('isFeatured').checked,
+        endDate: document.getElementById('endDate').value || null,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Validate required fields
+      if (!slideData.title || !slideData.subtitle || !slideData.backgroundImage) {
+        showAlert('Please fill in all required fields', 'warning');
+        return;
+      }
+      
+      showLoading();
+      saveSlideBtn.disabled = true;
+      
+      setTimeout(() => {
+        try {
+          if (isEdit) {
+            // Update existing slide
+            const index = currentSlides.findIndex(s => s.id == slideId);
+            if (index !== -1) {
+              slideData.id = parseInt(slideId);
+              currentSlides[index] = slideData;
+            }
+          } else {
+            // Create new slide
+            slideData.id = nextId++;
+            currentSlides.push(slideData);
+          }
+          
+          saveToLocalStorage();
+          
+          const modal = bootstrap.Modal.getInstance(slideModalEl);
+          if (modal) modal.hide();
+          
+          showAlert(`Slide ${isEdit ? 'updated' : 'created'} successfully!`, 'success');
+          
+          renderSlides();
+          updateStats();
+          filterSlides();
+          
+        } catch (error) {
+          console.error('Error saving slide:', error);
+          showAlert('Failed to save slide. Please try again.', 'danger');
+        } finally {
+          hideLoading();
+          saveSlideBtn.disabled = false;
+        }
+      }, 500);
+    }
+
+    // View Slide
+    function viewSlide(slideId) {
+      const slide = currentSlides.find(s => s.id == slideId);
+      if (!slide) {
+        showAlert('Slide not found!', 'danger');
+        return;
+      }
+      
+      const previewHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Preview: ${slide.title}</title>
+          <style>
+            body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+            .hero-container {
+              width: 100vw;
+              height: 100vh;
+              background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${slide.backgroundImage}');
+              background-size: cover;
+              background-position: center;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              text-align: center;
+              color: white;
+              padding: 20px;
+            }
+            .hero-content {
+              max-width: 800px;
+              background: rgba(0,0,0,0.7);
+              padding: 40px;
+              border-radius: 10px;
+              backdrop-filter: blur(10px);
+            }
+            .hero-title {
+              font-size: 3rem;
+              margin-bottom: 20px;
+              font-weight: bold;
+            }
+            .hero-subtitle {
+              font-size: 1.2rem;
+              margin-bottom: 30px;
+              line-height: 1.6;
+            }
+            .hero-button {
+              display: inline-block;
+              background: #dc3545;
+              color: white;
+              padding: 15px 40px;
+              border-radius: 5px;
+              text-decoration: none;
+              font-weight: bold;
+              font-size: 1.1rem;
+              transition: all 0.3s;
+              border: 2px solid #dc3545;
+            }
+            .hero-button:hover {
+              background: transparent;
+              border-color: white;
+            }
+            .slide-info {
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 1px solid rgba(255,255,255,0.3);
+              font-size: 0.9rem;
+              opacity: 0.8;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="hero-container">
+            <div class="hero-content">
+              <h1 class="hero-title">${slide.title || 'No Title'}</h1>
+              <p class="hero-subtitle">${slide.subtitle || 'No Subtitle'}</p>
+              ${slide.buttonText ? `<a href="${slide.buttonLink || '#'}" class="hero-button" target="_blank">${slide.buttonText}</a>` : ''}
+              <div class="slide-info">
+                <p><strong>Status:</strong> ${slide.isActive ? 'Active' : 'Inactive'} • ${slide.isFeatured ? 'Featured' : 'Not Featured'}</p>
+                <p><strong>Display Order:</strong> ${slide.displayOrder || 0}</p>
+                ${slide.endDate ? `<p><strong>Expires:</strong> ${formatDate(slide.endDate)}</p>` : ''}
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+      
+      const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+      previewWindow.document.write(previewHTML);
+      previewWindow.document.close();
+    }
+
+    // Confirm Delete Slide
+    function confirmDeleteSlide(slideId) {
+      const slide = currentSlides.find(s => s.id == slideId);
+      if (!slide) return;
+      
+      if (confirm(`Are you sure you want to delete slide "${slide.title || 'Untitled'}"? This action cannot be undone.`)) {
+        deleteSlide(slideId);
+      }
+    }
+
+    // Delete Slide
+    function deleteSlide(slideId) {
+      showLoading();
+      
+      setTimeout(() => {
+        try {
+          const initialLength = currentSlides.length;
+          currentSlides = currentSlides.filter(s => s.id != slideId);
+          
+          if (currentSlides.length < initialLength) {
+            saveToLocalStorage();
+            renderSlides();
+            updateStats();
+            filterSlides();
+            showAlert('Slide deleted successfully!', 'success');
+          } else {
+            showAlert('Slide not found!', 'warning');
+          }
+        } catch (error) {
+          console.error('Error deleting slide:', error);
+          showAlert('Failed to delete slide. Please try again.', 'danger');
+        } finally {
+          hideLoading();
+        }
+      }, 500);
+    }
+
+    // Open Reorder Modal
+    function openReorderModal() {
+      const sortedSlides = [...currentSlides].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+      
+      const reorderList = document.getElementById('reorderList');
+      reorderList.innerHTML = sortedSlides.map((slide, index) => `
+        <div class="list-group-item">
+          <div class="row align-items-center">
+            <div class="col-auto">
+              <i class="fas fa-grip-vertical text-muted handle" style="cursor: move;"></i>
+            </div>
+            <div class="col-auto">
+              <span class="badge bg-secondary">${index + 1}</span>
+            </div>
+            <div class="col-auto">
+              <img src="${slide.backgroundImage || 'https://via.placeholder.com/40x25'}" 
+                   style="width: 40px; height: 25px; object-fit: cover; border-radius: 3px;"
+                   onerror="this.src='https://via.placeholder.com/40x25?text=Image+Error'">
+            </div>
+            <div class="col">
+              <div class="fw-bold text-truncate">${slide.title || 'Untitled'}</div>
+              <small class="text-muted">ID: ${slide.id} • Order: ${slide.displayOrder || 0}</small>
+            </div>
+            <div class="col-auto">
+              <input type="number" class="form-control form-control-sm order-input" 
+                     data-id="${slide.id}" value="${slide.displayOrder || 0}" 
+                     min="0" style="width: 80px;">
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Initialize drag and drop
+      let draggedItem = null;
+      
+      reorderList.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('handle') || e.target.closest('.handle')) {
+          draggedItem = e.target.closest('.list-group-item');
+          setTimeout(() => {
+            draggedItem.classList.add('dragging');
+          }, 0);
+        }
+      });
+      
+      reorderList.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(reorderList, e.clientY);
+        const draggable = document.querySelector('.dragging');
+        
+        if (afterElement == null) {
+          reorderList.appendChild(draggable);
+        } else {
+          reorderList.insertBefore(draggable, afterElement);
+        }
+      });
+      
+      reorderList.addEventListener('dragend', (e) => {
+        const draggable = document.querySelector('.dragging');
+        if (draggable) {
+          draggable.classList.remove('dragging');
+        }
+      });
+      
+      // Make all items draggable
+      document.querySelectorAll('.handle').forEach(handle => {
+        handle.parentElement.parentElement.setAttribute('draggable', 'true');
+      });
+      
+      const modal = new bootstrap.Modal(document.getElementById('reorderModal'));
+      modal.show();
+    }
+
+    // Get Drag After Element
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll('.list-group-item:not(.dragging)')];
+      
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    // Save Reorder
+    function saveReorder() {
+      showLoading();
+      
+      setTimeout(() => {
+        try {
+          const inputs = document.querySelectorAll('.order-input');
+          const reorderList = document.getElementById('reorderModal');
+          
+          inputs.forEach(input => {
+            const slideId = parseInt(input.dataset.id);
+            const newOrder = parseInt(input.value) || 0;
+            
+            const slide = currentSlides.find(s => s.id === slideId);
+            if (slide) {
+              slide.displayOrder = newOrder;
+            }
+          });
+          
+          // Also update order based on drag and drop position
+          const items = document.querySelectorAll('#reorderList .list-group-item');
+          items.forEach((item, index) => {
+            const input = item.querySelector('.order-input');
+            if (input) {
+              const slideId = parseInt(input.dataset.id);
+              const slide = currentSlides.find(s => s.id === slideId);
+              if (slide) {
+                // Use the input value if changed, otherwise use position index
+                slide.displayOrder = parseInt(input.value) || index;
+              }
+            }
+          });
+          
+          saveToLocalStorage();
+          
+          // Close modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('reorderModal'));
+          if (modal) modal.hide();
+          
+          renderSlides();
+          updateStats();
+          showAlert('Slide order updated successfully!', 'success');
+          
+        } catch (error) {
+          console.error('Error saving reorder:', error);
+          showAlert('Failed to save order. Please try again.', 'danger');
+        } finally {
+          hideLoading();
+        }
+      }, 500);
+    }
+
+    // Open Image Upload Modal
+    function openImageUploadModal() {
+      showAlert('For demo purposes, you can use these placeholder images:<br>' +
+               '• https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=400<br>' +
+               '• https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1200&h=400', 'info');
+    }
+
+    // Validate URL
+    function isValidUrl(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateCurrentDate();
+      initializeMockData();
+      loadSlides();
+      initializeForm();
+      
+      // Initialize Bootstrap modal if not already initialized
+      if (!bootstrap.Modal.getInstance(slideModalEl)) {
+        new bootstrap.Modal(slideModalEl);
+      }
+    });
+
+    // Global error handler
+    window.addEventListener('error', function(e) {
+      console.error('Global error:', e.error);
+      showAlert('An error occurred. Please check the console for details.', 'danger');
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Ctrl/Cmd + F to focus search
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        globalSearch.focus();
+      }
+      
+      // Ctrl/Cmd + N to add new slide
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n' && !e.target.matches('input, textarea, select')) {
+        e.preventDefault();
+        openAddSlideModal();
+      }
+    });
+
+    // Update search placeholder on resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth < 768) {
+        globalSearch.placeholder = 'Search...';
+      } else {
+        globalSearch.placeholder = 'Search slides...';
+      }
+    });
+  </script>
+</body>
+</html>

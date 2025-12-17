@@ -15,7 +15,7 @@ const router = express.Router();
 router.get("/", getBlogs);
 router.get("/:id", getBlogById);
 
-// Protected routes (with image upload)
+// Protected routes (Admin only)
 router.post("/", authenticate, upload.single("image"), createBlog);
 router.put("/:id", authenticate, upload.single("image"), updateBlog);
 router.delete("/:id", authenticate, deleteBlog);

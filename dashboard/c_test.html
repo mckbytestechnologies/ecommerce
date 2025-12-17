@@ -735,6 +735,14 @@
     ::-webkit-scrollbar-thumb:hover {
       background: var(--primary-red-dark);
     }
+
+    /* Fix for Select2 in Modal */
+    .select2-container {
+      z-index: 1060 !important;
+    }
+    .select2-dropdown {
+      z-index: 1061 !important;
+    }
   </style>
 </head>
 <body>
@@ -904,7 +912,6 @@
         <div class="modal-body">
           <form id="categoryForm">
             <input type="hidden" id="categoryId">
-            <input type="hidden" id="isSubcategory" value="false">
             
             <div class="row g-3">
               <div class="col-md-6">
@@ -970,6 +977,7 @@
     <div class="spinner"></div>
   </div>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>
@@ -980,6 +988,7 @@
     // Global Variables
     let currentCategories = [];
     let categoryModalInstance = null;
+    let parentCategorySelect2 = null;
 
     // DOM Elements
     const elements = {
@@ -999,6 +1008,10 @@
     if (!token) {
       window.location.href = 'login.html';
     }
+
+    const authHeaders = {
+      'Authorization': `Bearer ${token}`
+    };
 
     // Initialize Date
     function updateCurrentDate() {
@@ -1036,6 +1049,11 @@
       }, 5000);
     }
 
+    // Clear Alerts
+    function clearAlerts() {
+      elements.alertBox.innerHTML = '';
+    }
+
     // Load Categories
     async function loadCategories() {
       try {
@@ -1045,11 +1063,7 @@
         
         const url = showInactive ? `${CATEGORIES_API}?includeInactive=true` : CATEGORIES_API;
         
-        const headers = {
-          'Authorization': `Bearer ${token}`
-        };
-
-        const res = await fetch(url, { headers });
+        const res = await fetch(url, { headers: authHeaders });
 
         if (res.status === 401) {
           localStorage.removeItem('token');
@@ -1075,7 +1089,7 @@
           renderCategories(categories);
           updateStats(categories);
         } else {
-          showAlert('Failed to load categories', 'danger');
+          showAlert(data.message || 'Failed to load categories', 'danger');
         }
       } catch (error) {
         console.error('Error loading categories:', error);
@@ -1224,27 +1238,26 @@
 
     // Open Add Category Modal
     function openAddCategoryModal(parentId = null) {
-      const isSubcategory = !!parentId;
-      document.getElementById('modalTitle').innerHTML = isSubcategory ? 
+      clearAlerts();
+      document.getElementById('modalTitle').innerHTML = parentId ? 
         '<i class="fas fa-plus me-2"></i>Add Subcategory' : 
         '<i class="fas fa-plus me-2"></i>Add New Category';
       
       document.getElementById('categoryForm').reset();
       document.getElementById('categoryId').value = '';
-      document.getElementById('isSubcategory').value = isSubcategory;
       document.getElementById('isActive').checked = true;
       clearImage();
       
-      // Set parent category if provided
-      if (parentId) {
-        setTimeout(() => {
+      // Load parent categories and initialize Select2
+      loadParentCategories().then(() => {
+        // Set parent category if provided
+        if (parentId) {
           $('#parentCategory').val(parentId).trigger('change');
-        }, 100);
-      } else {
-        $('#parentCategory').val('').trigger('change');
-      }
+        } else {
+          $('#parentCategory').val('').trigger('change');
+        }
+      });
       
-      loadParentCategories();
       categoryModalInstance.show();
     }
 
@@ -1256,11 +1269,7 @@
     // Load Parent Categories
     async function loadParentCategories() {
       try {
-        const headers = {
-          'Authorization': `Bearer ${token}`
-        };
-        
-        const res = await fetch(CATEGORIES_API, { headers });
+        const res = await fetch(CATEGORIES_API, { headers: authHeaders });
         const data = await res.json();
         
         const parentSelect = document.getElementById('parentCategory');
@@ -1273,8 +1282,12 @@
           });
         }
         
-        // Initialize Select2
-        $(parentSelect).select2({
+        // Initialize or reinitialize Select2
+        if (parentCategorySelect2) {
+          parentCategorySelect2.destroy();
+        }
+        
+        parentCategorySelect2 = $(parentSelect).select2({
           placeholder: "Select Parent Category",
           width: '100%',
           dropdownParent: $('#categoryModal')
@@ -1289,16 +1302,13 @@
       try {
         showLoading();
         
-        const headers = {
-          'Authorization': `Bearer ${token}`
-        };
-        
-        const res = await fetch(`${CATEGORIES_API}/${categoryId}`, { headers });
+        const res = await fetch(`${CATEGORIES_API}/${categoryId}`, { headers: authHeaders });
         const data = await res.json();
         
         if (data.success) {
           const category = data.data;
           
+          clearAlerts();
           document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Category';
           document.getElementById('categoryId').value = category._id;
           document.getElementById('name').value = category.name;
@@ -1328,7 +1338,7 @@
           
           categoryModalInstance.show();
         } else {
-          showAlert('Failed to load category data', 'danger');
+          showAlert(data.message || 'Failed to load category data', 'danger');
         }
       } catch (error) {
         console.error('Error loading category:', error);
@@ -1343,6 +1353,11 @@
       const categoryId = document.getElementById('categoryId').value;
       const imageFile = document.getElementById('imageFile').files[0];
       const name = document.getElementById('name').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const parentCategory = $('#parentCategory').val();
+      const isActive = document.getElementById('isActive').checked;
+      const imageUrl = document.getElementById('imageUrl').value.trim();
+      const imagePublicId = document.getElementById('imagePublicId').value.trim();
       
       // Validation
       if (!name) {
@@ -1361,11 +1376,10 @@
         if (imageFile) {
           const formData = new FormData();
           formData.append('name', name);
-          formData.append('description', document.getElementById('description').value.trim());
-          formData.append('isActive', document.getElementById('isActive').checked);
+          formData.append('description', description);
+          formData.append('isActive', isActive);
           formData.append('image', imageFile);
           
-          const parentCategory = $('#parentCategory').val();
           if (parentCategory) {
             formData.append('parentCategory', parentCategory);
           }
@@ -1374,6 +1388,7 @@
             method,
             headers: {
               'Authorization': `Bearer ${token}`
+              // Don't set Content-Type for FormData - browser will set it automatically with boundary
             },
             body: formData
           });
@@ -1384,14 +1399,12 @@
           // Use JSON for non-image updates
           const categoryData = {
             name: name,
-            description: document.getElementById('description').value.trim(),
-            parentCategory: $('#parentCategory').val() || null,
-            isActive: document.getElementById('isActive').checked
+            description: description,
+            parentCategory: parentCategory || null,
+            isActive: isActive
           };
 
           // Add image data if URL and Public ID are provided
-          const imageUrl = document.getElementById('imageUrl').value.trim();
-          const imagePublicId = document.getElementById('imagePublicId').value.trim();
           if (imageUrl && imagePublicId) {
             categoryData.image = {
               url: imageUrl,
@@ -1443,13 +1456,9 @@
       try {
         showLoading();
         
-        const headers = {
-          'Authorization': `Bearer ${token}`
-        };
-        
         const res = await fetch(`${CATEGORIES_API}/${categoryId}`, {
           method: 'DELETE',
-          headers
+          headers: authHeaders
         });
 
         const data = await res.json();

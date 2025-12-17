@@ -7,7 +7,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --primary-red: #dc3545;
@@ -680,6 +679,14 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    
+    /* Fix for Select2 in Bootstrap Modal */
+    .select2-container {
+      z-index: 1060 !important;
+    }
+    .select2-dropdown {
+      z-index: 1061 !important;
+    }
   </style>
 </head>
 <body>
@@ -753,7 +760,7 @@
       </div>
       <div class="d-flex align-items-center gap-2">
         <span class="text-muted me-2" id="currentDate"></span>
-        <button class="btn btn-outline-danger btn-sm">
+        <button class="btn btn-outline-danger btn-sm" onclick="logout()">
           <i class="fas fa-sign-out-alt"></i> Logout
         </button>
       </div>
@@ -969,15 +976,15 @@
                     </select>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">SKU</label>
-                    <input type="text" id="sku" class="form-control" placeholder="Auto-generated">
+                    <label class="form-label">SKU (Auto-generated if empty)</label>
+                    <input type="text" id="sku" class="form-control" placeholder="Will be auto-generated">
                   </div>
                   <div class="col-12">
                     <label class="form-label">Description <span class="text-danger">*</span></label>
                     <textarea id="description" class="form-control" rows="4" required placeholder="Enter product description"></textarea>
                   </div>
                   <div class="col-12">
-                    <label class="form-label">Features</label>
+                    <label class="form-label">Features (One per line)</label>
                     <textarea id="features" class="form-control" rows="3" placeholder="Enter each feature on a new line"></textarea>
                   </div>
                 </div>
@@ -990,14 +997,14 @@
                     <label class="form-label">Price (₹) <span class="text-danger">*</span></label>
                     <div class="input-group">
                       <span class="input-group-text">₹</span>
-                      <input type="number" id="price" class="form-control" required step="0.01" placeholder="0.00">
+                      <input type="number" id="price" class="form-control" required step="0.01" placeholder="0.00" min="0">
                     </div>
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Compare Price (₹)</label>
                     <div class="input-group">
                       <span class="input-group-text">₹</span>
-                      <input type="number" id="comparePrice" class="form-control" step="0.01" placeholder="Original price">
+                      <input type="number" id="comparePrice" class="form-control" step="0.01" placeholder="Original price" min="0">
                     </div>
                   </div>
                   <div class="col-md-4">
@@ -1031,7 +1038,7 @@
                       <h6 class="mb-3">Digital Product File</h6>
                       <div class="row g-3">
                         <div class="col-md-6">
-                          <label class="form-label">File URL</label>
+                          <label class="form-label">File URL <span class="text-danger">*</span></label>
                           <input type="url" id="digitalFileUrl" class="form-control" placeholder="https://example.com/file.pdf">
                         </div>
                         <div class="col-md-6">
@@ -1048,17 +1055,29 @@
               <div class="tab-pane fade" id="media" role="tabpanel">
                 <div class="row g-3">
                   <div class="col-12">
-                    <label class="form-label">Product Images</label>
-                    <div class="image-upload-container mb-3" id="imageUploadArea">
-                      <i class="fas fa-cloud-upload-alt"></i>
-                      <h5>Drag & Drop Images Here</h5>
-                      <p class="text-muted">or click to browse</p>
-                      <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                    <label class="form-label">Product Images <small class="text-muted">(Both Public ID and URL are required)</small></label>
+                    <div class="mb-3">
+                      <button type="button" class="btn btn-outline-danger btn-sm" onclick="addImageRow()">
+                        <i class="fas fa-plus me-1"></i>Add Image Row
+                      </button>
                     </div>
                     
-                    <div id="imagesPreview" class="row g-2 mb-3"></div>
+                    <div id="imagesContainer">
+                      <!-- Image rows will be added here dynamically -->
+                      <div class="row g-2 mb-2 align-items-center" data-image-id="default">
+                        <div class="col-md-5">
+                          <input type="text" class="form-control image-public-id" placeholder="Public ID (e.g., product_1)" required>
+                        </div>
+                        <div class="col-md-5">
+                          <input type="url" class="form-control image-url" placeholder="Image URL (e.g., https://example.com/image.jpg)" required>
+                        </div>
+                        <div class="col-md-2">
+                          <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeImageRow('default')">×</button>
+                        </div>
+                      </div>
+                    </div>
                     
-                    <div id="imagesContainer"></div>
+                    <div class="mt-3" id="imagesPreview"></div>
                   </div>
                 </div>
               </div>
@@ -1067,37 +1086,33 @@
               <div class="tab-pane fade" id="attributes" role="tabpanel">
                 <div class="row g-3">
                   <div class="col-md-6">
-                    <label class="form-label">Tags</label>
+                    <label class="form-label">Tags (comma separated)</label>
                     <input type="text" id="tags" class="form-control" placeholder="electronics, gadget, tech">
                   </div>
                   <div class="col-md-6">
                     <label class="form-label">Warranty</label>
-                    <input type="text" id="warranty" class="form-control" placeholder="1 Year Manufacturer Warranty">
+                    <input type="text" id="warranty" class="form-control" placeholder="1 Year Manufacturer Warranty" value="1 Year Manufacturer Warranty">
                   </div>
                   <div class="col-md-4">
                     <label class="form-label">Weight (kg)</label>
-                    <input type="number" id="weight" class="form-control" step="0.01" placeholder="0.00">
+                    <input type="number" id="weight" class="form-control" step="0.01" placeholder="0.00" min="0">
                   </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Dimensions (cm)</label>
-                    <input type="text" id="dimensions" class="form-control" placeholder="L x W x H">
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label">Color</label>
-                    <input type="text" id="color" class="form-control" placeholder="Black, White, Red">
+                  <div class="col-md-8">
+                    <label class="form-label">Dimensions (cm) <small class="text-muted">Format: Length x Width x Height</small></label>
+                    <input type="text" id="dimensions" class="form-control" placeholder="10x5x3">
                   </div>
                   <div class="col-12">
                     <label class="form-label">Specifications</label>
                     <div id="specificationsContainer" class="mb-2">
-                      <div class="row g-2 mb-2">
+                      <div class="row g-2 mb-2" data-spec-id="default">
                         <div class="col-md-5">
-                          <input type="text" class="form-control" placeholder="Key (e.g., Processor)">
+                          <input type="text" class="form-control specification-key" placeholder="Key (e.g., Processor)">
                         </div>
                         <div class="col-md-5">
-                          <input type="text" class="form-control" placeholder="Value (e.g., Intel i7)">
+                          <input type="text" class="form-control specification-value" placeholder="Value (e.g., Intel i7)">
                         </div>
                         <div class="col-md-2">
-                          <button type="button" class="btn btn-sm btn-danger w-100">×</button>
+                          <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeSpecificationRow('default')">×</button>
                         </div>
                       </div>
                     </div>
@@ -1107,7 +1122,7 @@
                   </div>
                   <div class="col-12">
                     <label class="form-label">Return Policy</label>
-                    <textarea id="returnPolicy" class="form-control" rows="2" placeholder="30 days return policy"></textarea>
+                    <textarea id="returnPolicy" class="form-control" rows="2" placeholder="30 days return policy" value="30 days return policy"></textarea>
                   </div>
                 </div>
               </div>
@@ -1129,6 +1144,7 @@
     <div class="spinner"></div>
   </div>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>
@@ -1140,6 +1156,7 @@
     // Global Variables
     let currentProducts = [];
     let productModalInstance = null;
+    let categorySelect2Instance = null;
 
     // DOM Elements
     const elements = {
@@ -1204,6 +1221,11 @@
       }, 5000);
     }
 
+    // Clear Alerts
+    function clearAlerts() {
+      elements.alertBox.innerHTML = '';
+    }
+
     // Load Products
     async function loadProducts(filters = {}) {
       try {
@@ -1223,7 +1245,6 @@
         }
 
         const url = `${PRODUCTS_API}?${queryParams.toString()}`;
-        console.log('Loading products from:', url);
         
         const res = await fetch(url, { headers: authHeaders });
 
@@ -1234,7 +1255,6 @@
         }
 
         const data = await res.json();
-        console.log('Products response:', data);
 
         if (data.success) {
           let products = data.data?.products || data.data || [];
@@ -1375,7 +1395,15 @@
     // Load Categories
     async function loadCategories() {
       try {
+        showLoading();
         const res = await fetch(CATEGORIES_API, { headers: authHeaders });
+        
+        if (res.status === 401) {
+          localStorage.removeItem('token');
+          window.location.href = 'login.html';
+          return;
+        }
+
         const data = await res.json();
         
         const categorySelect = document.getElementById('category');
@@ -1386,24 +1414,33 @@
         
         if (data.success) {
           const categories = data.data || [];
+          
           categories.forEach(cat => {
             categorySelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
             categoryFilterSelect.innerHTML += `<option value="${cat._id}">${cat.name}</option>`;
           });
+          
+          // Initialize Select2 for filter
+          $(categoryFilterSelect).select2({
+            placeholder: "All Categories",
+            width: '100%'
+          });
+          
+          // Initialize Select2 for form - store the instance
+          categorySelect2Instance = $(categorySelect).select2({
+            placeholder: "Select Category",
+            width: '100%',
+            dropdownParent: $('#productModal')
+          });
+          
+        } else {
+          showAlert('Failed to load categories: ' + (data.message || 'Unknown error'), 'danger');
         }
-        
-        // Initialize Select2
-        $(categorySelect).select2({
-          placeholder: "Select Category",
-          width: '100%'
-        });
-        
-        $(categoryFilterSelect).select2({
-          placeholder: "All Categories",
-          width: '100%'
-        });
       } catch (error) {
         console.error('Error loading categories:', error);
+        showAlert('Error loading categories: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
       }
     }
 
@@ -1419,40 +1456,9 @@
       loadProducts();
       loadCategories();
       
-      // Initialize form
-      initializeForm();
-      
       // Initialize event listeners
       initializeEventListeners();
     });
-
-    // Initialize Form
-    function initializeForm() {
-      // Image upload
-      const imageUploadArea = document.getElementById('imageUploadArea');
-      const imageInput = document.getElementById('imageInput');
-      
-      imageUploadArea.addEventListener('click', () => imageInput.click());
-      
-      imageInput.addEventListener('change', function(e) {
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            addImageRow({ url: e.target.result, public_id: '' });
-          };
-          reader.readAsDataURL(file);
-        });
-      });
-      
-      // Add specification
-      document.getElementById('addSpecification').addEventListener('click', addSpecificationRow);
-      
-      // Digital product toggle
-      document.getElementById('isDigital').addEventListener('change', function() {
-        toggleDigitalFileSection(this.checked);
-      });
-    }
 
     // Initialize Event Listeners
     function initializeEventListeners() {
@@ -1478,18 +1484,51 @@
       elements.globalSearch.addEventListener('input', debounce(() => {
         loadProducts(getCurrentFilters());
       }, 300));
+      
+      // Add specification button
+      document.getElementById('addSpecification').addEventListener('click', addSpecificationRow);
+      
+      // Digital product toggle
+      document.getElementById('isDigital').addEventListener('change', function() {
+        toggleDigitalFileSection(this.checked);
+      });
     }
 
     // Open Add Product Modal
     function openAddProductModal() {
+      clearAlerts();
       document.getElementById('modalTitle').innerHTML = '<i class="fas fa-box me-2"></i>Add New Product';
       document.getElementById('productForm').reset();
       document.getElementById('productId').value = '';
       
       // Reset dynamic fields
-      document.getElementById('imagesContainer').innerHTML = '';
+      document.getElementById('imagesContainer').innerHTML = `
+        <div class="row g-2 mb-2 align-items-center" data-image-id="${Date.now()}">
+          <div class="col-md-5">
+            <input type="text" class="form-control image-public-id" placeholder="Public ID (e.g., product_1)" required>
+          </div>
+          <div class="col-md-5">
+            <input type="url" class="form-control image-url" placeholder="Image URL (e.g., https://example.com/image.jpg)" required>
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeImageRow('${Date.now()}')">×</button>
+          </div>
+        </div>
+      `;
       document.getElementById('imagesPreview').innerHTML = '';
-      document.getElementById('specificationsContainer').innerHTML = '';
+      document.getElementById('specificationsContainer').innerHTML = `
+        <div class="row g-2 mb-2" data-spec-id="${Date.now()}">
+          <div class="col-md-5">
+            <input type="text" class="form-control specification-key" placeholder="Key (e.g., Processor)">
+          </div>
+          <div class="col-md-5">
+            <input type="text" class="form-control specification-value" placeholder="Value (e.g., Intel i7)">
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeSpecificationRow('${Date.now()}')">×</button>
+          </div>
+        </div>
+      `;
       
       // Set default values
       document.getElementById('isActive').checked = true;
@@ -1498,10 +1537,20 @@
       document.getElementById('stock').value = 0;
       document.getElementById('price').value = '';
       document.getElementById('comparePrice').value = '';
+      document.getElementById('warranty').value = '1 Year Manufacturer Warranty';
+      document.getElementById('returnPolicy').value = '30 days return policy';
+      document.getElementById('weight').value = '';
+      document.getElementById('dimensions').value = '';
       
-      // Add one empty specification row
-      addSpecificationRow();
+      // Reset category select
+      if (categorySelect2Instance) {
+        categorySelect2Instance.val('').trigger('change');
+      }
       
+      // Toggle digital file section
+      toggleDigitalFileSection(false);
+      
+      // Show modal
       productModalInstance.show();
     }
 
@@ -1520,6 +1569,7 @@
         if (data.success) {
           const product = data.data;
           
+          clearAlerts();
           document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Product';
           document.getElementById('productId').value = product._id;
           document.getElementById('name').value = product.name || '';
@@ -1530,10 +1580,8 @@
           document.getElementById('comparePrice').value = product.comparePrice || '';
           document.getElementById('stock').value = product.stock || 0;
           document.getElementById('weight').value = product.weight || '';
-          document.getElementById('warranty').value = product.warranty || '';
-          document.getElementById('returnPolicy').value = product.returnPolicy || '';
-          document.getElementById('color').value = product.color || '';
-          document.getElementById('dimensions').value = product.dimensions || '';
+          document.getElementById('warranty').value = product.warranty || '1 Year Manufacturer Warranty';
+          document.getElementById('returnPolicy').value = product.returnPolicy || '30 days return policy';
           document.getElementById('isActive').checked = product.isActive !== false;
           document.getElementById('isFeatured').checked = product.isFeatured || false;
           document.getElementById('isDigital').checked = product.isDigital || false;
@@ -1544,11 +1592,18 @@
           document.getElementById('digitalFileUrl').value = product.digitalFile?.url || '';
           document.getElementById('digitalFileName').value = product.digitalFile?.fileName || '';
           
+          // Parse dimensions
+          const dimensions = product.dimensions;
+          let dimensionsString = '';
+          if (dimensions && (dimensions.length || dimensions.width || dimensions.height)) {
+            dimensionsString = `${dimensions.length || ''}x${dimensions.width || ''}x${dimensions.height || ''}`;
+          }
+          document.getElementById('dimensions').value = dimensionsString;
+          
           // Set category
-          const categorySelect = document.getElementById('category');
           const categoryId = product.category?._id || product.category;
-          if (categoryId && categorySelect) {
-            $(categorySelect).val(categoryId).trigger('change');
+          if (categoryId && categorySelect2Instance) {
+            categorySelect2Instance.val(categoryId).trigger('change');
           }
           
           // Render images
@@ -1573,29 +1628,24 @@
     };
 
     // Add Image Row
-    function addImageRow(image = { url: '', public_id: '' }) {
+    window.addImageRow = () => {
       const container = document.getElementById('imagesContainer');
       const timestamp = Date.now();
       
       container.innerHTML += `
         <div class="row g-2 mb-2 align-items-center" data-image-id="${timestamp}">
           <div class="col-md-5">
-            <input type="text" class="form-control image-public-id" value="${image.public_id}" placeholder="Public ID">
+            <input type="text" class="form-control image-public-id" placeholder="Public ID (e.g., product_1)" required>
           </div>
           <div class="col-md-5">
-            <input type="url" class="form-control image-url" value="${image.url}" placeholder="Image URL" required>
+            <input type="url" class="form-control image-url" placeholder="Image URL (e.g., https://example.com/image.jpg)" required>
           </div>
           <div class="col-md-2">
             <button type="button" class="btn btn-sm btn-danger w-100" onclick="removeImageRow('${timestamp}')">×</button>
           </div>
         </div>
       `;
-      
-      // Add to preview
-      if (image.url) {
-        addImagePreview(image.url, timestamp);
-      }
-    }
+    };
 
     // Remove Image Row
     window.removeImageRow = (id) => {
@@ -1606,19 +1656,6 @@
       const preview = document.querySelector(`[data-preview-id="${id}"]`);
       if (preview) preview.remove();
     };
-
-    // Add Image Preview
-    function addImagePreview(url, id) {
-      const preview = document.getElementById('imagesPreview');
-      preview.innerHTML += `
-        <div class="col-2" data-preview-id="${id}">
-          <div class="position-relative">
-            <img src="${url}" class="img-fluid rounded" style="height: 80px; object-fit: cover;">
-            <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="removeImageRow('${id}')">×</button>
-          </div>
-        </div>
-      `;
-    }
 
     // Render Images
     function renderImages(images) {
@@ -1636,7 +1673,7 @@
           container.innerHTML += `
             <div class="row g-2 mb-2 align-items-center" data-image-id="${timestamp}">
               <div class="col-md-5">
-                <input type="text" class="form-control image-public-id" value="${image.public_id || ''}" placeholder="Public ID">
+                <input type="text" class="form-control image-public-id" value="${image.public_id || ''}" placeholder="Public ID" required>
               </div>
               <div class="col-md-5">
                 <input type="url" class="form-control image-url" value="${image.url}" placeholder="Image URL" required>
@@ -1647,13 +1684,23 @@
             </div>
           `;
           
-          addImagePreview(image.url, timestamp);
+          // Add to preview
+          if (image.url) {
+            preview.innerHTML += `
+              <div class="col-3 mb-2" data-preview-id="${timestamp}">
+                <div class="position-relative">
+                  <img src="${image.url}" class="img-fluid rounded border" style="height: 100px; width: 100%; object-fit: cover;">
+                  <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="removeImageRow('${timestamp}')">×</button>
+                </div>
+              </div>
+            `;
+          }
         });
       }
     }
 
     // Add Specification Row
-    function addSpecificationRow(key = '', value = '') {
+    window.addSpecificationRow = (key = '', value = '') => {
       const container = document.getElementById('specificationsContainer');
       const timestamp = Date.now();
       
@@ -1670,7 +1717,7 @@
           </div>
         </div>
       `;
-    }
+    };
 
     // Remove Specification Row
     window.removeSpecificationRow = (id) => {
@@ -1697,22 +1744,45 @@
       const section = document.getElementById('digitalFileSection');
       if (section) {
         section.style.display = isDigital ? 'block' : 'none';
+        
+        // Clear digital file fields when hiding
+        if (!isDigital) {
+          document.getElementById('digitalFileUrl').value = '';
+          document.getElementById('digitalFileName').value = '';
+        }
       }
     }
 
     // Save Product
     async function saveProduct() {
+      clearAlerts();
+      
       const productId = document.getElementById('productId').value;
       
       // Collect images
       const images = [];
-      document.querySelectorAll('[data-image-id]').forEach(row => {
-        const publicId = row.querySelector('.image-public-id').value.trim();
-        const url = row.querySelector('.image-url').value.trim();
-        if (url) {
+      const imageRows = document.querySelectorAll('[data-image-id]');
+      let hasInvalidImage = false;
+      
+      imageRows.forEach(row => {
+        const publicIdInput = row.querySelector('.image-public-id');
+        const urlInput = row.querySelector('.image-url');
+        
+        const publicId = publicIdInput.value.trim();
+        const url = urlInput.value.trim();
+        
+        // Validate image fields
+        if (publicId || url) {
+          if (!publicId || !url) {
+            showAlert('Both Public ID and URL are required for images', 'warning');
+            hasInvalidImage = true;
+            return;
+          }
           images.push({ public_id: publicId, url });
         }
       });
+      
+      if (hasInvalidImage) return;
       
       // Collect specifications
       const specifications = {};
@@ -1724,45 +1794,94 @@
         }
       });
       
+      // Parse dimensions (expecting format like "10x5x3")
+      const dimensionsInput = document.getElementById('dimensions').value.trim();
+      let dimensions = {};
+      if (dimensionsInput) {
+        const dims = dimensionsInput.split('x').map(d => parseFloat(d.trim()));
+        if (dims.length === 3 && dims.every(d => !isNaN(d))) {
+          dimensions = {
+            length: dims[0],
+            width: dims[1],
+            height: dims[2]
+          };
+        } else {
+          showAlert('Please enter dimensions in format: Length x Width x Height (e.g., 10x5x3)', 'warning');
+          return;
+        }
+      }
+      
+      // Get category value from Select2
+      const categoryValue = categorySelect2Instance ? categorySelect2Instance.val() : '';
+      
       // Prepare product data
       const productData = {
         name: document.getElementById('name').value.trim(),
         description: document.getElementById('description').value.trim(),
         brand: document.getElementById('brand').value.trim() || undefined,
-        category: document.getElementById('category').value,
+        category: categoryValue,
         sku: document.getElementById('sku').value.trim() || undefined,
         price: parseFloat(document.getElementById('price').value) || 0,
-        comparePrice: document.getElementById('comparePrice').value ? parseFloat(document.getElementById('comparePrice').value) : undefined,
+        comparePrice: document.getElementById('comparePrice').value ? 
+                      parseFloat(document.getElementById('comparePrice').value) : 
+                      null,
         stock: parseInt(document.getElementById('stock').value) || 0,
         isActive: document.getElementById('isActive').checked,
         isFeatured: document.getElementById('isFeatured').checked,
         isDigital: document.getElementById('isDigital').checked,
-        tags: document.getElementById('tags').value ? document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag) : undefined,
-        features: document.getElementById('features').value ? document.getElementById('features').value.split('\n').map(feature => feature.trim()).filter(feature => feature) : undefined,
-        weight: document.getElementById('weight').value ? parseFloat(document.getElementById('weight').value) : undefined,
+        tags: document.getElementById('tags').value ? 
+              document.getElementById('tags').value.split(',').map(tag => tag.trim()).filter(tag => tag) : 
+              undefined,
+        features: document.getElementById('features').value ? 
+                  document.getElementById('features').value.split('\n').map(feature => feature.trim()).filter(feature => feature) : 
+                  undefined,
+        weight: document.getElementById('weight').value ? 
+                parseFloat(document.getElementById('weight').value) : 
+                undefined,
         warranty: document.getElementById('warranty').value.trim() || undefined,
         returnPolicy: document.getElementById('returnPolicy').value.trim() || undefined,
-        color: document.getElementById('color').value.trim() || undefined,
-        dimensions: document.getElementById('dimensions').value.trim() || undefined,
-        images: images.length > 0 ? images : undefined,
-        specifications: Object.keys(specifications).length > 0 ? specifications : undefined
+        specifications: Object.keys(specifications).length > 0 ? specifications : undefined,
+        images: images
       };
+      
+      // Add dimensions if provided
+      if (Object.keys(dimensions).length > 0) {
+        productData.dimensions = dimensions;
+      }
       
       // Add digital file data if product is digital
       if (productData.isDigital) {
         const digitalFileUrl = document.getElementById('digitalFileUrl').value.trim();
         const digitalFileName = document.getElementById('digitalFileName').value.trim();
-        if (digitalFileUrl) {
-          productData.digitalFile = {
-            url: digitalFileUrl,
-            fileName: digitalFileName || 'digital-file'
-          };
+        if (!digitalFileUrl) {
+          showAlert('Digital file URL is required for digital products', 'warning');
+          return;
         }
+        productData.digitalFile = {
+          url: digitalFileUrl,
+          fileName: digitalFileName || 'digital-file'
+        };
       }
 
       // Validation
-      if (!productData.name || !productData.description || !productData.price || !productData.category) {
-        showAlert('Please fill in all required fields (Name, Description, Price, Category)', 'warning');
+      if (!productData.name) {
+        showAlert('Product name is required', 'warning');
+        return;
+      }
+      if (!productData.description) {
+        showAlert('Product description is required', 'warning');
+        return;
+      }
+      if (!productData.price || productData.price <= 0) {
+        showAlert('Valid product price is required', 'warning');
+        return;
+      }
+      if (!productData.category) {
+        showAlert('Product category is required', 'warning');
+        return;
+      }
+      if (productData.stock < 0) {
+        showAlert('Stock quantity cannot be negative', 'warning');
         return;
       }
 
@@ -1771,8 +1890,6 @@
         const url = productId ? `${PRODUCTS_API}/${productId}` : PRODUCTS_API;
         const method = productId ? 'PUT' : 'POST';
 
-        console.log('Saving product:', productData);
-
         const res = await fetch(url, {
           method,
           headers: authHeaders,
@@ -1780,7 +1897,6 @@
         });
 
         const data = await res.json();
-        console.log('Save response:', data);
 
         if (res.ok && data.success) {
           showAlert(
@@ -1790,7 +1906,14 @@
           productModalInstance.hide();
           loadProducts(getCurrentFilters());
         } else {
-          const errorMsg = data.message || (data.errors ? data.errors.map(e => e.message).join(', ') : 'Operation failed');
+          let errorMsg = 'Operation failed';
+          if (data.message) {
+            errorMsg = data.message;
+          } else if (data.errors) {
+            errorMsg = data.errors.map(e => e.msg || e.message).join(', ');
+          } else if (data.error) {
+            errorMsg = data.error;
+          }
           showAlert(errorMsg, 'danger');
         }
       } catch (error) {
@@ -1852,6 +1975,14 @@
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
       };
+    }
+
+    // Logout Function
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+      }
     }
   </script>
 </body>
