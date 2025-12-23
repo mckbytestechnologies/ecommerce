@@ -11,7 +11,8 @@ import {
 } from "../controllers/productController.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 import { validateProduct, validateProductQuery } from "../middleware/validation.js";
-import upload from "../middleware/uploads.js";
+// import upload from "../middleware/uploads.js";
+import { upload } from "../middleware/upload.js";
 
 const router = express.Router();
 

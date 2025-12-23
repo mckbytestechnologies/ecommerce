@@ -9,7 +9,7 @@ import {
 } from "../controllers/categoryController.js";
 import { authenticate, authorize } from "../middleware/auth.js";
 import { validateCategory } from "../middleware/validation.js";
-import upload from "../middleware/upload.js";
+import { upload } from "../middleware/upload.js";
 
 const router = express.Router();
 

@@ -21,7 +21,7 @@ const Bannerbox = ({ img, className = "", blog = null }) => {
           loading="lazy"
           onError={(e) => {
             console.error("❌ Blog image failed:", blog.image);
-            e.target.src = "/placeholder-image.jpg";
+            e.target.src = "https://www.portronics.com/cdn/shop/articles/Massage_Guns_for_Runners_The_Secret_to_Faster_Recovery_Stronger_Muscles.png?v=1761811828&width=533";
           }}
         />
       </div>
@@ -37,7 +37,7 @@ const Bannerbox = ({ img, className = "", blog = null }) => {
       loading="lazy"
       onError={(e) => {
         console.error("❌ Banner image failed:", img);
-        e.target.src = "/placeholder-image.jpg";
+        e.target.src = "https://www.portronics.com/cdn/shop/articles/Massage_Guns_for_Runners_The_Secret_to_Faster_Recovery_Stronger_Muscles.png?v=1761811828&width=533";
       }}
     />
   );

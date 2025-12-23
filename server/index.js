@@ -1,3 +1,4 @@
+
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -8,7 +9,6 @@ import rateLimit from "express-rate-limit";
 import compression from "compression";
 import path from "path";
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 import connectDb from "./config/connectDb.js";
 
 // Route imports
@@ -25,6 +25,7 @@ import couponRoutes from "./routes/couponRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import heroRoutes from "./routes/heroRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
+
 
 // Initialize environment
 dotenv.config();
@@ -43,6 +44,7 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
+/*
 // Security middleware
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
@@ -52,10 +54,43 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "http:", "blob:"],
+      imgSrc: [
+        "'self'", 
+        "data:", 
+        "https:", 
+        "http:", 
+        "blob:", 
+        "http://localhost:5000",
+        "http://127.0.0.1:5000"],
     },
   },
 }));
+*/
+
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: {
+      policy: "cross-origin"
+    },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          "http://localhost:5000",
+          "http://127.0.0.1:5000"
+        ],
+      },
+    },
+  })
+);
+
 
 // Rate limiting
 const limiter = rateLimit({
@@ -86,6 +121,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:5500',
+  'http://localhost:5500',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -123,34 +159,13 @@ app.options('*', cors({
 // Logging
 app.use(morgan("dev"));
 
-// ================== CRITICAL FIX: NO-CACHE STATIC FILES ==================
-const noCacheStatic = (dirPath) => {
-  return express.static(dirPath, {
-    setHeaders: (res, filePath) => {
-      // DISABLE ALL CACHING for development
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      res.setHeader('Surrogate-Control', 'no-store');
-      
-      // For images specifically - force no cache
-      if (filePath.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-        res.setHeader('Cache-Control', 'no-store, max-age=0');
-        res.setHeader('Last-Modified', new Date().toUTCString());
-      }
-    }
-  });
-};
-
-// Serve static files with NO CACHE
-app.use("/uploads", noCacheStatic(path.join(__dirname, "uploads")));
-// ================== STATIC FILES (IMAGES) ==================
-
-
-
-// ================== END CRITICAL FIX ==================
+// Serve static files from multiple directories
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/hero-images", express.static(path.join(__dirname, "hero-images")));
+app.use("/blog-images", express.static(path.join(__dirname, "blog-images")));
 
 // Ensure directories exist
+import fs from 'fs';
 const directories = ['uploads', 'hero-images', 'blog-images'];
 directories.forEach(dir => {
   const dirPath = path.join(__dirname, dir);
@@ -159,109 +174,6 @@ directories.forEach(dir => {
     console.log(`✅ Created directory: ${dir}`);
   }
 });
-
-// ================== DEBUG ENDPOINTS ==================
-// Debug endpoint to check uploads
-app.get("/api/debug/uploads", (req, res) => {
-  const uploadDir = path.join(__dirname, "uploads");
-  
-  try {
-    if (!fs.existsSync(uploadDir)) {
-      return res.json({
-        success: true,
-        message: "Upload directory doesn't exist",
-        uploadDir: uploadDir
-      });
-    }
-    
-    const files = fs.readdirSync(uploadDir);
-    
-    const fileDetails = files.map(file => {
-      const filePath = path.join(uploadDir, file);
-      const stats = fs.statSync(filePath);
-      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file);
-      
-      // Read first few bytes to check file signature
-      let fileType = 'unknown';
-      if (isImage) {
-        const buffer = fs.readFileSync(filePath, { length: 12 });
-        const hex = buffer.toString('hex', 0, 12);
-        if (hex.startsWith('ffd8ff')) fileType = 'JPEG';
-        else if (hex.startsWith('89504e47')) fileType = 'PNG';
-        else if (hex.startsWith('47494638')) fileType = 'GIF';
-        else if (hex.startsWith('52494646')) fileType = 'WEBP';
-      }
-      
-      return {
-        filename: file,
-        path: filePath,
-        url: `/uploads/${file}`,
-        fullUrl: `${req.protocol}://${req.get('host')}/uploads/${file}`,
-        size: stats.size,
-        sizeKB: Math.round(stats.size / 1024),
-        created: stats.birthtime,
-        modified: stats.mtime,
-        isImage: isImage,
-        fileType: fileType,
-        accessible: true
-      };
-    });
-    
-    res.json({
-      success: true,
-      uploadDir: uploadDir,
-      totalFiles: files.length,
-      imageFiles: fileDetails.filter(f => f.isImage).length,
-      files: fileDetails
-    });
-  } catch (error) {
-    console.error("Debug uploads error:", error);
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
-
-// Test specific image
-app.get("/api/debug/image/:filename", (req, res) => {
-  const filename = req.params.filename;
-  const filePath = path.join(__dirname, "uploads", filename);
-  
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({
-      success: false,
-      message: `File "${filename}" not found`,
-      path: filePath
-    });
-  }
-  
-  const stats = fs.statSync(filePath);
-  
-  res.json({
-    success: true,
-    filename: filename,
-    url: `/uploads/${filename}`,
-    fullUrl: `${req.protocol}://${req.get('host')}/uploads/${filename}`,
-    size: stats.size,
-    sizeKB: Math.round(stats.size / 1024),
-    created: stats.birthtime,
-    modified: stats.mtime,
-    exists: true
-  });
-});
-
-// Clear uploads cache (for development)
-app.post("/api/debug/clear-cache", (req, res) => {
-  console.log("🔄 Clearing server-side cache headers override");
-  
-  res.json({
-    success: true,
-    message: "Cache headers are disabled in development mode",
-    note: "Images are served with no-cache headers"
-  });
-});
-// ================== END DEBUG ENDPOINTS ==================
 
 // Health check route
 app.get("/api/health", (req, res) => {
@@ -291,8 +203,7 @@ app.get("/api/health", (req, res) => {
       blogs: "/api/blogs",
       reviews: "/api/reviews",
       wishlist: "/api/wishlist",
-      payments: "/api/payments",
-      debug: "/api/debug/uploads"
+      payments: "/api/payments"
     }
   });
 });
@@ -372,8 +283,15 @@ app.use((req, res) => {
       "/api/blogs/:slug",
       "/api/blogs/categories",
       "/api/blogs/tags/popular",
-      "/api/debug/uploads",
-      "/api/debug/image/:filename"
+      // Blogs (Admin) ✅ ADD THESE
+      "/api/admin/blogs",
+      "/api/admin/blogs/stats",
+      "/api/admin/blogs/:id",
+      "/api/admin/blogs/:id/status",
+      "/api/admin/blogs/bulk-status",
+      "/api/admin/blogs/:id/slider"
+
+
     ],
     note: "Use GET /api/health for complete endpoint documentation"
   });
@@ -483,20 +401,17 @@ const startServer = async () => {
     await connectDb();
     const PORT = process.env.PORT || 5000;
     const server = app.listen(PORT, () => {
-      console.log(`
-🚀 Server started on port ${PORT}
-📁 Upload directory: ${path.join(__dirname, "uploads")}
-🔧 Cache Control: DISABLED (no-store, no-cache)
-🌐 Allowed Origins:`);
+      console.log( );
+      
+      console.log(`🌐 Allowed Origins:`);
       allowedOrigins.forEach(origin => console.log(`   • ${origin}`));
       
       console.log(`
-📋 API Endpoints:
-   • GET    /api/debug/uploads     - Check uploaded files
-   • GET    /api/debug/image/:name - Test specific image
-   • POST   /api/blogs             - Create blog (Admin)
-   • GET    /api/blogs             - Get all blogs
-   • GET    /api/health            - Health check
+📋 API Endpoints Overview:
+   • GET    /api/hero/active      - Get active hero sections
+   • GET    /api/blogs/slider     - Get blogs for slider
+   • POST   /api/hero             - Create hero section (Admin)
+   • POST   /api/blogs            - Create blog (Admin)
       `);
     });
 
@@ -518,14 +433,22 @@ const startServer = async () => {
     // Handle unhandled promise rejections
     process.on("unhandledRejection", (err, promise) => {
       console.error("❌ Unhandled Rejection at:", promise, "reason:", err);
+      // Don't exit in production, just log
       if (process.env.NODE_ENV === "production") {
         console.error("Continuing in production despite unhandled rejection");
+      } else {
+        server.close(() => {
+          process.exit(1);
+        });
       }
     });
 
     // Handle uncaught exceptions
     process.on("uncaughtException", (err) => {
       console.error("❌ Uncaught Exception:", err);
+      server.close(() => {
+        process.exit(1);
+      });
     });
 
     // Handle termination signals
@@ -537,6 +460,7 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
 
 // Start the server
 startServer();
