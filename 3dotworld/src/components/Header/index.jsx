@@ -66,7 +66,7 @@ const Header = () => {
       const token = getToken();
       if (!token) return;
 
-      const response = await axios.get("http://localhost:5000/api/auth/me", {
+      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/auth/me", {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -87,7 +87,7 @@ const Header = () => {
       if (!token) return;
 
       setLoadingAddresses(true);
-      const response = await axios.get("http://localhost:5000/api/addresses", {
+      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/addresses", {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -115,7 +115,7 @@ const Header = () => {
       if (!token) return;
 
       const response = await axios.put(
-        `http://localhost:5000/api/addresses/${addressId}/set-default`,
+        `https://ecommerce-server-fhna.onrender.com/api/addresses/${addressId}/set-default`,
         {},
         {
           headers: {
@@ -170,7 +170,7 @@ const Header = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/api/wishlist", {
+      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/wishlist", {
         headers: {
           'Authorization': `Bearer ${token}`
         }

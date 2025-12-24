@@ -13,7 +13,7 @@ const ElectronicsSlider = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/products");
+      const res = await axios.get("https://ecommerce-server-fhna.onrender.com/api/products");
       setProducts(res.data.data?.products || []);
     } catch (err) {
       console.log("API error:", err);

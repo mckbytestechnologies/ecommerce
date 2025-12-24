@@ -88,7 +88,7 @@ const Addresses = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/api/addresses", {
+      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/addresses", {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -205,7 +205,7 @@ const Addresses = () => {
       if (editMode && currentAddress) {
         // Update address
         response = await axios.put(
-          `http://localhost:5000/api/addresses/${currentAddress._id}`,
+          `https://ecommerce-server-fhna.onrender.com/api/addresses/${currentAddress._id}`,
           formData,
           {
             headers: {
@@ -217,7 +217,7 @@ const Addresses = () => {
       } else {
         // Create new address
         response = await axios.post(
-          "http://localhost:5000/api/addresses",
+          "https://ecommerce-server-fhna.onrender.com/api/addresses",
           formData,
           {
             headers: {
@@ -248,7 +248,7 @@ const Addresses = () => {
     try {
       const token = getToken();
       const response = await axios.delete(
-        `http://localhost:5000/api/addresses/${addressId}`,
+        `https://ecommerce-server-fhna.onrender.com/api/addresses/${addressId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -274,7 +274,7 @@ const Addresses = () => {
     try {
       const token = getToken();
       const response = await axios.put(
-        `http://localhost:5000/api/addresses/${addressId}/set-default`,
+        `https://ecommerce-server-fhna.onrender.com/api/addresses/${addressId}/set-default`,
         {},
         {
           headers: {

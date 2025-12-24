@@ -44,7 +44,7 @@ const ElectronicsItem = ({
         return;
       }
 
-      const response = await axios.get(`http://localhost:5000/api/wishlist/check/${productId}`, {
+      const response = await axios.get(`https://ecommerce-server-fhna.onrender.com/api/wishlist/check/${productId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -76,7 +76,7 @@ const ElectronicsItem = ({
     try {
       if (isWishlisted) {
         // Remove from wishlist
-        const response = await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, {
+        const response = await axios.delete(`https://ecommerce-server-fhna.onrender.com/api/wishlist/${productId}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -89,7 +89,7 @@ const ElectronicsItem = ({
       } else {
         // Add to wishlist
         const response = await axios.post(
-          `http://localhost:5000/api/wishlist`,
+          `https://ecommerce-server-fhna.onrender.com/api/wishlist`,
           { productId },
           {
             headers: {

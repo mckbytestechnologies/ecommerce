@@ -33,7 +33,7 @@ export const CartProvider = ({ children }) => {
       }
 
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/cart', {
+      const response = await fetch('https://ecommerce-server-fhna.onrender.com/api/cart', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -65,7 +65,7 @@ export const CartProvider = ({ children }) => {
         throw new Error('Please login to add items to cart');
       }
 
-      const response = await fetch('http://localhost:5000/api/cart', {
+      const response = await fetch('https://ecommerce-server-fhna.onrender.com/api/cart', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -95,7 +95,7 @@ export const CartProvider = ({ children }) => {
   const removeFromCart = async (itemId) => {
     try {
       const token = getToken();
-      const response = await fetch(`http://localhost:5000/api/cart/${itemId}`, {
+      const response = await fetch(`https://ecommerce-server-fhna.onrender.com/api/cart/${itemId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -118,7 +118,7 @@ export const CartProvider = ({ children }) => {
   const updateQuantity = async (itemId, quantity) => {
     try {
       const token = getToken();
-      const response = await fetch(`http://localhost:5000/api/cart/${itemId}`, {
+      const response = await fetch(`https://ecommerce-server-fhna.onrender.com/api/cart/${itemId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -143,7 +143,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     try {
       const token = getToken();
-      const response = await fetch('http://localhost:5000/api/cart', {
+      const response = await fetch('https://ecommerce-server-fhna.onrender.com/api/cart', {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

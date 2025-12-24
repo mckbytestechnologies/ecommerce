@@ -1054,7 +1054,7 @@
     // ====================
     // CONFIGURATION
     // ====================
-    const API_BASE = "http://localhost:5000/api";
+    const API_BASE = "https://ecommerce-server-fhna.onrender.com/api";
     const BLOGS_API = `${API_BASE}/blogs`;
     
     // Global Variables
@@ -1226,7 +1226,7 @@
       }
 
       let html = '';
-      const SERVER_URL = 'http://localhost:5000';
+      const SERVER_URL = 'https://ecommerce-server-fhna.onrender.com';
       
       blogs.forEach(blog => {
         // Get image URL
@@ -1507,7 +1507,7 @@
           // Show image if exists
           if (blog.image && blog.image !== 'null') {
             const preview = document.getElementById('previewImage');
-            preview.src = blog.image.startsWith('/') ? 'http://localhost:5000' + blog.image : blog.image;
+            preview.src = blog.image.startsWith('/') ? 'https://ecommerce-server-fhna.onrender.com' + blog.image : blog.image;
             document.getElementById('imagePreview').style.display = 'block';
           }
           

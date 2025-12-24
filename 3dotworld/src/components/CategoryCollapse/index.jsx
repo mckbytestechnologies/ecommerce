@@ -43,7 +43,7 @@ const ProductListing = () => {
   // ------------------------
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/categories");
+      const res = await axios.get("https://ecommerce-server-fhna.onrender.com/api/categories");
       setCategories(res.data.data || []);
     } catch (err) {
       console.error("Category fetch error:", err);
@@ -53,7 +53,7 @@ const ProductListing = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/products");
+      const res = await axios.get("https://ecommerce-server-fhna.onrender.com/api/products");
       setProducts(res.data.data?.products || []);
     } catch (err) {
       console.error("Product fetch error:", err);

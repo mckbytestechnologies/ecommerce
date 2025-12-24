@@ -6,7 +6,7 @@ import 'swiper/css/autoplay';
 import 'swiper/css/effect-fade';
 import './HomeSlider.css';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://ecommerce-server-fhna.onrender.com';
 const HERO_API = `${API_BASE}/api/hero/active`;
 
 const HomeSlider = () => {

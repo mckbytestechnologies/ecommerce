@@ -60,7 +60,7 @@ app.use(helmet({
         "https:", 
         "http:", 
         "blob:", 
-        "http://localhost:5000",
+        "https://ecommerce-server-fhna.onrender.com",
         "http://127.0.0.1:5000"],
     },
   },
@@ -83,7 +83,7 @@ app.use(
           "'self'",
           "data:",
           "blob:",
-          "http://localhost:5000",
+          "https://ecommerce-server-fhna.onrender.com",
           "http://127.0.0.1:5000"
         ],
       },

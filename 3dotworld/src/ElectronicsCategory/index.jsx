@@ -13,7 +13,7 @@ const ElectronicsCategory = () => {
     const fetchElectronicsProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/api/products");
+        const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/products");
         
         if (response.data.success) {
           // Filter products to show only electronics

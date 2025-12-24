@@ -179,10 +179,10 @@ const CheckoutPage = () => {
         }
 
         const [cartRes, addrRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/cart", {
+          axios.get("https://ecommerce-server-fhna.onrender.com/api/cart", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/addresses", {
+          axios.get("https://ecommerce-server-fhna.onrender.com/api/addresses", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -222,7 +222,7 @@ const CheckoutPage = () => {
       };
 
       const res = await axios.post(
-        "http://localhost:5000/api/orders",
+        "https://ecommerce-server-fhna.onrender.com/api/orders",
         orderData,
         {
           headers: { Authorization: `Bearer ${token}` },

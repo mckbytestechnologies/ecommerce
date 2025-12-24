@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://ecommerce-server-fhna.onrender.com/api";
 
 // Fetch dashboard stats
 document.addEventListener("DOMContentLoaded", async () => {

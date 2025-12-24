@@ -13,7 +13,7 @@ const AdsBannerSlider = ({ items = 3 }) => {
   const [error, setError] = useState(null);
 
   // API configuration
-  const API_URL = "http://localhost:5000/api/blogs";
+  const API_URL = "https://ecommerce-server-fhna.onrender.com/api/blogs";
 
   // Fetch blogs from API
   useEffect(() => {

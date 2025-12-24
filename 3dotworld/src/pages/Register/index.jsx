@@ -33,7 +33,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const checkApi = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/health", {
+        const response = await fetch("https://ecommerce-server-fhna.onrender.com/api/health", {
           method: "GET",
           mode: "cors",
           headers: { "Content-Type": "application/json" },
@@ -132,7 +132,7 @@ export default function RegisterPage() {
         address: formData.address
       };
 
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const response = await fetch("https://ecommerce-server-fhna.onrender.com/api/auth/register", {
         method: "POST",
         mode: "cors",
         credentials: "include",

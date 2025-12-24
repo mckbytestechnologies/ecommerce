@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://ecommerce-server-fhna.onrender.com";
 
 // Helper function to get correct image URL
 const getImageUrl = (image) => {

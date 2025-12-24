@@ -66,7 +66,7 @@ const ReviewForm = ({ productId, open, onClose, onReviewSubmit, editMode, review
       formData.append('image', file);
 
       try {
-        const response = await axios.post('http://localhost:5000/api/upload/review', formData, {
+        const response = await axios.post('https://ecommerce-server-fhna.onrender.com/api/upload/review', formData, {
           headers: {
             'Authorization': `Bearer ${getToken()}`,
             'Content-Type': 'multipart/form-data',
@@ -113,8 +113,8 @@ const ReviewForm = ({ productId, open, onClose, onReviewSubmit, editMode, review
     try {
       const token = getToken();
       const endpoint = editMode 
-        ? `http://localhost:5000/api/reviews/${reviewToEdit._id}`
-        : 'http://localhost:5000/api/reviews';
+        ? `https://ecommerce-server-fhna.onrender.com/api/reviews/${reviewToEdit._id}`
+        : 'https://ecommerce-server-fhna.onrender.com/api/reviews';
       
       const method = editMode ? 'put' : 'post';
       

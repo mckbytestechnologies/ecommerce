@@ -1,4 +1,4 @@
-export const API_BASE = "http://localhost:5000/api";
+export const API_BASE = "https://ecommerce-server-fhna.onrender.com/api";
 export const endpoints = {
   products: `${API_BASE}/products`,
   orders: `${API_BASE}/orders`,

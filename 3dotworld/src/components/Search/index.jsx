@@ -28,8 +28,8 @@ const Search = () => {
         setLoading(true);
 
         const [productRes, categoryRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/products?search=${query}`),
-          axios.get(`http://localhost:5000/api/categories?search=${query}`)
+          axios.get(`https://ecommerce-server-fhna.onrender.com/api/products?search=${query}`),
+          axios.get(`https://ecommerce-server-fhna.onrender.com/api/categories?search=${query}`)
         ]);
 
         setProducts(productRes.data?.data?.products || []);

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = 'https://ecommerce-server-fhna.onrender.com/api';
 const PRODUCTS_API = `${API_BASE}/products`;
 
 // 创建 axios 实例

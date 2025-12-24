@@ -13,7 +13,7 @@ const ProductSlider = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/categories");
+        const res = await axios.get("https://ecommerce-server-fhna.onrender.com/api/categories");
         console.log("Categories API Response:", res.data);
         setCategories(res.data.data || []); // assuming API returns { data: [...] }
       } catch (error) {

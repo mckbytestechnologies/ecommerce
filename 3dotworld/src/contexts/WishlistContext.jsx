@@ -11,7 +11,7 @@ export const WishlistProvider = ({ children }) => {
   const [error, setError] = useState(null);
 
   // API base URL - Update this based on your setup
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'https://ecommerce-server-fhna.onrender.com/api';
 
   // Get authentication token
   const getToken = () => {

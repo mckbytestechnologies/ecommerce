@@ -13,7 +13,7 @@ export default function LoginPage({ onLogin }) {
     checking: true,
   });
 
-  const BACKEND_URL = "http://localhost:5000";
+  const BACKEND_URL = "https://ecommerce-server-fhna.onrender.com";
 
   // -------------------------------
   // API Health Check (Production Safe)

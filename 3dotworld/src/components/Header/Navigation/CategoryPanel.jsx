@@ -39,7 +39,7 @@ const CategoryPanel = ({ open, toggleDrawer }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/categories");
+        const res = await axios.get("https://ecommerce-server-fhna.onrender.com/api/categories");
         setCategories(res.data.data || []);
       } catch (err) {
         console.error("Category fetch error:", err);

@@ -158,7 +158,7 @@ const ProductListing = () => {
       params.append('order', sortOrder);
       
       const response = await axios.get(
-        `http://localhost:5000/api/products?${params.toString()}`
+        `https://ecommerce-server-fhna.onrender.com/api/products?${params.toString()}`
       );
       
       if (response.data.success && response.data.data) {
@@ -194,7 +194,7 @@ const ProductListing = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/categories");
+      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/categories");
       if (response.data.success) {
         setCategories(response.data.data || []);
       }

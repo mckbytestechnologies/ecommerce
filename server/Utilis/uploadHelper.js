@@ -23,7 +23,7 @@ export const uploadImage = (file, folder = "uploads") => {
     fs.writeFileSync(filePath, file.buffer);
 
     // Return file URL
-    const baseUrl = process.env.BASE_URL || "http://localhost:5000";
+    const baseUrl = process.env.BASE_URL || "https://ecommerce-server-fhna.onrender.com";
     const url = `${baseUrl}/${folder}/${uniqueName}`;
 
     return {

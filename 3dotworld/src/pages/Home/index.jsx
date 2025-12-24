@@ -20,7 +20,7 @@ const Home = () => {
   /* 🔥 FETCH CATEGORIES (DYNAMIC) */
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/categories")
+      .get("https://ecommerce-server-fhna.onrender.com/api/categories")
       .then((res) => {
         setCategories(res.data?.data || []);
       })
