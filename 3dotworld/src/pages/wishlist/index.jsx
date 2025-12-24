@@ -1,82 +1,78 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  FaHeart, 
-  FaTrash, 
-  FaShoppingCart, 
-  FaRegHeart,
-  FaArrowLeft,
-  FaShoppingBag
-} from 'react-icons/fa';
-import { useWishlist } from '../../contexts/WishlistContext';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaArrowLeft, FaRegHeart } from "react-icons/fa";
+import ProductCard from "../../components/ProductCard";
+import { useWishlist } from "../../contexts/WishlistContext";
+
+// Replace this with your actual backend URL
+const BACKEND_URL = "http://localhost:5000";
+
+// Utility function to get full image URL
+const getImageUrl = (img) => {
+  if (!img) return "https://via.placeholder.com/400x500?text=No+Image";
+
+  // If img is an object
+  if (typeof img === "object") {
+    img = img.url || img.path || "";
+  }
+
+  if (typeof img !== "string") {
+    return "https://via.placeholder.com/400x500?text=No+Image";
+  }
+
+  if (img.startsWith("http")) return img;
+
+  if (!img.startsWith("/")) img = "/" + img;
+
+  return `${BACKEND_URL}${img}`;
+};
 
 const WishlistPage = () => {
   const navigate = useNavigate();
-  const { 
-    wishlist, 
+  const {
+    wishlist,
     productDetails,
-    removeFromWishlist, 
-    clearWishlist, 
-    moveToCart,
-    loading, 
-    error,
+    loading,
+    fetchWishlist,
     getWishlistCount,
-    isLoggedIn,
-    fetchWishlist
   } = useWishlist();
-  
-  const [movingToCart, setMovingToCart] = useState({});
-  const [removingIds, setRemovingIds] = useState({});
+
+  const fetchedOnce = useRef(false);
 
   useEffect(() => {
-    fetchWishlist();
-  }, [fetchWishlist]);
-
-  const handleRemove = async (productId, productName) => {
-    setRemovingIds(prev => ({ ...prev, [productId]: true }));
-    const result = await removeFromWishlist(productId);
-    if (result.success) {
-      toast.success(`${productName || 'Product'} removed`);
+    if (!fetchedOnce.current) {
+      fetchWishlist();
+      fetchedOnce.current = true;
     }
-    setRemovingIds(prev => ({ ...prev, [productId]: false }));
-  };
+  }, []);
 
-  const handleMoveToCart = async (productId, productName) => {
-    setMovingToCart(prev => ({ ...prev, [productId]: true }));
-    const result = await moveToCart(productId);
-    if (result.success) {
-      toast.success(`${productName} moved to cart!`);
-    } else {
-      toast.error(result.message || 'Failed to move to cart');
-    }
-    setMovingToCart(prev => ({ ...prev, [productId]: false }));
-  };
+  useEffect(() => {
+    console.log("Wishlist data:", wishlist);
+    console.log("Product details:", productDetails);
+  }, [wishlist, productDetails]);
 
-  // UI Components
+  // Loading state
   if (loading && wishlist.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-red-100 border-t-red-600 rounded-full animate-spin"></div>
-          <p className="mt-4 text-gray-500 font-medium">Fetching your favorites...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-red-100 border-t-red-600 rounded-full animate-spin" />
       </div>
     );
   }
 
+  // Empty wishlist
   if (getWishlistCount() === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-md w-full text-center bg-white p-10 rounded-3xl shadow-xl shadow-red-100/50">
-          <div className="bg-red-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FaRegHeart className="text-red-500 text-4xl" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="bg-white p-10 rounded-xl text-center shadow-md max-w-md w-full">
+          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5">
+            <FaRegHeart className="text-red-500 text-3xl" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Your wishlist is empty</h2>
-          <p className="text-gray-500 mb-8">Save items you love here to keep an eye on them.</p>
-          <button 
-            onClick={() => navigate('/products')}
-            className="w-full bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg shadow-red-200"
+          <h2 className="text-2xl font-bold mb-2">Your wishlist is empty</h2>
+          <p className="text-gray-500 mb-6">Save your favorite items here.</p>
+          <button
+            onClick={() => navigate("/products")}
+            className="w-full bg-red-600 text-white py-3 font-semibold rounded-md hover:bg-red-700 transition"
           >
             Explore Products
           </button>
@@ -85,110 +81,71 @@ const WishlistPage = () => {
     );
   }
 
+  // Main wishlist grid
   return (
     <div className="min-h-screen bg-[#fcfcfc] pb-20">
-      {/* Header Section */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-30">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <button 
-                onClick={() => navigate(-1)}
-                className="flex items-center text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors mb-2"
-              >
-                <FaArrowLeft className="mr-2" /> Back
-              </button>
-              <h1 className="text-3xl font-black text-gray-900 flex items-center">
-                My <span className="text-red-600 ml-2">Wishlist</span>
-                <span className="ml-3 px-3 py-1 bg-red-100 text-red-600 text-sm rounded-full">
-                  {getWishlistCount()}
-                </span>
-              </h1>
-            </div>
-            
-            {getWishlistCount() > 0 && (
-              <button
-                onClick={clearWishlist}
-                className="text-gray-400 hover:text-red-600 text-sm font-medium flex items-center gap-2 transition-colors"
-              >
-                <FaTrash size={12} /> Clear all items
-              </button>
-            )}
+      {/* HEADER */}
+      <div className="bg-white border-b sticky top-0 z-20">
+        <div className="container mx-auto px-4 py-5 flex justify-between items-center">
+          <div>
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center text-sm text-gray-500 hover:text-red-600 mb-1"
+            >
+              <FaArrowLeft className="mr-2" /> Back
+            </button>
+            <h1 className="text-3xl font-bold">
+              My <span className="text-red-600">Wishlist</span>
+              <span className="ml-3 px-3 py-1 bg-red-100 text-red-600 text-sm rounded-full">
+                {getWishlistCount()}
+              </span>
+            </h1>
           </div>
         </div>
       </div>
 
+      {/* PRODUCT GRID */}
       <div className="container mx-auto px-4 mt-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {wishlist.map((item) => {
-            // FIX: Prioritize item.product if it's already an object (populated)
-            // fallback to productDetails if item.product is just an ID
-            const product = (typeof item.product === 'object') ? item.product : productDetails?.[item.product];
+            // Determine product object
+            let product;
 
-            if (!product) return null; // Skip if still not found to prevent empty card shell
+            if (item.product && typeof item.product === "object") {
+              product = item.product;
+            } else if (item.product && productDetails && productDetails[item.product]) {
+              product = productDetails[item.product];
+            } else if (item.images || item.name) {
+              product = item;
+            } else if (item.productId && productDetails && productDetails[item.productId]) {
+              product = productDetails[item.productId];
+            } else if (item._id && productDetails && productDetails[item._id]) {
+              product = productDetails[item._id];
+            }
+
+            if (!product) return null;
+
+            // Handle images
+            const images = Array.isArray(product.images)
+              ? product.images
+              : product.image
+              ? [product.image]
+              : [];
+            const imageFront = getImageUrl(images[0]);
+            const imageBack = getImageUrl(images[1] || images[0]);
 
             return (
-              <div key={product._id} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:shadow-red-100 transition-all duration-300">
-                {/* Image Container */}
-                <div className="relative aspect-square overflow-hidden bg-gray-50">
-                  <img
-                    src={product.images?.[0] || 'https://via.placeholder.com/400'}
-                    alt={product.name}
-                    className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-500"
-                  />
-                  
-                  {/* Floating Action: Remove */}
-                  <button
-                    onClick={() => handleRemove(product._id, product.name)}
-                    className="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-gray-400 hover:text-red-600 hover:bg-white transition-all shadow-sm"
-                  >
-                    {removingIds[product._id] ? <div className="w-4 h-4 border-2 border-red-600 border-t-transparent animate-spin rounded-full" /> : <FaTrash size={14} />}
-                  </button>
-
-                  {product.discountPercentage > 0 && (
-                    <div className="absolute top-4 left-4 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">
-                      {Math.round(product.discountPercentage)}% Off
-                    </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">{product.category}</p>
-                  <Link to={`/product/${product._id}`}>
-                    <h3 className="font-bold text-gray-800 line-clamp-1 group-hover:text-red-600 transition-colors">
-                      {product.name}
-                    </h3>
-                  </Link>
-                  
-                  <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-xl font-black text-gray-900">₹{product.price}</span>
-                    {product.originalPrice > product.price && (
-                      <span className="text-sm text-gray-400 line-through">₹{product.originalPrice}</span>
-                    )}
-                  </div>
-
-                  {/* Move to Cart Button */}
-                  <button
-                    onClick={() => handleMoveToCart(product._id, product.name)}
-                    disabled={product.stock <= 0 || movingToCart[product._id]}
-                    className={`mt-5 w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all 
-                      ${product.stock <= 0 
-                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                        : 'bg-red-600 text-white hover:bg-black shadow-md hover:shadow-xl shadow-red-100 hover:shadow-black/20'
-                      }`}
-                  >
-                    {movingToCart[product._id] ? (
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent animate-spin rounded-full" />
-                    ) : (
-                      <>
-                        <FaShoppingCart size={16} />
-                        {product.stock <= 0 ? 'Out of Stock' : 'Add to Cart'}
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
+              <ProductCard
+                key={product._id || product.id || item._id}
+                productId={product._id || product.id || item.product || item.productId}
+                imageFront={imageFront}
+                imageBack={imageBack}
+                category={product.category || "Uncategorized"}
+                title={product.name || product.title || "Untitled Product"}
+                rating={product.rating || product.averageRating || 0}
+                oldPrice={product.originalPrice || product.oldPrice || product.price}
+                newPrice={product.price || product.newPrice || product.originalPrice}
+              />
             );
           })}
         </div>

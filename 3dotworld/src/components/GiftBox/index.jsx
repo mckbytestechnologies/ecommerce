@@ -156,44 +156,49 @@ const GiftBox = () => {
 
                 {/* Right Panel */}
                 <div className="modal-right-panel">
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                    <div className="gift-header">
-                      <h1 className="gift-title">TRY YOUR LUCK!</h1>
-                      <p className="gift-subtitle">Spin the wheel & win exciting discounts</p>
-                    </div>
-
-                    <div className="email-input-container">
-                      <div className="input-icon">✉️</div>
-                      <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="email-input"
-                        placeholder="you@example.com"
-                        disabled={spinning || hasPlayed}
-                      />
-                    </div>
-
-                    <motion.button
-                      onClick={spinWheel}
-                      disabled={spinning || hasPlayed || !email.trim()}
-                      className="spin-button"
+                  {/* Only show form if prize is not shown */}
+                  {!showPrize ? (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }} 
+                      animate={{ opacity: 1, y: 0 }} 
+                      transition={{ delay: 0.3 }}
                     >
-                      {spinning ? (
-                        <span className="spinning-text">
-                          <span className="spinner"></span> SPINNING...
-                        </span>
-                      ) : hasPlayed ? '🎯 ALREADY PLAYED' : '🎰 SPIN THE WHEEL!'}
-                    </motion.button>
+                      <div className="gift-header">
+                        <h1 className="gift-title">TRY YOUR LUCK!</h1>
+                        <p className="gift-subtitle">Spin the wheel & win exciting discounts</p>
+                      </div>
 
-                    <div className="skip-options">
-                      <button onClick={handleClose} className="skip-btn">Maybe later</button>
-                      <button onClick={handleClosePermanently} className="permanent-close-btn">Don't show again</button>
-                    </div>
-                  </motion.div>
+                      <div className="email-input-container">
+                        <div className="input-icon">✉️</div>
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="email-input"
+                          placeholder="you@example.com"
+                          disabled={spinning || hasPlayed}
+                        />
+                      </div>
 
-                  {/* Prize */}
-                  {showPrize && prize && (
+                      <motion.button
+                        onClick={spinWheel}
+                        disabled={spinning || hasPlayed || !email.trim()}
+                        className="spin-button"
+                      >
+                        {spinning ? (
+                          <span className="spinning-text">
+                            <span className="spinner"></span> SPINNING...
+                          </span>
+                        ) : hasPlayed ? '🎯 ALREADY PLAYED' : '🎰 SPIN THE WHEEL!'}
+                      </motion.button>
+
+                      <div className="skip-options">
+                        <button onClick={handleClose} className="skip-btn">Maybe later</button>
+                        <button onClick={handleClosePermanently} className="permanent-close-btn">Don't show again</button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    /* Show prize only after spin */
                     <motion.div
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}

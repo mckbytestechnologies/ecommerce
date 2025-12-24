@@ -94,12 +94,7 @@ const Home = () => {
       <AdsBannerSlider items={4} />
       <br />
 
-      {/* ================= LATEST PRODUCTS ================= */}
-      <section className="bg-white mt-8">
-        <div className="containers">
-          <LatestProductSlider items={5} />
-        </div>
-      </section>
+    
 
       {/* ================= ALL CATEGORY SECTIONS (AUTO) ================= */}
       {categories.map((cat) => (

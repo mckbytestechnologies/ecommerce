@@ -168,7 +168,7 @@ const CartPage = () => {
           <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Your Cart Is Empty</h1>
           <p className="text-gray-600 mb-10 text-lg">It's time to find your next essential. Browse our premium selection.</p>
           <a 
-            href="/products"
+            href="/productlisting"
             className={`inline-block px-10 py-4 ${BRAND_RED} text-white text-lg font-bold rounded-full ${HOVER_RED} transition duration-500 shadow-xl shadow-red-300/50 transform hover:scale-[1.05]`}
           >
             Shop The Collection

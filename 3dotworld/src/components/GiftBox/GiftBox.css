@@ -335,6 +335,7 @@
   justify-content: center;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   position: relative;
+  min-height: 100vh;
 }
 
 .gift-header {
@@ -603,19 +604,14 @@
   border-color: #ff3366;
 }
 
-/* Prize Display */
+/* Prize Display - Only shows after spin */
 .prize-display {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
-  padding: 40px;
+  position: relative;
 }
 
 .confetti {
@@ -628,6 +624,7 @@
     radial-gradient(circle at 60% 20%, #4ECDC4 2px, transparent 3px),
     radial-gradient(circle at 80% 80%, #FFA500 2px, transparent 3px);
   animation: confettiFall 10s linear infinite;
+  z-index: 1;
 }
 
 @keyframes confettiFall {
@@ -660,7 +657,22 @@
   color: #ff3366;
   margin: 20px 0;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-  animation: pulse 2s infinite;
+  animation: prizePulse 2s infinite;
+}
+
+@keyframes prizePulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .prize-message {
@@ -687,6 +699,34 @@
 .close-prize-btn:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(0, 200, 81, 0.3);
+}
+
+/* REMOVE these old classes that were causing the issue */
+.prize-display-left,
+.prize-content-left,
+.prize-icon,
+.prize-title-left,
+.prize-amount-left,
+.prize-message-left,
+.form-section,
+.prize-info-section,
+.discount-details,
+.discount-code-container,
+.discount-code-label,
+.discount-code,
+.code-text,
+.code-copy,
+.code-instructions,
+.email-confirmation,
+.email-icon,
+.email-details,
+.email-address,
+.discount-terms,
+.terms-title,
+.terms-list,
+.claim-button,
+.close-permanently-btn {
+  display: none !important;
 }
 
 /* --- Responsive Design --- */

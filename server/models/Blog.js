@@ -19,7 +19,7 @@ const blogSchema = new mongoose.Schema({
     default: "Other"
   },
   image: {
-    type: String, // Store as simple string URL
+    type: String, // Simple string URL
     default: null
   },
   author: {

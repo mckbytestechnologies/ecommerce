@@ -335,7 +335,7 @@ const Header = () => {
 
           <ul className="flex items-center gap-5 text-gray-700 text-sm">
             <li>
-              <Link to="/help-center" className="hover:underline hover:text-gray-900">
+              <Link to="/contact" className="hover:underline hover:text-gray-900">
                 Help Center
               </Link>
             </li>
@@ -347,10 +347,9 @@ const Header = () => {
       <div className="max-w-7xl mx-auto py-3 px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-3">
-          <img src="/logo.jpg" alt="Logo" className="w-10 sm:w-12 rounded-lg" />
-          <span className="hidden sm:block text-xl font-bold text-gray-900">
-            3Dotworld
-          </span>
+          <img src="/logo.png" alt="Logo" className="w-28 sm:w-32 md:w-36 lg:w-40 rounded-lg"/>
+
+          
         </Link>
 
         
