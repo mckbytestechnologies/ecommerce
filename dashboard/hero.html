@@ -7,295 +7,1307 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
-    body { background: #f8f9fa; }
-    #sidebar { width: 250px; }
-    #wrapper { display: flex; }
-    .nav-link:hover { background-color: rgba(255,255,255,0.1); }
-    .slide-card { transition: transform 0.2s; }
-    .slide-card:hover { transform: translateY(-2px); }
-    .status-badge { font-size: 0.75rem; }
-    .image-thumbnail { width: 100px; height: 60px; object-fit: cover; border-radius: 4px; }
-    .feature-badge { font-size: 0.7rem; }
-    .tab-pane { padding: 1rem 0; }
-    .btn-group-sm .btn { padding: 0.25rem 0.5rem; }
     :root {
-      --primary-color: #3498db;
-      --secondary-color: #2c3e50;
-      --success-color: #2ecc71;
-      --warning-color: #f39c12;
-      --danger-color: #e74c3c;
-      --light-color: #ecf0f1;
-      --dark-color: #34495e;
+      --primary-red: #dc3545;
+      --primary-red-dark: #c82333;
+      --primary-red-light: #f8d7da;
+      --secondary-red: #e74c3c;
+      --accent-red: #ff6b6b;
+      --dark-bg: #1a1a2e;
+      --dark-card: #16213e;
+      --text-light: #f8f9fa;
+      --text-muted: #adb5bd;
+      --border-color: #2d3748;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --gray-100: #f8f9fa;
+      --gray-200: #e9ecef;
+      --gray-300: #dee2e6;
+      --gray-800: #343a40;
     }
-    
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+      min-height: 100vh;
+      color: #333;
     }
-    
-    .sidebar {
-      background-color: var(--dark-color);
-      min-height: calc(100vh - 56px);
+
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1100;
+      background: var(--primary-red);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .mobile-menu-toggle:hover {
+      background: var(--primary-red-dark);
+      transform: scale(1.05);
+    }
+
+    /* Sidebar */
+    #sidebar {
+      background: linear-gradient(180deg, var(--dark-bg) 0%, #0f0f23 100%);
+      color: var(--text-light);
+      width: 280px;
+      min-height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 3px 0 20px rgba(0,0,0,0.1);
+      border-right: 1px solid var(--border-color);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+    }
+
+    #sidebar.sidebar-hidden {
+      transform: translateX(-100%);
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--dark-card);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
       color: white;
     }
-    
-    .sidebar .nav-link {
-      color: rgba(255, 255, 255, 0.8);
+
+    .brand-logo i {
+      color: var(--primary-red);
+      font-size: 1.8rem;
+    }
+
+    .brand-text h3 {
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.4rem;
+      background: linear-gradient(45deg, #ff6b6b, #dc3545);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text small {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    .close-sidebar {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.25rem;
+    }
+
+    .close-sidebar:hover {
+      color: var(--text-light);
+    }
+
+    /* Sidebar Overlay for Mobile */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      display: none;
+      backdrop-filter: blur(3px);
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+    }
+
+    .nav-links {
+      padding: 1rem 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    .nav-item {
+      margin: 0.25rem 1rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
       padding: 0.75rem 1rem;
-      border-radius: 0.25rem;
-      margin-bottom: 0.25rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
     }
-    
-    .sidebar .nav-link:hover, .sidebar .nav-link.active {
-      background-color: var(--primary-color);
-      color: white;
+
+    .nav-link:before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary-red);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
     }
-    
-    .sidebar .nav-link i {
-      margin-right: 0.5rem;
+
+    .nav-link:hover:before,
+    .nav-link.active:before {
+      transform: translateX(0);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+      transform: translateX(5px);
+    }
+
+    .nav-link i {
       width: 20px;
       text-align: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
     }
-    
+
+    /* Main Content */
+    #main-content {
+      margin-left: 280px;
+      padding: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 100vh;
+      width: calc(100% - 280px);
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 20px;
+      z-index: 100;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 500px;
+    }
+
+    .search-box input {
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      width: 100%;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+      outline: none;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-800);
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-left: 5px solid var(--primary-red);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .page-title h1 {
+      font-weight: 700;
+      color: var(--dark-bg);
+      margin: 0;
+      font-size: 1.8rem;
+      line-height: 1.3;
+    }
+
+    .page-title p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(45deg, var(--primary-red-dark), var(--primary-red));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+    }
+
+    /* Stats Cards */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 15px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .stat-card i {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .stat-card.total i { color: var(--primary-red); }
+    .stat-card.active i { color: var(--success); }
+    .stat-card.featured i { color: var(--warning); }
+    .stat-card.expiring i { color: var(--info); }
+
+    .stat-card h3 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+      color: var(--dark-bg);
+    }
+
+    .stat-card p {
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+      font-size: 0.85rem;
+    }
+
+    /* Filters Section */
+    .filters-section {
+      background: white;
+      border-radius: 15px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+      border: 2px solid var(--gray-300);
+      border-radius: 10px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+
+    /* Slides Grid */
+    .slides-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .slide-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray-200);
+      position: relative;
+    }
+
+    .slide-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+      border-color: var(--primary-red);
+    }
+
+    .slide-header {
+      position: relative;
+      height: 180px;
+      overflow: hidden;
+    }
+
+    .slide-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .slide-card:hover .slide-image {
+      transform: scale(1.05);
+    }
+
+    .slide-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .slide-card:hover .slide-overlay {
+      opacity: 1;
+    }
+
+    .preview-btn {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--dark-bg);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.3s ease;
+    }
+
+    .preview-btn:hover {
+      background: white;
+      transform: scale(1.05);
+    }
+
+    .slide-body {
+      padding: 1.25rem;
+    }
+
+    .slide-title {
+      font-weight: 700;
+      color: var(--dark-bg);
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .slide-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .slide-badge {
+      background: #e2e3e5;
+      color: #383d41;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 0.25rem;
+      margin-bottom: 0.25rem;
+      display: inline-block;
+    }
+
+    .slide-footer {
+      padding: 1rem 1.25rem;
+      background: var(--gray-100);
+      border-top: 1px solid var(--gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-badge.active {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .status-badge.inactive {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    .status-badge.expired {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffc107;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-view {
+      background: rgba(23, 162, 184, 0.1);
+      color: var(--info);
+    }
+
+    .btn-view:hover {
+      background: var(--info);
+      color: white;
+    }
+
+    .btn-edit {
+      background: rgba(255, 193, 7, 0.1);
+      color: var(--warning);
+    }
+
+    .btn-edit:hover {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-delete {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--primary-red);
+    }
+
+    .btn-delete:hover {
+      background: var(--primary-red);
+      color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-header {
+      background: linear-gradient(90deg, var(--primary-red), var(--accent-red));
+      color: white;
+      border-radius: 15px 15px 0 0;
+      padding: 1.25rem;
+    }
+
+    .modal-header .btn-close {
+      filter: invert(1);
+      opacity: 0.8;
+    }
+
+    .modal-header .btn-close:hover {
+      opacity: 1;
+    }
+
+    /* Image Upload */
+    .image-upload-container {
+      border: 2px dashed var(--gray-300);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-upload-container:hover {
+      border-color: var(--primary-red);
+      background: var(--primary-red-light);
+    }
+
+    .image-upload-container i {
+      font-size: 2.5rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .image-upload-container h5 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .image-upload-container p {
+      font-size: 0.85rem;
+      margin-bottom: 0;
+    }
+
     .image-preview-container {
       max-height: 200px;
       overflow: hidden;
       border-radius: 8px;
       margin: 10px 0;
     }
-    
+
     .image-preview {
       width: 100%;
       height: auto;
       max-height: 200px;
       object-fit: cover;
     }
-    
-    .stats-card {
-      border: none;
-      border-radius: 10px;
-      transition: transform 0.3s;
-    }
-    
-    .stats-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .debug-panel {
+
+    /* Alert Box */
+    .alert-box {
       position: fixed;
-      bottom: 0;
-      right: 0;
-      width: 300px;
-      height: 200px;
-      background: rgba(0,0,0,0.9);
-      color: white;
-      padding: 10px;
-      overflow: auto;
-      font-size: 12px;
+      top: 100px;
+      right: 30px;
       z-index: 9999;
+      min-width: 300px;
+      max-width: calc(100% - 40px);
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Loading Spinner */
+    .spinner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid var(--gray-300);
+      border-top: 5px solid var(--primary-red);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Mobile View Styles */
+    .mobile-slides-view {
       display: none;
+    }
+
+    .mobile-slide-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      border: 1px solid var(--gray-200);
+    }
+
+    .mobile-slide-header {
+      position: relative;
+      height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-slide-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .mobile-slide-body {
+      margin-bottom: 1rem;
+    }
+
+    .mobile-slide-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--dark-bg);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .mobile-slide-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .mobile-slide-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .mobile-action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+      #sidebar {
+        width: 280px;
+      }
+      
+      #main-content {
+        margin-left: 280px;
+        width: calc(100% - 280px);
+      }
+    }
+
+    @media (max-width: 992px) {
+      .mobile-menu-toggle {
+        display: flex;
+      }
+      
+      #sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+      }
+      
+      #sidebar.sidebar-show {
+        transform: translateX(0);
+      }
+      
+      .close-sidebar {
+        display: block;
+      }
+      
+      #main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+      }
+      
+      .search-box input {
+        width: 100%;
+      }
+
+      .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+        padding: 1rem;
+      }
+
+      .search-box {
+        max-width: 100%;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.25rem;
+      }
+
+      .page-title h1 {
+        font-size: 1.5rem;
+      }
+
+      .btn-primary {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+      }
+
+      .slides-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+
+      .stat-card {
+        padding: 1rem;
+      }
+
+      .stat-card i {
+        font-size: 1.75rem;
+      }
+
+      .stat-card h3 {
+        font-size: 1.5rem;
+      }
+
+      .slide-header {
+        height: 150px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .desktop-slides-view {
+        display: none;
+      }
+      
+      .mobile-slides-view {
+        display: block;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1rem;
+      }
+      
+      .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .action-buttons {
+        flex-direction: row;
+        gap: 0.25rem;
+      }
+      
+      .btn-icon {
+        width: 36px;
+        height: 36px;
+      }
+
+      .filters-section {
+        padding: 1rem;
+      }
+
+      .modal-dialog {
+        margin: 10px;
+      }
+
+      .modal-header {
+        padding: 1rem;
+      }
+
+      .modal-body {
+        padding: 1rem;
+      }
+
+      .modal-footer {
+        padding: 1rem;
+      }
+
+      .image-upload-container {
+        padding: 1rem;
+        min-height: 120px;
+      }
+
+      .image-upload-container i {
+        font-size: 2rem;
+      }
+
+      .image-upload-container h5 {
+        font-size: 0.9rem;
+      }
+
+      .image-upload-container p {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .mobile-menu-toggle {
+        top: 15px;
+        left: 15px;
+        width: 45px;
+        height: 45px;
+      }
+
+      .top-nav {
+        padding: 0.75rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+      }
+
+      .page-header {
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+      }
+
+      .page-title h1 {
+        font-size: 1.3rem;
+      }
+
+      .page-title p {
+        font-size: 0.9rem;
+      }
+
+      .stats-cards {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .stat-card {
+        padding: 0.75rem;
+      }
+
+      .stat-card i {
+        font-size: 1.5rem;
+      }
+
+      .stat-card h3 {
+        font-size: 1.3rem;
+      }
+
+      .filters-section {
+        padding: 0.75rem;
+        border-radius: 12px;
+      }
+
+      .alert-box {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+        top: 80px;
+      }
+
+      .mobile-slide-header {
+        height: 120px;
+      }
+
+      .mobile-slide-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .mobile-action-buttons {
+        flex-direction: column;
+      }
+
+      .mobile-action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .btn-primary {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+      }
+
+      .btn-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (max-width: 375px) {
+      .mobile-menu-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+
+      .btn-primary {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+      }
+
+      .action-buttons {
+        gap: 0.25rem;
+      }
+
+      .btn-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+      }
+
+      .mobile-slide-title {
+        font-size: 1rem;
+      }
+
+      .mobile-slide-subtitle {
+        font-size: 0.85rem;
+      }
+
+      .slide-title {
+        font-size: 1.1rem;
+      }
+
+      .slide-subtitle {
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Animation Classes */
+    .fade-in {
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--gray-200);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(45deg, var(--primary-red), var(--accent-red));
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-red-dark);
     }
   </style>
 </head>
 <body>
-  <!-- Debug Panel (for troubleshooting) -->
-  <div class="debug-panel" id="debugPanel">
-    <button onclick="document.getElementById('debugPanel').style.display='none'" class="btn btn-sm btn-danger float-end">X</button>
-    <h6>Debug Info</h6>
-    <pre id="debugInfo"></pre>
-  </div>
+  <!-- Mobile Menu Toggle -->
+  <button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <i class="fas fa-bars"></i>
+  </button>
 
-  <div class="d-flex" id="wrapper">
-    <!-- Sidebar -->
-    <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
-      <div class="position-sticky pt-3">
-        <ul class="nav flex-column">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">
-              <i class="fas fa-tachometer-alt"></i>
-              Dashboard
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="users.html">
-              <i class="fas fa-users"></i>
-              Users
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="categories.html" class="nav-link text-white">
-              <i class="fas fa-list"></i> Categories
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="products.html" class="nav-link text-white">
-              <i class="fas fa-box"></i> Products
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="hero.html">
-              <i class="fas fa-images"></i>
-              Hero Slider
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="orders.html">
-              <i class="fas fa-shopping-cart"></i>
-              Orders
-            </a>
-          </li>
-        </ul>
+  <!-- Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand-logo">
+        <i class="fas fa-blog"></i>
+        <div class="brand-text">
+          <h3> Admin</h3>
+          <small>Management Panel</small>
+        </div>
+      </a>
+      <button class="close-sidebar" id="closeSidebar">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="nav-links">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="categories.html" class="nav-link">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="products.html" class="nav-link">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="hero.html" class="nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Slider</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="blogs.html" class="nav-link active">
+            <i class="fas fa-blog"></i>
+            <span>Blogs</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a href="users.html" class="nav-link">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="settings.html" class="nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div id="main-content">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalSearch" placeholder="Search slides...">
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted me-2" id="currentDate"></span>
+        <button class="btn btn-outline-danger btn-sm" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="container-fluid p-4" id="page-content">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 class="mb-1"><i class="fas fa-images me-2"></i>Hero Slider Management</h2>
-          <p class="text-muted mb-0">Manage your website hero banner slides</p>
-        </div>
-        <div>
-          <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleDebug()">
-            <i class="fas fa-bug"></i> Debug
-          </button>
-          <button class="btn btn-primary" id="addSlideBtn">
-            <i class="fas fa-plus me-2"></i>Add Slide
-          </button>
-        </div>
+    <!-- Alert Box -->
+    <div class="alert-box" id="alertBox"></div>
+
+    <!-- Page Header -->
+    <div class="page-header fade-in">
+      <div class="page-title">
+        <h1><i class="fas fa-images text-danger me-2"></i>Hero Slider Management</h1>
+        <p>Manage your website hero banner slides and promotions</p>
       </div>
+      <button class="btn btn-primary" id="addSlideBtn">
+        <i class="fas fa-plus me-2"></i>Add Slide
+      </button>
+    </div>
 
-      <!-- Alert Box -->
-      <div id="alertBox"></div>
+    <!-- Stats Cards -->
+    <div class="stats-cards fade-in">
+      <div class="stat-card total">
+        <i class="fas fa-layer-group"></i>
+        <h3 id="totalSlides">0</h3>
+        <p>Total Slides</p>
+      </div>
+      <div class="stat-card active">
+        <i class="fas fa-check-circle"></i>
+        <h3 id="activeSlides">0</h3>
+        <p>Active Slides</p>
+      </div>
+      <div class="stat-card featured">
+        <i class="fas fa-star"></i>
+        <h3 id="featuredSlides">0</h3>
+        <p>Featured Slides</p>
+      </div>
+      <div class="stat-card expiring">
+        <i class="fas fa-clock"></i>
+        <h3 id="expiringSlides">0</h3>
+        <p>Expiring Soon</p>
+      </div>
+    </div>
 
-      <!-- Stats Cards -->
-      <div class="row mb-4">
-        <div class="col-md-3">
-          <div class="card stats-card bg-primary text-white">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="card-subtitle mb-2">Total Slides</h6>
-                  <h2 id="totalSlides" class="card-title">0</h2>
-                </div>
-                <i class="fas fa-images fa-2x opacity-50"></i>
-              </div>
-            </div>
-          </div>
+    <!-- Filters Section -->
+    <div class="filters-section fade-in">
+      <div class="row align-items-center g-3">
+        <div class="col-md-3 col-6">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="statusFilter">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
         </div>
-        <div class="col-md-3">
-          <div class="card stats-card bg-success text-white">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="card-subtitle mb-2">Active Slides</h6>
-                  <h2 id="activeSlides" class="card-title">0</h2>
-                </div>
-                <i class="fas fa-check-circle fa-2x opacity-50"></i>
-              </div>
-            </div>
-          </div>
+        <div class="col-md-3 col-6">
+          <label class="form-label">Featured</label>
+          <select class="form-select" id="featuredFilter">
+            <option value="">All Slides</option>
+            <option value="featured">Featured Only</option>
+            <option value="not-featured">Not Featured</option>
+          </select>
         </div>
-        <div class="col-md-3">
-          <div class="card stats-card bg-warning text-white">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="card-subtitle mb-2">Featured Slides</h6>
-                  <h2 id="featuredSlides" class="card-title">0</h2>
-                </div>
-                <i class="fas fa-star fa-2x opacity-50"></i>
-              </div>
-            </div>
-          </div>
+        <div class="col-md-3 col-6">
+          <label class="form-label">Order By</label>
+          <select class="form-select" id="orderFilter">
+            <option value="displayOrder">Display Order</option>
+            <option value="createdAt">Newest First</option>
+          </select>
         </div>
-        <div class="col-md-3">
-          <div class="card stats-card bg-info text-white">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="card-subtitle mb-2">Expired Soon</h6>
-                  <h2 id="expiringSlides" class="card-title">0</h2>
-                </div>
-                <i class="fas fa-clock fa-2x opacity-50"></i>
-              </div>
-            </div>
+        <div class="col-md-3 col-6">
+          <div class="form-check form-switch mt-4">
+            <input class="form-check-input" type="checkbox" id="showInactiveToggle">
+            <label class="form-check-label fw-600" for="showInactiveToggle">Show Inactive</label>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Filters -->
-      <div class="card mb-4">
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-3">
-              <label class="form-label">Status</label>
-              <select class="form-select" id="statusFilter">
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Featured</label>
-              <select class="form-select" id="featuredFilter">
-                <option value="">All Slides</option>
-                <option value="featured">Featured Only</option>
-                <option value="not-featured">Not Featured</option>
-              </select>
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">Order By</label>
-              <select class="form-select" id="orderFilter">
-                <option value="displayOrder">Display Order</option>
-                <option value="createdAt">Newest First</option>
-              </select>
-            </div>
-            <div class="col-md-3 d-flex align-items-end">
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="showInactiveToggle">
-                <label class="form-check-label" for="showInactiveToggle">Show Inactive</label>
-              </div>
-            </div>
+    <!-- Desktop Slides Grid -->
+    <div class="desktop-slides-view" id="slidesContainer">
+      <div class="slides-grid fade-in">
+        <div class="col-12 text-center py-5">
+          <div class="spinner-border text-danger" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
+          <p class="mt-2 text-muted">Loading slides...</p>
         </div>
       </div>
+    </div>
 
-      <!-- Slides Table -->
-      <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Slides List</h5>
-          <button class="btn btn-outline-primary btn-sm" onclick="openReorderModal()">
-            <i class="fas fa-sort me-1"></i>Reorder Slides
-          </button>
+    <!-- Mobile Slides List -->
+    <div class="mobile-slides-view" id="mobileSlidesContainer">
+      <div class="text-center py-5">
+        <div class="spinner-border text-danger" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead class="table-dark">
-                <tr>
-                  <th>#</th>
-                  <th>Image</th>
-                  <th>Title & Subtitle</th>
-                  <th>Button & Link</th>
-                  <th>Status</th>
-                  <th>Dates</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="slidesTable">
-                <tr>
-                  <td colspan="7" class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                      <span class="visually-hidden">Loading...</span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <p class="mt-2 text-muted">Loading slides...</p>
       </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state fade-in" style="display: none;">
+      <i class="fas fa-images"></i>
+      <h3 class="mb-2">No Slides Found</h3>
+      <p class="text-muted mb-4">Get started by creating your first hero slide</p>
+      <button class="btn btn-primary" onclick="openAddSlideModal()">
+        <i class="fas fa-plus me-2"></i>Create First Slide
+      </button>
     </div>
   </div>
 
@@ -303,9 +1315,9 @@
   <div class="modal fade" id="slideModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="modalTitle">Add Slide</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle"><i class="fas fa-plus me-2"></i>Add New Slide</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form id="slideForm">
@@ -313,71 +1325,73 @@
             
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Title *</label>
-                <input type="text" id="title" class="form-control" required maxlength="200" placeholder="Enter slide title">
-                <div class="form-text">
-                  <span id="titleCount">0</span>/200 characters
+                <label class="form-label">Title <span class="text-danger">*</span></label>
+                <input type="text" id="slideTitle" class="form-control" required placeholder="Enter slide title" maxlength="200">
+                <div class="text-end mt-1">
+                  <small class="text-muted"><span id="titleCount">0</span>/200 characters</small>
                 </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Button Text</label>
-                <input type="text" id="buttonText" class="form-control" maxlength="50" placeholder="Get Started">
-                <div class="form-text">Leave empty for no button</div>
+                <input type="text" id="slideButtonText" class="form-control" maxlength="50" placeholder="Get Started">
+                <div class="text-end mt-1">
+                  <small class="text-muted">Leave empty for no button</small>
+                </div>
               </div>
               <div class="col-12">
-                <label class="form-label">Subtitle *</label>
-                <textarea id="subtitle" class="form-control" rows="3" required maxlength="500" placeholder="Enter slide subtitle"></textarea>
-                <div class="form-text">
-                  <span id="subtitleCount">0</span>/500 characters
+                <label class="form-label">Subtitle <span class="text-danger">*</span></label>
+                <textarea id="slideSubtitle" class="form-control" rows="3" required placeholder="Enter slide subtitle" maxlength="500"></textarea>
+                <div class="text-end mt-1">
+                  <small class="text-muted"><span id="subtitleCount">0</span>/500 characters</small>
                 </div>
               </div>
               <div class="col-12">
                 <label class="form-label">Button Link</label>
-                <input type="url" id="buttonLink" class="form-control" placeholder="https://example.com">
-                <div class="form-text">Link for the action button</div>
+                <input type="url" id="slideButtonLink" class="form-control" placeholder="https://example.com">
+                <div class="text-end mt-1">
+                  <small class="text-muted">Link for the action button</small>
+                </div>
               </div>
+              
+              <!-- Image Upload -->
               <div class="col-12">
-                <label class="form-label">Background Image URL *</label>
-                <div class="input-group">
-                  <input type="text" id="backgroundImage" class="form-control" required placeholder="Enter image URL">
-                  <button class="btn btn-outline-secondary" type="button" onclick="openImageUploadModal()">
-                    <i class="fas fa-upload me-1"></i>Upload
-                  </button>
-                </div>
-                <div class="form-text">Enter image URL or click upload</div>
-                
-                <!-- Image Preview -->
-                <div id="imagePreviewContainer" class="image-preview-container mt-3 d-none">
-                  <p class="small text-muted mb-2">Preview:</p>
-                  <img id="imagePreview" class="image-preview" src="" alt="Preview">
+                <label class="form-label">Background Image <span class="text-danger">*</span></label>
+                <div class="image-upload-container mb-3" id="imageUploadArea">
+                  <i class="fas fa-cloud-upload-alt"></i>
+                  <h5>Drag & Drop Image Here</h5>
+                  <p class="text-muted">or click to browse</p>
+                  <input type="file" id="slideImageFile" accept="image/*" style="display: none;">
                 </div>
                 
-                <!-- Current Image -->
-                <div id="currentImageContainer" class="image-preview-container mt-3 d-none">
-                  <p class="small text-muted mb-2">Current Image:</p>
-                  <img id="currentImage" class="image-preview" src="" alt="Current Image">
-                </div>
+                <div id="imagePreview" class="text-center mb-3"></div>
+                
+                <label class="form-label">Image URL</label>
+                <input type="url" id="slideImageUrl" class="form-control" placeholder="https://example.com/image.jpg">
               </div>
+              
               <div class="col-md-6">
                 <label class="form-label">Display Order</label>
-                <input type="number" id="displayOrder" class="form-control" min="0" value="0">
-                <div class="form-text">Lower numbers appear first</div>
+                <input type="number" id="slideDisplayOrder" class="form-control" min="0" value="0">
+                <div class="text-end mt-1">
+                  <small class="text-muted">Lower numbers appear first</small>
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">End Date (Optional)</label>
-                <input type="datetime-local" id="endDate" class="form-control">
-                <div class="form-text">When this slide should expire</div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-check form-switch mt-2">
-                  <input class="form-check-input" type="checkbox" id="isActive" checked>
-                  <label class="form-check-label" for="isActive">Active Slide</label>
+                <input type="datetime-local" id="slideEndDate" class="form-control">
+                <div class="text-end mt-1">
+                  <small class="text-muted">When this slide should expire</small>
                 </div>
               </div>
-              <div class="col-md-6">
+              
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="slideIsActive" checked>
+                  <label class="form-check-label" for="slideIsActive">Active Slide</label>
+                </div>
                 <div class="form-check form-switch mt-2">
-                  <input class="form-check-input" type="checkbox" id="isFeatured">
-                  <label class="form-check-label" for="isFeatured">Featured Slide</label>
+                  <input class="form-check-input" type="checkbox" id="slideIsFeatured">
+                  <label class="form-check-label" for="slideIsFeatured">Featured Slide</label>
                 </div>
               </div>
             </div>
@@ -385,7 +1399,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-success" id="saveSlideBtn">
+          <button type="button" class="btn btn-danger" id="saveSlideBtn">
             <i class="fas fa-save me-2"></i>Save Slide
           </button>
         </div>
@@ -393,200 +1407,469 @@
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
+  <!-- Loading Overlay -->
+  <div class="spinner-overlay" id="loadingOverlay" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- SortableJS -->
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-  
-  <!-- Main Script -->
   <script>
     // API Configuration
-    const API_BASE = "https://ecommerce-server-fhna.onrender.com/api";
+    const API_BASE = "http://localhost:5000/api";
     const HERO_API = `${API_BASE}/hero`;
 
     // Global Variables
     let currentSlides = [];
     let slideModalInstance = null;
-    let imageUploadModalInstance = null;
-    let reorderModalInstance = null;
-    let sortableInstance = null;
+    let isMobile = false;
 
     // DOM Elements
-    const slidesTable = document.getElementById('slidesTable');
-    const slideModalEl = document.getElementById('slideModal');
-    const alertBox = document.getElementById('alertBox');
-    const addSlideBtn = document.getElementById('addSlideBtn');
-    const saveSlideBtn = document.getElementById('saveSlideBtn');
-
-    // Authentication
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = 'login.html';
-    }
-
-    const authHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+    const elements = {
+      slidesContainer: document.getElementById('slidesContainer'),
+      mobileSlidesContainer: document.getElementById('mobileSlidesContainer'),
+      emptyState: document.getElementById('emptyState'),
+      slideModalEl: document.getElementById('slideModal'),
+      addSlideBtn: document.getElementById('addSlideBtn'),
+      saveSlideBtn: document.getElementById('saveSlideBtn'),
+      alertBox: document.getElementById('alertBox'),
+      globalSearch: document.getElementById('globalSearch'),
+      loadingOverlay: document.getElementById('loadingOverlay'),
+      mobileMenuToggle: document.getElementById('mobileMenuToggle'),
+      closeSidebar: document.getElementById('closeSidebar'),
+      sidebar: document.getElementById('sidebar'),
+      sidebarOverlay: document.getElementById('sidebarOverlay')
     };
 
-    // Debug logging
-    function debugLog(message, data = null) {
-      console.log(`[DEBUG] ${message}`, data || '');
-      const debugInfo = document.getElementById('debugInfo');
-      if (debugInfo) {
-        debugInfo.textContent += `\n${new Date().toLocaleTimeString()}: ${message}`;
-        if (data) debugInfo.textContent += `\n${JSON.stringify(data, null, 2)}`;
+    // ====================
+    // INITIALIZATION
+    // ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check authentication
+      checkAuth();
+      
+      // Update date
+      updateCurrentDate();
+      
+      // Initialize modal
+      slideModalInstance = new bootstrap.Modal(elements.slideModalEl);
+      
+      // Load slides
+      loadSlides();
+      
+      // Initialize event listeners
+      initializeEventListeners();
+      
+      // Mobile menu event listeners
+      initializeMobileMenu();
+      
+      // Check if mobile
+      checkMobile();
+      
+      // Listen for resize
+      window.addEventListener('resize', handleResize);
+    });
+
+    // ====================
+    // MOBILE MENU FUNCTIONS
+    // ====================
+    function initializeMobileMenu() {
+      if (elements.mobileMenuToggle) {
+        elements.mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+      }
+      
+      if (elements.closeSidebar) {
+        elements.closeSidebar.addEventListener('click', toggleMobileMenu);
+      }
+      
+      if (elements.sidebarOverlay) {
+        elements.sidebarOverlay.addEventListener('click', toggleMobileMenu);
+      }
+      
+      // Close sidebar when clicking on nav links (mobile)
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth <= 992) {
+            toggleMobileMenu();
+          }
+        });
+      });
+    }
+
+    function toggleMobileMenu() {
+      elements.sidebar.classList.toggle('sidebar-show');
+      elements.sidebarOverlay.classList.toggle('active');
+      document.body.style.overflow = elements.sidebar.classList.contains('sidebar-show') ? 'hidden' : '';
+    }
+
+    function checkMobile() {
+      isMobile = window.innerWidth <= 768;
+    }
+
+    function handleResize() {
+      checkMobile();
+      // Auto-close sidebar on desktop
+      if (window.innerWidth > 992 && elements.sidebar.classList.contains('sidebar-show')) {
+        toggleMobileMenu();
       }
     }
 
-    // Toggle debug panel
-    function toggleDebug() {
-      const panel = document.getElementById('debugPanel');
-      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    // ====================
+    // AUTH FUNCTIONS
+    // ====================
+    function checkAuth() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = 'login.html';
+        return false;
+      }
+      return true;
     }
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      slideModalInstance = new bootstrap.Modal(slideModalEl);
-      
-      loadSlides();
-      initializeForm();
-      initializeFilters();
-      
-      debugLog('Page initialized');
-    });
+    function getAuthHeaders() {
+      const token = localStorage.getItem('token');
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    }
 
-    // Load Slides - SIMPLIFIED VERSION
+    // ====================
+    // UTILITY FUNCTIONS
+    // ====================
+    function updateCurrentDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    function showLoading() {
+      elements.loadingOverlay.style.display = 'flex';
+    }
+
+    function hideLoading() {
+      elements.loadingOverlay.style.display = 'none';
+    }
+
+    function showAlert(message, type = 'info') {
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} alert-dismissible fade show`;
+      alert.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      elements.alertBox.appendChild(alert);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.remove();
+        }
+      }, 5000);
+    }
+
+    function clearAlerts() {
+      elements.alertBox.innerHTML = '';
+    }
+
+    // Clear Image
+    function clearImage() {
+      document.getElementById('slideImageFile').value = '';
+      document.getElementById('imagePreview').innerHTML = '';
+      document.getElementById('slideImageUrl').value = '';
+    }
+
+    // Initialize Character Counters
+    function initializeCharacterCounters() {
+      // Update title counter
+      const slideTitle = document.getElementById('slideTitle');
+      const titleCount = document.getElementById('titleCount');
+      if (slideTitle && titleCount) {
+        titleCount.textContent = slideTitle.value.length;
+        slideTitle.addEventListener('input', function() {
+          titleCount.textContent = this.value.length;
+        });
+      }
+      
+      // Update subtitle counter
+      const slideSubtitle = document.getElementById('slideSubtitle');
+      const subtitleCount = document.getElementById('subtitleCount');
+      if (slideSubtitle && subtitleCount) {
+        subtitleCount.textContent = slideSubtitle.value.length;
+        slideSubtitle.addEventListener('input', function() {
+          subtitleCount.textContent = this.value.length;
+        });
+      }
+    }
+
+    // ====================
+    // SLIDE FUNCTIONS
+    // ====================
+    function initializeEventListeners() {
+      // Add slide button
+      elements.addSlideBtn.addEventListener('click', openAddSlideModal);
+      
+      // Save slide button
+      elements.saveSlideBtn.addEventListener('click', saveSlide);
+      
+      // Filter event listeners
+      ['statusFilter', 'featuredFilter', 'orderFilter', 'showInactiveToggle'].forEach(filterId => {
+        const element = document.getElementById(filterId);
+        if (element) {
+          element.addEventListener('change', loadSlides);
+        }
+      });
+      
+      // Global search
+      elements.globalSearch.addEventListener('input', debounceSearch());
+      
+      // Image upload area
+      const imageUploadArea = document.getElementById('imageUploadArea');
+      const imageFileInput = document.getElementById('slideImageFile');
+      
+      imageUploadArea.addEventListener('click', () => imageFileInput.click());
+      
+      imageFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          previewImage(file);
+        }
+      });
+      
+      // Image URL input change
+      document.getElementById('slideImageUrl').addEventListener('input', function() {
+        const url = this.value.trim();
+        if (url) {
+          const preview = document.getElementById('imagePreview');
+          preview.innerHTML = `
+            <div class="alert alert-info alert-dismissible fade show mb-2" role="alert">
+              <i class="fas fa-info-circle me-2"></i>Image URL entered
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <img src="${url}" class="img-fluid rounded" style="max-height: 200px;" onerror="this.style.display='none'">
+          `;
+        }
+      });
+    }
+
+    // Load Slides
     async function loadSlides() {
       try {
         showLoading();
-        debugLog('Loading slides from:', HERO_API);
+        const showInactive = document.getElementById('showInactiveToggle')?.checked;
+        const searchTerm = elements.globalSearch.value;
         
-        const response = await fetch(HERO_API, { 
-          headers: authHeaders 
+        const url = `${HERO_API}?includeInactive=${showInactive || true}`;
+        
+        const res = await fetch(url, { 
+          headers: getAuthHeaders() 
         });
-        
-        debugLog('Response status:', response.status);
-        
-        if (response.status === 401) {
+
+        if (res.status === 401) {
           localStorage.removeItem('token');
           window.location.href = 'login.html';
           return;
         }
 
-        const result = await response.json();
-        debugLog('API Response:', result);
+        const data = await res.json();
 
-        if (response.ok && result.success) {
-          const slides = result.data || [];
+        if (data.success) {
+          let slides = data.data || [];
           currentSlides = slides;
+          
+          // Apply filters
+          const status = document.getElementById('statusFilter')?.value;
+          const featured = document.getElementById('featuredFilter')?.value;
+          const orderBy = document.getElementById('orderFilter')?.value;
+          
+          // Status filter
+          if (status === 'active') {
+            slides = slides.filter(s => s.isActive);
+          } else if (status === 'inactive') {
+            slides = slides.filter(s => !s.isActive);
+          }
+          
+          // Featured filter
+          if (featured === 'featured') {
+            slides = slides.filter(s => s.isFeatured);
+          } else if (featured === 'not-featured') {
+            slides = slides.filter(s => !s.isFeatured);
+          }
+          
+          // Search filter
+          if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            slides = slides.filter(s => 
+              s.title.toLowerCase().includes(term) ||
+              (s.subtitle && s.subtitle.toLowerCase().includes(term))
+            );
+          }
+          
+          // Order by
+          if (orderBy === 'createdAt') {
+            slides.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          } else {
+            slides.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+          }
+          
           renderSlides(slides);
           updateStats(slides);
-          debugLog(`Loaded ${slides.length} slides`);
         } else {
-          showAlert(result.message || 'Failed to load slides', 'danger');
+          showAlert(data.message || 'Failed to load slides', 'danger');
+          renderEmptyState();
         }
       } catch (error) {
         console.error('Error loading slides:', error);
-        debugLog('Error loading slides:', error.message);
         showAlert('Error loading slides: ' + error.message, 'danger');
         renderEmptyState();
+      } finally {
+        hideLoading();
       }
     }
 
-    // Show loading state
-    function showLoading() {
-      slidesTable.innerHTML = `
-        <tr id="loadingRow">
-          <td colspan="7" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2 text-muted">Loading slides...</p>
-          </td>
-        </tr>
-      `;
-    }
-
-    // Render Slides Table
+    // Render Slides
     function renderSlides(slides) {
       if (!slides || slides.length === 0) {
-        renderEmptyState();
+        elements.slidesContainer.innerHTML = '';
+        elements.mobileSlidesContainer.innerHTML = '';
+        elements.emptyState.style.display = 'block';
         return;
       }
 
-      let html = '';
+      elements.emptyState.style.display = 'none';
+      
+      // Desktop view
+      let desktopHtml = '';
+      // Mobile view
+      let mobileHtml = '';
+      
       slides.forEach((slide, index) => {
-        const isExpired = slide.endDate ? new Date(slide.endDate) < new Date() : false;
-        const isFeatured = slide.isFeatured;
-        const isActive = slide.isActive;
-        
-        html += `
-          <tr data-id="${slide._id}" class="${!isActive ? 'table-secondary' : ''}">
-            <td>${index + 1}</td>
-            <td>
-              <img src="${slide.backgroundImage || 'https://via.placeholder.com/100x60?text=No+Image'}" 
-                   alt="${slide.title || 'Slide'}" 
-                   class="image-thumbnail">
-            </td>
-            <td>
-              <div class="fw-bold">${slide.title || 'No Title'}</div>
-              <small class="text-muted">${slide.subtitle ? slide.subtitle.substring(0, 100) : 'No subtitle'}${slide.subtitle && slide.subtitle.length > 100 ? '...' : ''}</small>
-            </td>
-            <td>
-              ${slide.buttonText ? `
-                <span class="badge bg-primary">${slide.buttonText}</span>
-                <br>
-                <small class="text-muted">${slide.buttonLink ? slide.buttonLink.substring(0, 30) : 'No link'}${slide.buttonLink && slide.buttonLink.length > 30 ? '...' : ''}</small>
-              ` : '<span class="text-muted">No button</span>'}
-            </td>
-            <td>
-              <span class="badge ${isActive ? 'bg-success' : 'bg-secondary'} status-badge me-1">
-                ${isActive ? 'Active' : 'Inactive'}
-              </span>
-              ${isFeatured ? '<span class="badge bg-warning status-badge me-1">Featured</span>' : ''}
-              ${isExpired ? '<span class="badge bg-danger status-badge">Expired</span>' : ''}
-            </td>
-            <td>
-              <small>Created: ${slide.createdAt ? new Date(slide.createdAt).toLocaleDateString() : 'N/A'}</small>
-              ${slide.endDate ? `
-                <br><small>Expires: ${new Date(slide.endDate).toLocaleDateString()}</small>
-              ` : ''}
-            </td>
-            <td>
-              <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-primary" onclick="viewSlide('${slide._id}')" title="Preview">
-                  <i class="fas fa-eye"></i>
-                </button>
-                <button class="btn btn-outline-warning" onclick="editSlide('${slide._id}')" title="Edit">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-outline-danger" onclick="deleteSlide('${slide._id}')" title="Delete">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
+        desktopHtml += renderSlideCard(slide, index);
+        mobileHtml += renderMobileSlideCard(slide, index);
       });
 
-      slidesTable.innerHTML = html;
-      debugLog(`Rendered ${slides.length} slides`);
+      elements.slidesContainer.innerHTML = `
+        <div class="slides-grid fade-in">
+          ${desktopHtml}
+        </div>
+      `;
+      
+      elements.mobileSlidesContainer.innerHTML = mobileHtml;
     }
 
-    // Render empty state
-    function renderEmptyState() {
-      slidesTable.innerHTML = `
-        <tr>
-          <td colspan="7" class="text-center py-5">
-            <i class="fas fa-images fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No slides found</h5>
-            <p class="text-muted">Get started by creating your first hero slide</p>
-            <button class="btn btn-primary" onclick="openAddSlideModal()">
-              <i class="fas fa-plus me-2"></i>Create First Slide
-            </button>
-          </td>
-        </tr>
+    // Render Desktop Slide Card
+    function renderSlideCard(slide, index) {
+      const isExpired = slide.endDate ? new Date(slide.endDate) < new Date() : false;
+      const imageUrl = slide.backgroundImage || 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=200&fit=crop';
+      
+      return `
+        <div class="slide-card fade-in">
+          <div class="slide-header">
+            <img src="${imageUrl}" alt="${slide.title || 'Slide'}" class="slide-image">
+            <div class="slide-overlay">
+              <button class="preview-btn" onclick="previewSlide('${slide._id}')">
+                <i class="fas fa-eye me-1"></i> Preview
+              </button>
+            </div>
+          </div>
+          
+          <div class="slide-body">
+            <div class="slide-title">${slide.title || 'No Title'}</div>
+            <div class="slide-subtitle">${slide.subtitle || 'No subtitle available'}</div>
+            
+            <div class="mb-3">
+              ${slide.buttonText ? `
+                <span class="slide-badge">
+                  <i class="fas fa-link me-1"></i> ${slide.buttonText}
+                </span>
+              ` : ''}
+              ${slide.isFeatured ? `
+                <span class="slide-badge bg-warning text-white">
+                  <i class="fas fa-star me-1"></i> Featured
+                </span>
+              ` : ''}
+            </div>
+            
+            <div class="small text-muted">
+              <div><i class="far fa-calendar me-1"></i> Created: ${slide.createdAt ? new Date(slide.createdAt).toLocaleDateString() : 'N/A'}</div>
+              ${slide.endDate ? `
+                <div><i class="far fa-clock me-1"></i> Expires: ${new Date(slide.endDate).toLocaleDateString()}</div>
+              ` : ''}
+              <div><i class="fas fa-sort-numeric-down me-1"></i> Order: ${slide.displayOrder || 0}</div>
+            </div>
+          </div>
+          
+          <div class="slide-footer">
+            <div class="d-flex align-items-center gap-2">
+              <span class="status-badge ${slide.isActive ? 'active' : 'inactive'}">
+                ${slide.isActive ? 'Active' : 'Inactive'}
+              </span>
+              ${isExpired ? '<span class="status-badge expired">Expired</span>' : ''}
+            </div>
+            
+            <div class="action-buttons">
+              <button class="btn-icon btn-view" onclick="previewSlide('${slide._id}')" title="Preview">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn-icon btn-edit" onclick="editSlide('${slide._id}')" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-delete" onclick="deleteSlide('${slide._id}')" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render Mobile Slide Card
+    function renderMobileSlideCard(slide, index) {
+      const isExpired = slide.endDate ? new Date(slide.endDate) < new Date() : false;
+      const imageUrl = slide.backgroundImage || 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=400&h=200&fit=crop';
+      
+      return `
+        <div class="mobile-slide-card fade-in">
+          <div class="mobile-slide-header">
+            <img src="${imageUrl}" alt="${slide.title || 'Slide'}" class="mobile-slide-image">
+          </div>
+          
+          <div class="mobile-slide-body">
+            <div class="mobile-slide-title">${slide.title || 'No Title'}</div>
+            <div class="mobile-slide-subtitle">${slide.subtitle ? slide.subtitle.substring(0, 150) : 'No subtitle available'}${slide.subtitle && slide.subtitle.length > 150 ? '...' : ''}</div>
+            
+            <div class="mobile-slide-meta">
+              <span class="badge ${slide.isActive ? 'bg-success' : 'bg-secondary'}">
+                ${slide.isActive ? 'Active' : 'Inactive'}
+              </span>
+              ${slide.isFeatured ? '<span class="badge bg-warning">Featured</span>' : ''}
+              ${isExpired ? '<span class="badge bg-danger">Expired</span>' : ''}
+              ${slide.buttonText ? '<span class="badge bg-primary">' + slide.buttonText + '</span>' : ''}
+            </div>
+            
+            <div class="small text-muted">
+              <div><i class="far fa-calendar me-1"></i> Created: ${slide.createdAt ? new Date(slide.createdAt).toLocaleDateString() : 'N/A'}</div>
+              ${slide.endDate ? `
+                <div><i class="far fa-clock me-1"></i> Expires: ${new Date(slide.endDate).toLocaleDateString()}</div>
+              ` : ''}
+              <div><i class="fas fa-sort-numeric-down me-1"></i> Order: ${slide.displayOrder || 0}</div>
+            </div>
+          </div>
+          
+          <div class="mobile-slide-footer">
+            <div class="mobile-action-buttons">
+              <button class="btn btn-outline-primary btn-sm" onclick="previewSlide('${slide._id}')">
+                <i class="fas fa-eye me-1"></i> Preview
+              </button>
+              <button class="btn btn-outline-warning btn-sm" onclick="editSlide('${slide._id}')">
+                <i class="fas fa-edit me-1"></i> Edit
+              </button>
+              <button class="btn btn-outline-danger btn-sm" onclick="deleteSlide('${slide._id}')">
+                <i class="fas fa-trash me-1"></i> Delete
+              </button>
+            </div>
+          </div>
+        </div>
       `;
     }
 
@@ -610,304 +1893,289 @@
       document.getElementById('expiringSlides').textContent = expiringSoon;
     }
 
-    // Initialize Form
-    function initializeForm() {
-      // Character counters
-      document.getElementById('title').addEventListener('input', function() {
-        document.getElementById('titleCount').textContent = this.value.length;
-      });
-      
-      document.getElementById('subtitle').addEventListener('input', function() {
-        document.getElementById('subtitleCount').textContent = this.value.length;
-      });
-      
-      // Image URL preview
-      document.getElementById('backgroundImage').addEventListener('input', function() {
-        const url = this.value.trim();
-        if (url) {
-          document.getElementById('imagePreview').src = url;
-          document.getElementById('imagePreviewContainer').classList.remove('d-none');
-        } else {
-          document.getElementById('imagePreviewContainer').classList.add('d-none');
-        }
-      });
-      
-      // Save button click
-      saveSlideBtn.addEventListener('click', saveSlide);
-      
-      // Add slide button
-      addSlideBtn.addEventListener('click', openAddSlideModal);
-    }
-
-    // Initialize Filters
-    function initializeFilters() {
-      const filters = ['statusFilter', 'featuredFilter', 'orderFilter', 'showInactiveToggle'];
-      
-      filters.forEach(filterId => {
-        const element = document.getElementById(filterId);
-        if (element) {
-          element.addEventListener('change', () => {
-            loadSlides();
-          });
-        }
-      });
-    }
-
     // Open Add Slide Modal
     function openAddSlideModal() {
-      document.getElementById('modalTitle').textContent = 'Add New Slide';
+      if (!checkAuth()) {
+        showAlert('Please login to create a slide', 'warning');
+        return;
+      }
+      
+      clearAlerts();
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus me-2"></i>Add New Slide';
       document.getElementById('slideForm').reset();
       document.getElementById('slideId').value = '';
+      document.getElementById('slideIsActive').checked = true;
+      document.getElementById('slideIsFeatured').checked = false;
+      document.getElementById('slideDisplayOrder').value = 0;
+      clearImage();
       
-      // Reset previews
-      document.getElementById('imagePreviewContainer').classList.add('d-none');
-      document.getElementById('currentImageContainer').classList.add('d-none');
-      
-      // Set defaults
-      document.getElementById('isActive').checked = true;
-      document.getElementById('isFeatured').checked = false;
-      document.getElementById('displayOrder').value = 0;
-      document.getElementById('titleCount').textContent = '0';
-      document.getElementById('subtitleCount').textContent = '0';
+      // Initialize character counters
+      setTimeout(() => {
+        initializeCharacterCounters();
+      }, 100);
       
       slideModalInstance.show();
-      debugLog('Opened Add Slide modal');
     }
 
-    // View Slide Preview
-    function viewSlide(slideId) {
-      window.open(`slider-preview.html?preview=${slideId}`, '_blank');
-      debugLog(`View slide: ${slideId}`);
-    }
+    // Preview Slide
+    window.previewSlide = (slideId) => {
+      const slide = currentSlides.find(s => s._id === slideId);
+      if (slide) {
+        const previewUrl = slide.backgroundImage || 'https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1200&h=600&fit=crop';
+        window.open(previewUrl, '_blank');
+        showAlert('Slide preview opened in new tab', 'info');
+      }
+    };
 
-    // Edit Slide - FIXED WITH WORKAROUND
-    async function editSlide(slideId) {
+    // Edit Slide
+    window.editSlide = async (slideId) => {
+      if (!checkAuth()) {
+        showAlert('Please login to edit a slide', 'warning');
+        return;
+      }
+      
       try {
-        showAlert('Loading slide data...', 'info');
-        debugLog(`Editing slide: ${slideId}`);
+        showLoading();
         
-        // FIRST: Check if the slide exists in our current list
-        const slide = currentSlides.find(s => s._id === slideId);
+        // Try to fetch from API first
+        const response = await fetch(`${HERO_API}/${slideId}`, {
+          headers: getAuthHeaders()
+        });
         
-        if (!slide) {
-          // If not found, try to fetch it directly
-          debugLog('Slide not found in cache, trying API...');
-          
-          const response = await fetch(`${HERO_API}/${slideId}`, {
-            headers: authHeaders
-          });
-          
-          debugLog('Edit API response status:', response.status);
-          
-          if (response.status === 404) {
-            // If 404, show error and use data from list (workaround)
-            debugLog('API returned 404, using cached data if available');
-            throw new Error('API endpoint not found. Using available data.');
+        let slide;
+        
+        if (response.status === 200) {
+          const data = await response.json();
+          if (data.success) {
+            slide = data.data;
           }
-          
-          const result = await response.json();
-          debugLog('Edit API response:', result);
-          
-          if (response.ok && result.success) {
-            fillFormWithSlideData(result.data);
-            slideModalInstance.show();
-            showAlert('Slide data loaded from API!', 'success');
-            return;
-          }
-        } else {
-          // Use the data from our current list
-          debugLog('Using cached slide data:', slide);
-          fillFormWithSlideData(slide);
-          slideModalInstance.show();
-          showAlert('Slide data loaded!', 'success');
-          return;
         }
         
-        throw new Error('Could not load slide data');
+        // If API fails, use cached data
+        if (!slide) {
+          slide = currentSlides.find(s => s._id === slideId);
+          if (!slide) {
+            throw new Error('Slide not found');
+          }
+          showAlert('Slide loaded from cache', 'warning');
+        }
+        
+        clearAlerts();
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Slide';
+        document.getElementById('slideId').value = slide._id;
+        document.getElementById('slideTitle').value = slide.title || '';
+        document.getElementById('slideSubtitle').value = slide.subtitle || '';
+        document.getElementById('slideButtonText').value = slide.buttonText || '';
+        document.getElementById('slideButtonLink').value = slide.buttonLink || '';
+        document.getElementById('slideImageUrl').value = slide.backgroundImage || '';
+        document.getElementById('slideDisplayOrder').value = slide.displayOrder || 0;
+        document.getElementById('slideIsActive').checked = slide.isActive !== false;
+        document.getElementById('slideIsFeatured').checked = slide.isFeatured || false;
+        
+        // Handle end date
+        if (slide.endDate) {
+          const date = new Date(slide.endDate);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          document.getElementById('slideEndDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        } else {
+          document.getElementById('slideEndDate').value = '';
+        }
+        
+        // Show image preview
+        if (slide.backgroundImage) {
+          const preview = document.getElementById('imagePreview');
+          preview.innerHTML = `
+            <div class="alert alert-info alert-dismissible fade show mb-2" role="alert">
+              <i class="fas fa-info-circle me-2"></i>Current image
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <img src="${slide.backgroundImage}" class="img-fluid rounded" style="max-height: 200px;">
+          `;
+        }
+        
+        // Initialize character counters
+        initializeCharacterCounters();
+        
+        slideModalInstance.show();
         
       } catch (error) {
-        console.error('Error in editSlide:', error);
-        debugLog('Edit error:', error.message);
-        
-        // Try to find the slide in currentSlides as fallback
-        const slide = currentSlides.find(s => s._id === slideId);
-        if (slide) {
-          debugLog('Using fallback data from cache');
-          fillFormWithSlideData(slide);
-          slideModalInstance.show();
-          showAlert('Slide loaded from cache (API unavailable)', 'warning');
-        } else {
-          showAlert(`Error loading slide: ${error.message}`, 'danger');
-        }
+        console.error('Error loading slide:', error);
+        showAlert('Error loading slide: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
       }
-    }
+    };
 
-    // Helper function to fill form with slide data
-    function fillFormWithSlideData(slide) {
-      document.getElementById('modalTitle').textContent = 'Edit Slide';
-      document.getElementById('slideId').value = slide._id || '';
-      document.getElementById('title').value = slide.title || '';
-      document.getElementById('subtitle').value = slide.subtitle || '';
-      document.getElementById('buttonText').value = slide.buttonText || '';
-      document.getElementById('buttonLink').value = slide.buttonLink || '';
-      document.getElementById('backgroundImage').value = slide.backgroundImage || '';
-      document.getElementById('displayOrder').value = slide.displayOrder || 0;
-      document.getElementById('isActive').checked = slide.isActive !== false;
-      document.getElementById('isFeatured').checked = slide.isFeatured || false;
-      
-      // Handle end date
-      if (slide.endDate) {
-        const date = new Date(slide.endDate);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        document.getElementById('endDate').value = `${year}-${month}-${day}T${hours}:${minutes}`;
-      } else {
-        document.getElementById('endDate').value = '';
-      }
-      
-      // Update character counters
-      document.getElementById('titleCount').textContent = slide.title?.length || 0;
-      document.getElementById('subtitleCount').textContent = slide.subtitle?.length || 0;
-      
-      // Show current image
-      if (slide.backgroundImage) {
-        document.getElementById('currentImage').src = slide.backgroundImage;
-        document.getElementById('currentImageContainer').classList.remove('d-none');
-        document.getElementById('imagePreviewContainer').classList.add('d-none');
-      }
-      
-      debugLog('Form filled with slide data');
-    }
-
-    // Save Slide - SIMPLIFIED
+    // Save Slide
     async function saveSlide() {
-      const slideId = document.getElementById('slideId').value;
-      
-      // Prepare slide data
-      const slideData = {
-        title: document.getElementById('title').value.trim(),
-        subtitle: document.getElementById('subtitle').value.trim(),
-        backgroundImage: document.getElementById('backgroundImage').value.trim(),
-        buttonText: document.getElementById('buttonText').value.trim() || undefined,
-        buttonLink: document.getElementById('buttonLink').value.trim() || undefined,
-        displayOrder: parseInt(document.getElementById('displayOrder').value) || 0,
-        isActive: document.getElementById('isActive').checked,
-        isFeatured: document.getElementById('isFeatured').checked
-      };
-      
-      // Add end date if set
-      const endDate = document.getElementById('endDate').value;
-      if (endDate) {
-        slideData.endDate = endDate;
+      if (!checkAuth()) {
+        showAlert('Please login to save a slide', 'warning');
+        return;
       }
-
+      
+      const slideId = document.getElementById('slideId').value;
+      const title = document.getElementById('slideTitle').value.trim();
+      const subtitle = document.getElementById('slideSubtitle').value.trim();
+      const buttonText = document.getElementById('slideButtonText').value.trim();
+      const buttonLink = document.getElementById('slideButtonLink').value.trim();
+      const imageUrl = document.getElementById('slideImageUrl').value.trim();
+      const displayOrder = parseInt(document.getElementById('slideDisplayOrder').value) || 0;
+      const isActive = document.getElementById('slideIsActive').checked;
+      const isFeatured = document.getElementById('slideIsFeatured').checked;
+      const endDate = document.getElementById('slideEndDate').value;
+      
       // Validation
-      if (!slideData.title || !slideData.subtitle || !slideData.backgroundImage) {
-        showAlert('Please fill in all required fields (Title, Subtitle, Background Image)', 'warning');
+      if (!title) {
+        showAlert('Slide title is required', 'warning');
+        document.getElementById('slideTitle').focus();
+        return;
+      }
+      if (!subtitle) {
+        showAlert('Slide subtitle is required', 'warning');
+        document.getElementById('slideSubtitle').focus();
+        return;
+      }
+      if (!imageUrl) {
+        showAlert('Background image URL is required', 'warning');
         return;
       }
 
       try {
+        showLoading();
+        
         const url = slideId ? `${HERO_API}/${slideId}` : HERO_API;
         const method = slideId ? 'PUT' : 'POST';
 
-        debugLog(`Saving slide (${method}):`, slideData);
+        // Use JSON for URL-based image
+        const slideData = {
+          title,
+          subtitle,
+          backgroundImage: imageUrl,
+          displayOrder,
+          isActive,
+          isFeatured
+        };
 
-        const response = await fetch(url, {
+        if (buttonText) slideData.buttonText = buttonText;
+        if (buttonLink) slideData.buttonLink = buttonLink;
+        if (endDate) slideData.endDate = endDate;
+
+        const res = await fetch(url, {
           method,
-          headers: authHeaders,
+          headers: getAuthHeaders(),
           body: JSON.stringify(slideData)
         });
 
-        const result = await response.json();
-        debugLog('Save response:', result);
-
-        if (response.ok && result.success) {
-          showAlert(
-            slideId ? 'Slide updated successfully!' : 'Slide created successfully!',
-            'success'
-          );
-          slideModalInstance.hide();
-          loadSlides();
-        } else {
-          const errorMsg = result.message || 'Operation failed';
-          showAlert(errorMsg, 'danger');
-        }
+        const data = await res.json();
+        handleSaveResponse(data, slideId);
       } catch (error) {
         console.error('Error saving slide:', error);
-        debugLog('Save error:', error.message);
-        showAlert(`Error saving slide: ${error.message}`, 'danger');
+        showAlert('Error saving slide: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    // Handle Save Response
+    function handleSaveResponse(data, slideId) {
+      if (data.success) {
+        showAlert(
+          slideId ? 'Slide updated successfully!' : 'Slide created successfully!',
+          'success'
+        );
+        slideModalInstance.hide();
+        loadSlides();
+      } else {
+        const errorMsg = data.message || (data.errors ? data.errors.map(e => e.message || e.msg).join(', ') : 'Operation failed');
+        showAlert(errorMsg, 'danger');
       }
     }
 
     // Delete Slide
-    async function deleteSlide(slideId) {
+    window.deleteSlide = async (slideId) => {
+      if (!checkAuth()) {
+        showAlert('Please login to delete a slide', 'warning');
+        return;
+      }
+      
       if (!confirm('Are you sure you want to delete this slide? This action cannot be undone.')) {
         return;
       }
 
       try {
-        showAlert('Deleting slide...', 'info');
-        debugLog(`Deleting slide: ${slideId}`);
+        showLoading();
         
-        const response = await fetch(`${HERO_API}/${slideId}`, {
+        const res = await fetch(`${HERO_API}/${slideId}`, {
           method: 'DELETE',
-          headers: authHeaders
+          headers: getAuthHeaders()
         });
 
-        const result = await response.json();
-        debugLog('Delete response:', result);
+        const data = await res.json();
 
-        if (response.ok && result.success) {
+        if (res.ok && data.success) {
           showAlert('Slide deleted successfully!', 'success');
           loadSlides();
         } else {
-          showAlert(result.message || 'Delete failed', 'danger');
+          showAlert(data.message || 'Delete failed', 'danger');
         }
       } catch (error) {
         console.error('Error deleting slide:', error);
-        debugLog('Delete error:', error.message);
-        showAlert(`Error deleting slide: ${error.message}`, 'danger');
+        showAlert('Error deleting slide: ' + error.message, 'danger');
+      } finally {
+        hideLoading();
+      }
+    };
+
+    // Logout
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
       }
     }
 
-    // Show Alert
-    function showAlert(message, type) {
-      alertBox.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      `;
-      
-      // Auto remove success/info alerts after 5 seconds
-      if (type === 'success' || type === 'info') {
-        setTimeout(() => {
-          const alert = alertBox.querySelector('.alert');
-          if (alert) {
-            alert.remove();
-          }
-        }, 5000);
+    // Preview Image
+    function previewImage(file) {
+      const preview = document.getElementById('imagePreview');
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.innerHTML = `
+            <div class="alert alert-info alert-dismissible fade show mb-2" role="alert">
+              <i class="fas fa-info-circle me-2"></i>New image selected
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <img src="${e.target.result}" class="img-fluid rounded" style="max-height: 200px;">
+          `;
+          // Clear URL field when uploading new file
+          document.getElementById('slideImageUrl').value = '';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        preview.innerHTML = '';
       }
-      
-      debugLog(`Alert: ${type} - ${message}`);
+    }
+
+    // Debounce Search
+    function debounceSearch() {
+      let timeout;
+      return function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          loadSlides();
+        }, 300);
+      };
     }
 
     // Make functions available globally
+    window.openAddSlideModal = openAddSlideModal;
+    window.previewSlide = previewSlide;
     window.editSlide = editSlide;
     window.deleteSlide = deleteSlide;
-    window.viewSlide = viewSlide;
-    window.openAddSlideModal = openAddSlideModal;
-    window.toggleDebug = toggleDebug;
-
-    // Initialize debug panel with info
-    debugLog('Hero Slider Admin loaded');
-    debugLog('Token:', token ? 'Present' : 'Missing');
-    debugLog('API Base:', HERO_API);
   </script>
 </body>
 </html>

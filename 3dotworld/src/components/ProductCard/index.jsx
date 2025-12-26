@@ -171,7 +171,7 @@ const ProductCard = ({
       group bg-white border border-gray-100 rounded-none
       hover:shadow-lg transition-all duration-300
       h-full flex flex-col relative
-      w-[85%] sm:w-full
+      w-full max-w-full
     "
     >
       {/* ================= IMAGE ================= */}
@@ -259,8 +259,8 @@ const ProductCard = ({
       </div>
 
       {/* ================= INFO ================= */}
-      <div className="p-4 flex flex-col">
-        <div className="bg-red-600 text-white text-xs font-semibold px-3 py-1 inline-block mb-3 rounded-full">
+      <div className="p-4 flex flex-col flex-1">
+        <div className="bg-red-600 text-white text-xs font-semibold px-3 py-1 inline-block mb-3 rounded-full self-start">
           {category}
         </div>
 
@@ -281,7 +281,7 @@ const ProductCard = ({
         </p>
 
         {/* Price Section */}
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-1 mt-auto">
           <span className="text-[22px] font-semibold text-black">
             ₹{newPrice}
           </span>
@@ -313,7 +313,7 @@ const ProductCard = ({
           disabled={cartLoading}
           className="w-full bg-black text-white py-3 text-sm font-semibold 
           tracking-wide rounded-md hover:bg-gray-800 transition
-          disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
         >
           {cartLoading ? "Adding..." : "Buy Now"}
         </button>

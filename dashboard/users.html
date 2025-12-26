@@ -3,565 +3,1369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management Admin Panel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>User Management - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --light-color: #ecf0f1;
-            --dark-color: #34495e;
+            --primary-red: #dc3545;
+            --primary-red-dark: #c82333;
+            --primary-red-light: #f8d7da;
+            --secondary-red: #e74c3c;
+            --accent-red: #ff6b6b;
+            --dark-bg: #1a1a2e;
+            --dark-card: #16213e;
+            --text-light: #f8f9fa;
+            --text-muted: #adb5bd;
+            --border-color: #2d3748;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --primary-blue: #3498db;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-800: #343a40;
         }
-        
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+            min-height: 100vh;
+            color: #333;
         }
-        
-        .navbar {
-            background-color: var(--secondary-color);
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s ease;
         }
-        
-        .sidebar {
-            background-color: var(--dark-color);
-            min-height: calc(100vh - 56px);
+
+        .mobile-menu-toggle:hover {
+            background: var(--primary-red-dark);
+            transform: scale(1.05);
+        }
+
+        /* Sidebar */
+        #sidebar {
+            background: linear-gradient(180deg, var(--dark-bg) 0%, #0f0f23 100%);
+            color: var(--text-light);
+            width: 280px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 3px 0 20px rgba(0,0,0,0.1);
+            border-right: 1px solid var(--border-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(0);
+        }
+
+        #sidebar.sidebar-hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--dark-card);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
             color: white;
         }
-        
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
+
+        .brand-logo i {
+            color: var(--primary-red);
+            font-size: 1.8rem;
+        }
+
+        .brand-text h3 {
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.4rem;
+            background: linear-gradient(45deg, #ff6b6b, #dc3545);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text small {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .close-sidebar {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .close-sidebar:hover {
+            color: var(--text-light);
+        }
+
+        /* Sidebar Overlay for Mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(3px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .nav-links {
+            padding: 1rem 0;
+            overflow-y: auto;
+            max-height: calc(100vh - 180px);
+        }
+
+        .nav-item {
+            margin: 0.25rem 1rem;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
             padding: 0.75rem 1rem;
-            border-radius: 0.25rem;
-            margin-bottom: 0.25rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
+
+        .nav-link:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary-red);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
         }
-        
-        .sidebar .nav-link i {
-            margin-right: 0.5rem;
+
+        .nav-link:hover:before,
+        .nav-link.active:before {
+            transform: translateX(0);
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--primary-red);
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
             width: 20px;
             text-align: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
         }
-        
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+
+        /* Main Content */
+        #main-content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 100vh;
+            width: calc(100% - 280px);
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
             margin-bottom: 1.5rem;
-            transition: transform 0.2s ease-in-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 500px;
         }
-        
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-            font-weight: 600;
+
+        .search-box input {
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid var(--gray-300);
+            border-radius: 10px;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
         }
-        
-        .status-badge {
-            padding: 0.35em 0.65em;
-            font-size: 0.75em;
-            font-weight: 600;
+
+        .search-box input:focus {
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+            outline: none;
         }
-        
-        .stats-card {
-            text-align: center;
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-800);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
             padding: 1.5rem;
-            border-radius: 0.75rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-left: 5px solid var(--primary-blue);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
-        
-        .stats-value {
-            font-size: 2rem;
+
+        .page-title h1 {
             font-weight: 700;
+            color: var(--dark-bg);
+            margin: 0;
+            font-size: 1.8rem;
+            line-height: 1.3;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            margin: 0.5rem 0 0;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-blue), #2ecc71);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            white-space: nowrap;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #2980b9, #27ae60);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stat-card.total i { color: var(--primary-blue); }
+        .stat-card.active i { color: var(--success); }
+        .stat-card.admins i { color: var(--warning); }
+        .stat-card.new i { color: var(--info); }
+
+        .stat-card h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--dark-bg);
+        }
+
+        .stat-card p {
+            color: var(--text-muted);
+            margin: 0.5rem 0 0;
+            font-size: 0.85rem;
+        }
+
+        /* Filters Section */
+        .filters-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--gray-800);
             margin-bottom: 0.5rem;
         }
-        
-        .stats-label {
-            font-size: 0.875rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+
+        .form-control, .form-select {
+            border: 2px solid var(--gray-300);
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            width: 100%;
         }
-        
-        .action-btn {
-            margin-right: 0.25rem;
-            margin-bottom: 0.25rem;
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
         }
-        
-        .table th {
-            border-top: none;
-            font-weight: 600;
-            color: var(--secondary-color);
-        }
-        
-        .user-details-section {
-            background-color: white;
-            border-radius: 0.375rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .user-details-section h5 {
-            color: var(--secondary-color);
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            justify-content: flex-end;
             margin-bottom: 1rem;
         }
-        
+
+        .btn-toggle {
+            background: white;
+            border: 2px solid var(--gray-300);
+            color: var(--gray-800);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .btn-toggle:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .btn-toggle.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        /* Users Grid View */
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 1px solid var(--gray-200);
+            position: relative;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+            border-color: var(--primary-blue);
+        }
+
         .user-avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--primary-color);
-        }
-        
-        .user-card {
-            text-align: center;
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
-        }
-        
-        .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-        }
-        
-        .user-card .avatar {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            margin: 0 auto 1rem;
-            background: linear-gradient(45deg, var(--primary-color), var(--success-color));
+            background: linear-gradient(45deg, var(--primary-blue), #2ecc71);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             color: white;
             font-weight: bold;
+            margin: 0 auto 1rem;
         }
-        
-        .role-badge {
+
+        .user-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .user-body {
+            padding: 1.25rem;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: var(--dark-bg);
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+            text-align: center;
+        }
+
+        .user-email {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-item i {
+            width: 20px;
+            color: var(--primary-blue);
+        }
+
+        .badge {
             padding: 0.35em 0.65em;
             font-size: 0.75em;
             font-weight: 600;
+            border-radius: 20px;
         }
-        
-        .form-section {
-            background-color: white;
-            border-radius: 0.375rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .user-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .last-active {
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
-        
-        .user-stats {
+
+        .role-badge.admin { background: #dc3545; color: white; }
+        .role-badge.user { background: #28a745; color: white; }
+        .role-badge.customer { background: #6c757d; color: white; }
+        .role-badge.moderator { background: #ffc107; color: #000; }
+
+        .status-badge.active { background: #d4edda; color: #155724; border: 1px solid #28a745; }
+        .status-badge.inactive { background: #f8d7da; color: #721c24; border: 1px solid #dc3545; }
+        .status-badge.pending { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        .status-badge.suspended { background: #e2e3e5; color: #383d41; border: 1px solid #6c757d; }
+
+        .user-footer {
+            padding: 1rem 1.25rem;
+            background: var(--gray-100);
+            border-top: 1px solid var(--gray-200);
             display: flex;
-            justify-content: space-around;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #eee;
+            justify-content: center;
+            gap: 0.5rem;
         }
-        
+
+        /* Table View */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--dark-bg);
+        }
+
+        .table-responsive {
+            padding: 0 1.25rem;
+        }
+
+        .table {
+            margin: 0;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--gray-800);
+            padding: 1rem 0.75rem;
+            border-bottom: 2px solid var(--gray-300);
+        }
+
+        .table td {
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .table-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-blue), #2ecc71);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-view {
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info);
+        }
+
+        .btn-view:hover {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-edit {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .btn-edit:hover {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-delete {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--primary-red);
+        }
+
+        .btn-delete:hover {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        /* Modal Styling */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(90deg, var(--primary-blue), #2ecc71);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            padding: 1.25rem;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+            opacity: 0.8;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .user-details-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .user-details-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary-blue), #2ecc71);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+
+        .user-details-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--gray-100);
+            border-radius: 10px;
+        }
+
         .stat-item {
             text-align: center;
         }
-        
+
         .stat-value {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--primary-color);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.25rem;
         }
-        
+
         .stat-label {
             font-size: 0.75rem;
-            color: #6c757d;
+            color: var(--text-muted);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                min-height: auto;
-                margin-bottom: 1rem;
+
+        .detail-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--gray-200);
+        }
+
+        .detail-section h5 {
+            color: var(--dark-bg);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-blue-light);
+        }
+
+        /* Alert Box */
+        .alert-box {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: calc(100% - 40px);
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--gray-300);
+            border-top: 5px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            #sidebar {
+                width: 280px;
             }
             
-            .user-grid {
+            #main-content {
+                margin-left: 280px;
+                width: calc(100% - 280px);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            #sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            #sidebar.sidebar-show {
+                transform: translateX(0);
+            }
+            
+            .close-sidebar {
+                display: block;
+            }
+            
+            #main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+
+            .top-nav {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+                padding: 1rem;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1.25rem;
+            }
+
+            .page-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .btn-primary {
+                width: 100%;
+                text-align: center;
+                padding: 0.75rem;
+            }
+
+            .users-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-card i {
+                font-size: 1.75rem;
+            }
+
+            .stat-card h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1rem;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: row;
+                gap: 0.25rem;
+            }
+            
+            .btn-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .filters-section {
+                padding: 1rem;
+            }
+
+            .modal-dialog {
+                margin: 10px;
+            }
+
+            .modal-header {
+                padding: 1rem;
+            }
+
+            .modal-body {
+                padding: 1rem;
+            }
+
+            .modal-footer {
+                padding: 1rem;
+            }
+
+            .user-details-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.5rem;
+                padding: 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .table-responsive {
+                padding: 0 0.75rem;
+            }
+
+            .table th, .table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .mobile-menu-toggle {
+                top: 15px;
+                left: 15px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .top-nav {
+                padding: 0.75rem;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+            }
+
+            .page-header {
+                padding: 1rem;
+                border-radius: 12px;
+                margin-bottom: 1.5rem;
+            }
+
+            .page-title h1 {
+                font-size: 1.3rem;
+            }
+
+            .page-title p {
+                font-size: 0.9rem;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .stat-card {
+                padding: 0.75rem;
+            }
+
+            .stat-card i {
+                font-size: 1.5rem;
+            }
+
+            .stat-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .filters-section {
+                padding: 0.75rem;
+                border-radius: 12px;
+            }
+
+            .alert-box {
+                left: 20px;
+                right: 20px;
+                min-width: auto;
+                top: 80px;
+            }
+
+            .users-grid {
                 grid-template-columns: 1fr;
             }
+
+            .user-avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 1.5rem;
+            }
+
+            .user-details-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .user-details-stats {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .btn-primary {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .btn-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-200);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, var(--primary-blue), #2ecc71);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-users me-2"></i>
-                User Management Admin
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i> Admin User
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="nav-item">
-                                    <a class="nav-link" href="index.html">
-                                        <i class="fas fa-tachometer-alt"></i>
-                                        Dashboard
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link active" href="users.html">
-                                        <i class="fas fa-users"></i>
-                                        Users
-                                    </a>
-                                </li>
-                                <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
 
-                                <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-                                <li class="nav-item">
-                                    <a class="nav-link" href="orders.html">
-                                        <i class="fas fa-shopping-cart"></i>
-                                        Orders
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="payment.html">
-                                        <i class="fas fa-credit-card"></i>
-                                        Payments
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-chart-bar"></i>
-                                        Analytics
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#">
-                                        <i class="fas fa-cog"></i>
-                                        Settings
-                                    </a>
-                                </li>
-                        </ul>
-                    </li>
-                </ul>
+    <!-- Sidebar -->
+    <nav id="sidebar">
+    <div class="sidebar-header">
+      <a href="#" class="brand-logo">
+        <i class="fas fa-blog"></i>
+        <div class="brand-text">
+          <h3> Admin</h3>
+          <small>Management Panel</small>
+        </div>
+      </a>
+      <button class="close-sidebar" id="closeSidebar">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="nav-links">
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a href="index.html" class="nav-link">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="categories.html" class="nav-link">
+            <i class="fas fa-tags"></i>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="products.html" class="nav-link">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="hero.html" class="nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Slider</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="blogs.html" class="nav-link active">
+            <i class="fas fa-blog"></i>
+            <span>Blogs</span>
+          </a>
+        </li>
+        
+        <li class="nav-item">
+          <a href="users.html" class="nav-link">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="settings.html" class="nav-link">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Top Navigation -->
+        <div class="top-nav">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="globalSearch" placeholder="Search users...">
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted me-2" id="currentDate"></span>
+                <button class="btn btn-outline-danger btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </div>
-    </nav>
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-lg-2 col-md-3 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-tachometer-alt"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">
-                                <i class="fas fa-users"></i>
-                                Users
-                            </a>
-                        </li>
-                        <li class="nav-item"><a href="categories.html" class="nav-link text-white">📑 Categories</a></li>
+        <!-- Alert Box -->
+        <div class="alert-box" id="alertBox"></div>
 
-                        <li class="nav-item"><a href="products.html" class="nav-link text-white">📦 Products</a></li>
+        <!-- Page Header -->
+        <div class="page-header fade-in">
+            <div class="page-title">
+                <h1><i class="fas fa-users text-primary me-2"></i>User Management</h1>
+                <p>Manage your website users and their permissions</p>
+            </div>
+            <button class="btn btn-primary" id="addUserBtn">
+                <i class="fas fa-plus me-2"></i>Add User
+            </button>
+        </div>
 
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-shopping-cart"></i>
-                                Orders
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-credit-card"></i>
-                                Payments
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-chart-bar"></i>
-                                Analytics
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-cog"></i>
-                                Settings
-                            </a>
-                        </li>
-                    </ul>
+        <!-- Stats Cards -->
+        <div class="stats-cards fade-in">
+            <div class="stat-card total">
+                <i class="fas fa-user-friends"></i>
+                <h3 id="totalUsers">0</h3>
+                <p>Total Users</p>
+            </div>
+            <div class="stat-card active">
+                <i class="fas fa-user-check"></i>
+                <h3 id="activeUsers">0</h3>
+                <p>Active Users</p>
+            </div>
+            <div class="stat-card admins">
+                <i class="fas fa-user-shield"></i>
+                <h3 id="adminUsers">0</h3>
+                <p>Admin Users</p>
+            </div>
+            <div class="stat-card new">
+                <i class="fas fa-user-plus"></i>
+                <h3 id="newUsers">0</h3>
+                <p>New This Month</p>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-section fade-in">
+            <div class="row align-items-center g-3">
+                <div class="col-md-3 col-6">
+                    <label class="form-label">Role</label>
+                    <select class="form-select" id="roleFilter">
+                        <option value="">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="customer">Customer</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-6">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-6">
+                    <label class="form-label">Sort By</label>
+                    <select class="form-select" id="orderFilter">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">Name (A-Z)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-6">
+                    <button class="btn btn-primary w-100 mt-4" id="applyFiltersBtn">
+                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- Main Content -->
-            <main class="col-lg-10 col-md-9 ms-sm-auto px-md-4 py-4">
-                <!-- Page Header -->
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">User Management</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group me-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportUsersBtn">
-                                <i class="fas fa-download me-1"></i> Export
-                            </button>
-                        </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-outline-primary" id="refreshUsersBtn">
-                                <i class="fas fa-sync-alt me-1"></i> Refresh
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <!-- View Toggle -->
+        <div class="view-toggle fade-in">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-toggle active" id="gridViewBtn">
+                    <i class="fas fa-th-large me-1"></i> Grid
+                </button>
+                <button type="button" class="btn btn-toggle" id="listViewBtn">
+                    <i class="fas fa-list me-1"></i> List
+                </button>
+            </div>
+        </div>
 
-                <!-- Stats Cards -->
-                <div class="row mb-4">
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card bg-[#34495e] text-black">
-                            <div class="stats-value" id="totalUsers">0</div>
-                            <div class="stats-label">Total Users</div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card bg text-black">
-                            <div class="stats-value" id="activeUsers">0</div>
-                            <div class="stats-label">Active Users</div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card bg text-black">
-                            <div class="stats-value" id="adminUsers">0</div>
-                            <div class="stats-label">Admin Users</div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6">
-                        <div class="card stats-card bg text-black">
-                            <div class="stats-value" id="newUsers">0</div>
-                            <div class="stats-label">New This Month</div>
-                        </div>
-                    </div>
+        <!-- Users Grid View -->
+        <div class="users-grid fade-in" id="usersGridView">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
+                <p class="mt-2 text-muted">Loading users...</p>
+            </div>
+        </div>
 
-                <!-- Filters and Search -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label for="roleFilter" class="form-label">Role</label>
-                                <select class="form-select" id="roleFilter">
-                                    <option value="">All Roles</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="user">User</option>
-                                    <option value="customer">Customer</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="statusFilter" class="form-label">Status</label>
-                                <select class="form-select" id="statusFilter">
-                                    <option value="">All Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="sortBy" class="form-label">Sort By</label>
-                                <select class="form-select" id="sortBy">
-                                    <option value="newest">Newest First</option>
-                                    <option value="oldest">Oldest First</option>
-                                    <option value="name">Name (A-Z)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-8">
-                                <input type="text" class="form-control" id="searchInput" placeholder="Search by name, email, or phone...">
-                            </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-primary w-100" id="applyFiltersBtn">
-                                    <i class="fas fa-filter me-1"></i> Apply Filters
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Users Table View -->
+        <div class="table-container fade-in d-none" id="usersListView">
+            <div class="table-header">
+                <h5>All Users</h5>
+                <span class="badge bg-primary" id="usersCount">0 users</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Contact</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                <!-- View Toggle -->
-                <div class="d-flex justify-content-end mb-3">
-                    <div class="btn-group" role="group">
-                        <input type="radio" class="btn-check" name="viewMode" id="gridView" autocomplete="off" checked>
-                        <label class="btn btn-outline-primary" for="gridView">
-                            <i class="fas fa-th-large me-1"></i> Grid
-                        </label>
-                        
-                        <input type="radio" class="btn-check" name="viewMode" id="listView" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="listView">
-                            <i class="fas fa-list me-1"></i> List
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Users Grid View -->
-                <div class="user-grid" id="usersGridView">
-                    <!-- Users will be populated here by JavaScript -->
-                </div>
-
-                <!-- Users Table View -->
-                <div class="card d-none" id="usersListView">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">All Users</h5>
-                        <span class="badge bg-primary" id="usersCount">0 users</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Contact</th>
-                                        <th>Role</th>
-                                        <th>Status</th>
-                                        <th>Joined</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBody">
-                                    <!-- Users will be populated here by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <nav aria-label="User pagination">
-                            <ul class="pagination justify-content-end" id="paginationContainer">
-                                <!-- Pagination will be populated by JavaScript -->
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-            </main>
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state fade-in" style="display: none;">
+            <i class="fas fa-users"></i>
+            <h3 class="mb-2">No Users Found</h3>
+            <p class="text-muted mb-4">Get started by creating your first user</p>
+            <button class="btn btn-primary" onclick="openAddUserModal()">
+                <i class="fas fa-plus me-2"></i>Create First User
+            </button>
         </div>
     </div>
 
     <!-- User Details Modal -->
-    <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                    <h5 class="modal-title"><i class="fas fa-user-circle me-2"></i>User Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <div class="avatar mx-auto mb-3" id="detailUserAvatar">
-                                <!-- Avatar will be populated by JavaScript -->
+                    <div class="user-details-header">
+                        <div class="user-details-avatar" id="detailUserAvatar"></div>
+                        <h3 id="detailUserName">-</h3>
+                        <div class="mb-3">
+                            <span class="badge role-badge admin" id="detailUserRole">-</span>
+                            <span class="badge status-badge active" id="detailUserStatus">-</span>
+                        </div>
+                    </div>
+
+                    <div class="user-details-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="detailUserOrders">0</div>
+                            <div class="stat-label">Orders</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="detailUserPayments">0</div>
+                            <div class="stat-label">Payments</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="detailUserTotal">$0</div>
+                            <div class="stat-label">Total Spent</div>
+                        </div>
+                    </div>
+
+                    <!-- User Information -->
+                    <div class="detail-section">
+                        <h5><i class="fas fa-info-circle me-2"></i>User Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <strong>Email:</strong>
+                                <div id="detailUserEmail">-</div>
                             </div>
-                            <h4 id="detailUserName">-</h4>
-                            <div class="mb-3">
-                                <span class="badge role-badge bg-primary" id="detailUserRole">-</span>
-                                <span class="badge status-badge bg-success" id="detailUserStatus">-</span>
+                            <div class="col-md-6 mb-2">
+                                <strong>Phone:</strong>
+                                <div id="detailUserPhone">-</div>
                             </div>
-                            <div class="user-stats">
-                                <div class="stat-item">
-                                    <div class="stat-value" id="detailUserOrders">0</div>
-                                    <div class="stat-label">Orders</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="detailUserPayments">0</div>
-                                    <div class="stat-label">Payments</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="detailUserTotal">$0</div>
-                                    <div class="stat-label">Total Spent</div>
-                                </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>User ID:</strong>
+                                <div id="detailUserId">-</div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong>Joined:</strong>
+                                <div id="detailUserJoined">-</div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <strong>Last Active:</strong>
+                                <div id="detailUserLastActive">-</div>
                             </div>
                         </div>
-                        <div class="col-md-8">
-                            <!-- User Information -->
-                            <div class="user-details-section">
-                                <h5>User Information</h5>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <strong>Email:</strong>
-                                        <span id="detailUserEmail">-</span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <strong>Phone:</strong>
-                                        <span id="detailUserPhone">-</span>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <strong>User ID:</strong>
-                                        <span id="detailUserId">-</span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <strong>Joined:</strong>
-                                        <span id="detailUserJoined">-</span>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-12">
-                                        <strong>Last Active:</strong>
-                                        <span id="detailUserLastActive">-</span>
-                                    </div>
+                    </div>
+                    
+                    <!-- Address Information -->
+                    <div class="detail-section">
+                        <h5><i class="fas fa-map-marker-alt me-2"></i>Address Information</h5>
+                        <div id="detailUserAddresses">
+                            <p class="text-muted mb-0">No address information available</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Information -->
+                    <div class="detail-section">
+                        <h5><i class="fas fa-cog me-2"></i>Additional Information</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2">Email Verified:</strong>
+                                    <span class="badge bg-success" id="detailEmailVerified">Yes</span>
                                 </div>
                             </div>
-                            
-                            <!-- Address Information -->
-                            <div class="user-details-section">
-                                <h5>Address Information</h5>
-                                <div id="detailUserAddresses">
-                                    <!-- Addresses will be populated by JavaScript -->
-                                </div>
-                            </div>
-                            
-                            <!-- Additional Information -->
-                            <div class="user-details-section">
-                                <h5>Additional Information</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <strong>Email Verified:</strong>
-                                            <span class="badge bg-success" id="detailEmailVerified">Yes</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <strong>Newsletter:</strong>
-                                            <span class="badge bg-info" id="detailNewsletter">Subscribed</span>
-                                        </div>
-                                    </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="d-flex align-items-center">
+                                    <strong class="me-2">Newsletter:</strong>
+                                    <span class="badge bg-info" id="detailNewsletter">Subscribed</span>
                                 </div>
                             </div>
                         </div>
@@ -577,75 +1381,259 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Loading Overlay -->
+    <div class="spinner-overlay" id="loadingOverlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // API Configuration
-        const API_BASE_URL = 'https://ecommerce-server-fhna.onrender.com/api';
-        let authToken = localStorage.getItem('adminAuthToken') || 'your-auth-token-here';
+        const API_BASE_URL = 'http://localhost:5000/api';
+        const AUTH_TOKEN = localStorage.getItem('adminAuthToken') || 'your-auth-token-here';
 
-        // Current state
+        // Global Variables
         let currentUsers = [];
         let currentPage = 1;
         let totalPages = 1;
         let currentUser = null;
         let viewMode = 'grid'; // 'grid' or 'list'
+        let userDetailsModalInstance = null;
 
-        // DOM elements
-        const usersGridView = document.getElementById('usersGridView');
-        const usersListView = document.getElementById('usersListView');
-        const usersTableBody = document.getElementById('usersTableBody');
-        const totalUsersEl = document.getElementById('totalUsers');
-        const activeUsersEl = document.getElementById('activeUsers');
-        const adminUsersEl = document.getElementById('adminUsers');
-        const newUsersEl = document.getElementById('newUsers');
-        const roleFilter = document.getElementById('roleFilter');
-        const statusFilter = document.getElementById('statusFilter');
-        const sortBy = document.getElementById('sortBy');
-        const searchInput = document.getElementById('searchInput');
-        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-        const refreshUsersBtn = document.getElementById('refreshUsersBtn');
-        const paginationContainer = document.getElementById('paginationContainer');
-        const userDetailsModal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
-        const exportUsersBtn = document.getElementById('exportUsersBtn');
-        const refreshUserBtn = document.getElementById('refreshUserBtn');
-        const gridViewRadio = document.getElementById('gridView');
-        const listViewRadio = document.getElementById('listView');
-        const usersCount = document.getElementById('usersCount');
+        // DOM Elements
+        const elements = {
+            usersGridView: document.getElementById('usersGridView'),
+            usersListView: document.getElementById('usersListView'),
+            usersTableBody: document.getElementById('usersTableBody'),
+            emptyState: document.getElementById('emptyState'),
+            alertBox: document.getElementById('alertBox'),
+            globalSearch: document.getElementById('globalSearch'),
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            mobileMenuToggle: document.getElementById('mobileMenuToggle'),
+            closeSidebar: document.getElementById('closeSidebar'),
+            sidebar: document.getElementById('sidebar'),
+            sidebarOverlay: document.getElementById('sidebarOverlay'),
+            gridViewBtn: document.getElementById('gridViewBtn'),
+            listViewBtn: document.getElementById('listViewBtn'),
+            addUserBtn: document.getElementById('addUserBtn'),
+            applyFiltersBtn: document.getElementById('applyFiltersBtn'),
+            refreshUserBtn: document.getElementById('refreshUserBtn'),
+            roleFilter: document.getElementById('roleFilter'),
+            statusFilter: document.getElementById('statusFilter'),
+            orderFilter: document.getElementById('orderFilter')
+        };
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
+        // ====================
+        // INITIALIZATION
+        // ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Update date
+            updateCurrentDate();
+            
+            // Initialize modal
+            userDetailsModalInstance = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+            
+            // Load users
             loadUsers();
             
-            // Event listeners
-            applyFiltersBtn.addEventListener('click', loadUsers);
-            refreshUsersBtn.addEventListener('click', loadUsers);
-            exportUsersBtn.addEventListener('click', exportUsers);
-            refreshUserBtn.addEventListener('click', refreshUserDetails);
+            // Initialize event listeners
+            initializeEventListeners();
             
-            // View mode toggle
-            gridViewRadio.addEventListener('change', function() {
-                if (this.checked) {
-                    viewMode = 'grid';
-                    toggleViewMode();
-                }
-            });
-            
-            listViewRadio.addEventListener('change', function() {
-                if (this.checked) {
-                    viewMode = 'list';
-                    toggleViewMode();
-                }
-            });
+            // Mobile menu event listeners
+            initializeMobileMenu();
         });
 
-        // Load users from API
-        async function loadUsers(page = 1) {
+        // ====================
+        // MOBILE MENU FUNCTIONS
+        // ====================
+        function initializeMobileMenu() {
+            if (elements.mobileMenuToggle) {
+                elements.mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            }
+            
+            if (elements.closeSidebar) {
+                elements.closeSidebar.addEventListener('click', toggleMobileMenu);
+            }
+            
+            if (elements.sidebarOverlay) {
+                elements.sidebarOverlay.addEventListener('click', toggleMobileMenu);
+            }
+            
+            // Close sidebar when clicking on nav links (mobile)
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 992) {
+                        toggleMobileMenu();
+                    }
+                });
+            });
+        }
+
+        function toggleMobileMenu() {
+            elements.sidebar.classList.toggle('sidebar-show');
+            elements.sidebarOverlay.classList.toggle('active');
+            document.body.style.overflow = elements.sidebar.classList.contains('sidebar-show') ? 'hidden' : '';
+        }
+
+        // ====================
+        // UTILITY FUNCTIONS
+        // ====================
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function showLoading() {
+            elements.loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            elements.loadingOverlay.style.display = 'none';
+        }
+
+        function showAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'times-circle' : 'info-circle'} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            elements.alertBox.appendChild(alert);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+
+        function clearAlerts() {
+            elements.alertBox.innerHTML = '';
+        }
+
+        function getInitials(name) {
+            if (!name) return '??';
+            return name.split(' ').map(part => part[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Unknown';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function formatTime(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+
+        function getRoleBadgeClass(role) {
+            switch(role?.toLowerCase()) {
+                case 'admin': return 'admin';
+                case 'user': return 'user';
+                case 'customer': return 'customer';
+                case 'moderator': return 'moderator';
+                default: return 'user';
+            }
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status?.toLowerCase()) {
+                case 'active': return 'active';
+                case 'inactive': return 'inactive';
+                case 'pending': return 'pending';
+                case 'suspended': return 'suspended';
+                default: return 'active';
+            }
+        }
+
+        function getAvatarGradient(id) {
+            const colors = [
+                'linear-gradient(45deg, #3498db, #2ecc71)',
+                'linear-gradient(45deg, #e74c3c, #f39c12)',
+                'linear-gradient(45deg, #9b59b6, #3498db)',
+                'linear-gradient(45deg, #1abc9c, #2ecc71)',
+                'linear-gradient(45deg, #34495e, #7f8c8d)'
+            ];
+            
+            let hash = 0;
+            for (let i = 0; i < (id || '').length; i++) {
+                hash = id.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            
+            return colors[Math.abs(hash) % colors.length];
+        }
+
+        // ====================
+        // EVENT LISTENERS
+        // ====================
+        function initializeEventListeners() {
+            // View toggle buttons
+            elements.gridViewBtn.addEventListener('click', () => setViewMode('grid'));
+            elements.listViewBtn.addEventListener('click', () => setViewMode('list'));
+            
+            // Filter buttons
+            elements.applyFiltersBtn.addEventListener('click', loadUsers);
+            
+            // Add user button
+            elements.addUserBtn.addEventListener('click', openAddUserModal);
+            
+            // Global search
+            elements.globalSearch.addEventListener('input', debounceSearch());
+            
+            // Refresh user button
+            elements.refreshUserBtn.addEventListener('click', refreshUserDetails);
+        }
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            
+            if (mode === 'grid') {
+                elements.gridViewBtn.classList.add('active');
+                elements.listViewBtn.classList.remove('active');
+                elements.usersGridView.classList.remove('d-none');
+                elements.usersListView.classList.add('d-none');
+            } else {
+                elements.gridViewBtn.classList.remove('active');
+                elements.listViewBtn.classList.add('active');
+                elements.usersGridView.classList.add('d-none');
+                elements.usersListView.classList.remove('d-none');
+            }
+            
+            displayUsers();
+        }
+
+        function debounceSearch() {
+            let timeout;
+            return function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    loadUsers();
+                }, 300);
+            };
+        }
+
+        // ====================
+        // USER FUNCTIONS
+        // ====================
+        async function loadUsers() {
             try {
-                showLoadingState();
+                showLoading();
                 
                 const response = await fetch(`${API_BASE_URL}/users`, {
                     headers: {
-                        'Authorization': `Bearer ${authToken}`,
+                        'Authorization': `Bearer ${AUTH_TOKEN}`,
                         'Content-Type': 'application/json'
                     }
                 });
@@ -658,7 +1646,7 @@
                 
                 if (data.success) {
                     currentUsers = data.data || [];
-                    currentPage = page;
+                    currentPage = 1;
                     
                     // Apply filters
                     applyFilters();
@@ -670,31 +1658,35 @@
                 }
             } catch (error) {
                 console.error('Error loading users:', error);
-                showError('Failed to load users: ' + error.message);
+                showAlert('Failed to load users: ' + error.message, 'danger');
+                renderEmptyState();
+            } finally {
+                hideLoading();
             }
         }
 
-        // Apply filters to users
         function applyFilters() {
             let filteredUsers = [...currentUsers];
             
             // Role filter
-            if (roleFilter.value) {
+            const roleFilterValue = elements.roleFilter.value;
+            if (roleFilterValue) {
                 filteredUsers = filteredUsers.filter(user => 
-                    user.role && user.role.toLowerCase() === roleFilter.value.toLowerCase()
+                    user.role && user.role.toLowerCase() === roleFilterValue.toLowerCase()
                 );
             }
             
             // Status filter
-            if (statusFilter.value) {
+            const statusFilterValue = elements.statusFilter.value;
+            if (statusFilterValue) {
                 filteredUsers = filteredUsers.filter(user => 
-                    user.status && user.status.toLowerCase() === statusFilter.value.toLowerCase()
+                    user.status && user.status.toLowerCase() === statusFilterValue.toLowerCase()
                 );
             }
             
             // Search filter
-            if (searchInput.value) {
-                const searchTerm = searchInput.value.toLowerCase();
+            const searchTerm = elements.globalSearch.value.toLowerCase();
+            if (searchTerm) {
                 filteredUsers = filteredUsers.filter(user => 
                     (user.name && user.name.toLowerCase().includes(searchTerm)) ||
                     (user.email && user.email.toLowerCase().includes(searchTerm)) ||
@@ -703,7 +1695,8 @@
             }
             
             // Sort users
-            switch(sortBy.value) {
+            const orderValue = elements.orderFilter.value;
+            switch(orderValue) {
                 case 'newest':
                     filteredUsers.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
                     break;
@@ -718,152 +1711,133 @@
             currentUsers = filteredUsers;
         }
 
-        // Display users based on view mode
         function displayUsers() {
+            if (currentUsers.length === 0) {
+                elements.emptyState.style.display = 'block';
+                elements.usersGridView.innerHTML = '';
+                elements.usersTableBody.innerHTML = '';
+                document.getElementById('usersCount').textContent = '0 users';
+                return;
+            }
+
+            elements.emptyState.style.display = 'none';
+            document.getElementById('usersCount').textContent = `${currentUsers.length} users`;
+
             if (viewMode === 'grid') {
                 displayUsersGrid();
             } else {
                 displayUsersList();
             }
-            
-            usersCount.textContent = `${currentUsers.length} users`;
         }
 
-        // Display users in grid view
         function displayUsersGrid() {
-            usersGridView.innerHTML = '';
-            
-            if (currentUsers.length === 0) {
-                usersGridView.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <h4 class="text-muted">No users found</h4>
-                        <p class="text-muted">Try adjusting your filters or search criteria</p>
-                    </div>
-                `;
-                return;
-            }
+            let html = '';
             
             currentUsers.forEach(user => {
-                const userCard = document.createElement('div');
-                userCard.className = 'card user-card';
-                userCard.innerHTML = `
-                    <div class="avatar">${getInitials(user.name || 'Unknown User')}</div>
-                    <h5 class="card-title">${user.name || 'Unknown User'}</h5>
-                    <p class="card-text text-muted">${user.email || 'No email'}</p>
-                    <div class="mb-2">
-                        <span class="badge role-badge ${getRoleBadgeClass(user.role)}">
-                            ${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
-                        </span>
-                        <span class="badge status-badge ${getStatusBadgeClass(user.status)}">
-                            ${user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Active'}
-                        </span>
+                html += `
+                    <div class="user-card fade-in">
+                        <div class="user-header">
+                            <div class="user-avatar">${getInitials(user.name)}</div>
+                            <div class="user-name">${user.name || 'Unknown User'}</div>
+                            <div class="user-email">${user.email || 'No email'}</div>
+                        </div>
+                        <div class="user-body">
+                            <div class="user-info">
+                                <div class="info-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>${user.phone || 'No phone'}</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Joined ${formatDate(user.createdAt)}</span>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-center gap-2 mb-3">
+                                <span class="badge role-badge ${getRoleBadgeClass(user.role)}">
+                                    ${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
+                                </span>
+                                <span class="badge status-badge ${getStatusBadgeClass(user.status)}">
+                                    ${user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Active'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="user-footer">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewUserDetails('${user._id}')">
+                                <i class="fas fa-eye me-1"></i> View
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" onclick="editUser('${user._id}')">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteUser('${user._id}')">
+                                <i class="fas fa-trash me-1"></i> Delete
+                            </button>
+                        </div>
                     </div>
-                    <p class="last-active">
-                        <i class="fas fa-clock me-1"></i>
-                        Joined ${user.createdAt ? formatDate(user.createdAt) : 'Unknown'}
-                    </p>
-                    <button class="btn btn-outline-primary btn-sm view-user-btn" data-id="${user._id}">
-                        <i class="fas fa-eye me-1"></i> View Details
-                    </button>
                 `;
-                
-                usersGridView.appendChild(userCard);
             });
             
-            // Add event listeners to view buttons
-            document.querySelectorAll('.view-user-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const userId = this.getAttribute('data-id');
-                    viewUserDetails(userId);
-                });
-            });
+            elements.usersGridView.innerHTML = html;
         }
 
-        // Display users in list view
         function displayUsersList() {
-            usersTableBody.innerHTML = '';
+            let html = '';
             
-            if (currentUsers.length === 0) {
-                usersTableBody.innerHTML = `
+            currentUsers.forEach(user => {
+                html += `
                     <tr>
-                        <td colspan="6" class="text-center py-4">
-                            <i class="fas fa-search fa-2x text-muted mb-2"></i>
-                            <p class="text-muted">No users found</p>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="table-avatar me-3">${getInitials(user.name)}</div>
+                                <div>
+                                    <div class="fw-bold">${user.name || 'Unknown User'}</div>
+                                    <small class="text-muted">ID: ${user._id?.substring(0, 8) || 'N/A'}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>${user.email || 'No email'}</div>
+                            <small class="text-muted">${user.phone || 'No phone'}</small>
+                        </td>
+                        <td>
+                            <span class="badge role-badge ${getRoleBadgeClass(user.role)}">
+                                ${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge status-badge ${getStatusBadgeClass(user.status)}">
+                                ${user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Active'}
+                            </span>
+                        </td>
+                        <td>
+                            <div>${formatDate(user.createdAt)}</div>
+                            <small class="text-muted">${formatTime(user.createdAt)}</small>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon btn-view" onclick="viewUserDetails('${user._id}')" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn-icon btn-edit" onclick="editUser('${user._id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon btn-delete" onclick="deleteUser('${user._id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
-                return;
-            }
-            
-            currentUsers.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-sm me-3">${getInitials(user.name || 'Unknown User')}</div>
-                            <div>
-                                <div class="fw-bold">${user.name || 'Unknown User'}</div>
-                                <small class="text-muted">ID: ${user._id || 'N/A'}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div>${user.email || 'No email'}</div>
-                        <small class="text-muted">${user.phone || 'No phone'}</small>
-                    </td>
-                    <td>
-                        <span class="badge role-badge ${getRoleBadgeClass(user.role)}">
-                            ${user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="badge status-badge ${getStatusBadgeClass(user.status)}">
-                            ${user.status ? user.status.charAt(0).toUpperCase() + user.status.slice(1) : 'Active'}
-                        </span>
-                    </td>
-                    <td>
-                        <div>${user.createdAt ? formatDate(user.createdAt) : 'Unknown'}</div>
-                        <small class="text-muted">${user.createdAt ? formatTime(user.createdAt) : ''}</small>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary action-btn view-user-btn" data-id="${user._id}">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                `;
-                
-                usersTableBody.appendChild(row);
             });
             
-            // Add event listeners to view buttons
-            document.querySelectorAll('.view-user-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const userId = this.getAttribute('data-id');
-                    viewUserDetails(userId);
-                });
-            });
+            elements.usersTableBody.innerHTML = html;
         }
 
-        // Toggle between grid and list view
-        function toggleViewMode() {
-            if (viewMode === 'grid') {
-                usersGridView.classList.remove('d-none');
-                usersListView.classList.add('d-none');
-            } else {
-                usersGridView.classList.add('d-none');
-                usersListView.classList.remove('d-none');
-            }
-            displayUsers();
-        }
-
-        // Update statistics
         function updateStats() {
-            totalUsersEl.textContent = currentUsers.length;
-            activeUsersEl.textContent = currentUsers.filter(user => !user.status || user.status === 'active').length;
-            adminUsersEl.textContent = currentUsers.filter(user => user.role === 'admin').length;
+            document.getElementById('totalUsers').textContent = currentUsers.length;
+            document.getElementById('activeUsers').textContent = currentUsers.filter(user => !user.status || user.status === 'active').length;
+            document.getElementById('adminUsers').textContent = currentUsers.filter(user => user.role === 'admin').length;
             
-            // Calculate new users this month (for demo, we'll use a simple count)
+            // Calculate new users this month
             const currentMonth = new Date().getMonth();
             const currentYear = new Date().getFullYear();
             const newThisMonth = currentUsers.filter(user => {
@@ -872,56 +1846,67 @@
                 return userDate.getMonth() === currentMonth && userDate.getFullYear() === currentYear;
             }).length;
             
-            newUsersEl.textContent = newThisMonth;
+            document.getElementById('newUsers').textContent = newThisMonth;
         }
 
-        // View user details
+        function renderEmptyState() {
+            elements.emptyState.style.display = 'block';
+            elements.usersGridView.innerHTML = '';
+            elements.usersTableBody.innerHTML = '';
+            document.getElementById('usersCount').textContent = '0 users';
+        }
+
+        // ====================
+        // USER ACTIONS
+        // ====================
         async function viewUserDetails(userId) {
             try {
-                // For now, we'll use the user data we already have
-                // In a real app, you might want to fetch detailed user info
+                showLoading();
                 currentUser = currentUsers.find(user => user._id === userId);
                 
                 if (currentUser) {
                     displayUserDetails();
-                    userDetailsModal.show();
+                    userDetailsModalInstance.show();
                 } else {
                     throw new Error('User not found');
                 }
             } catch (error) {
                 console.error('Error loading user details:', error);
-                showError('Failed to load user details: ' + error.message);
+                showAlert('Failed to load user details: ' + error.message, 'danger');
+            } finally {
+                hideLoading();
             }
         }
 
-        // Display user details in modal
         function displayUserDetails() {
             if (!currentUser) return;
             
             // User avatar
             const avatarEl = document.getElementById('detailUserAvatar');
-            avatarEl.innerHTML = getInitials(currentUser.name || 'Unknown User');
+            avatarEl.innerHTML = getInitials(currentUser.name);
             avatarEl.style.background = getAvatarGradient(currentUser._id);
             
             // User information
             document.getElementById('detailUserName').textContent = currentUser.name || 'Unknown User';
-            document.getElementById('detailUserRole').textContent = currentUser.role ? 
-                currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) : 'User';
-            document.getElementById('detailUserRole').className = `badge role-badge ${getRoleBadgeClass(currentUser.role)}`;
             
-            document.getElementById('detailUserStatus').textContent = currentUser.status ? 
+            const roleBadge = document.getElementById('detailUserRole');
+            roleBadge.textContent = currentUser.role ? 
+                currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1) : 'User';
+            roleBadge.className = `badge role-badge ${getRoleBadgeClass(currentUser.role)}`;
+            
+            const statusBadge = document.getElementById('detailUserStatus');
+            statusBadge.textContent = currentUser.status ? 
                 currentUser.status.charAt(0).toUpperCase() + currentUser.status.slice(1) : 'Active';
-            document.getElementById('detailUserStatus').className = `badge status-badge ${getStatusBadgeClass(currentUser.status)}`;
+            statusBadge.className = `badge status-badge ${getStatusBadgeClass(currentUser.status)}`;
             
             document.getElementById('detailUserEmail').textContent = currentUser.email || 'No email';
             document.getElementById('detailUserPhone').textContent = currentUser.phone || 'No phone';
             document.getElementById('detailUserId').textContent = currentUser._id || 'N/A';
-            document.getElementById('detailUserJoined').textContent = currentUser.createdAt ? 
-                formatDate(currentUser.createdAt) : 'Unknown';
+            document.getElementById('detailUserJoined').textContent = formatDate(currentUser.createdAt);
             document.getElementById('detailUserLastActive').textContent = currentUser.updatedAt ? 
                 `${formatDate(currentUser.updatedAt)} at ${formatTime(currentUser.updatedAt)}` : 'Unknown';
             
-            // User stats (for demo, we'll use random numbers)
+            // User stats
             document.getElementById('detailUserOrders').textContent = Math.floor(Math.random() * 50);
             document.getElementById('detailUserPayments').textContent = Math.floor(Math.random() * 30);
             document.getElementById('detailUserTotal').textContent = `$${(Math.random() * 1000).toFixed(2)}`;
@@ -936,117 +1921,61 @@
                     </div>
                 `).join('');
             } else {
-                addressesEl.innerHTML = '<p class="text-muted">No address information available</p>';
+                addressesEl.innerHTML = '<p class="text-muted mb-0">No address information available</p>';
             }
             
             // Additional information
-            document.getElementById('detailEmailVerified').textContent = 
-                currentUser.email_verified ? 'Yes' : 'No';
-            document.getElementById('detailEmailVerified').className = 
-                `badge ${currentUser.email_verified ? 'bg-success' : 'bg-warning'}`;
+            const emailVerifiedEl = document.getElementById('detailEmailVerified');
+            emailVerifiedEl.textContent = currentUser.email_verified ? 'Yes' : 'No';
+            emailVerifiedEl.className = `badge ${currentUser.email_verified ? 'bg-success' : 'bg-warning'}`;
             
-            document.getElementById('detailNewsletter').textContent = 
-                currentUser.newsletter_subscribed ? 'Subscribed' : 'Not Subscribed';
-            document.getElementById('detailNewsletter').className = 
-                `badge ${currentUser.newsletter_subscribed ? 'bg-info' : 'bg-secondary'}`;
+            const newsletterEl = document.getElementById('detailNewsletter');
+            newsletterEl.textContent = currentUser.newsletter_subscribed ? 'Subscribed' : 'Not Subscribed';
+            newsletterEl.className = `badge ${currentUser.newsletter_subscribed ? 'bg-info' : 'bg-secondary'}`;
         }
 
-        // Refresh user details
         function refreshUserDetails() {
             if (currentUser) {
                 loadUsers(currentPage);
-                userDetailsModal.hide();
+                userDetailsModalInstance.hide();
+                showAlert('User details refreshed', 'info');
             }
         }
 
-        // Export users
-        function exportUsers() {
-            // In a real application, this would call an export API endpoint
-            alert('Export functionality would be implemented here. This would typically generate a CSV or Excel file with all filtered users.');
+        function openAddUserModal() {
+            showAlert('Add user functionality would be implemented here', 'info');
         }
 
-        // Utility functions
-        function getInitials(name) {
-            return name.split(' ').map(part => part[0]).join('').toUpperCase().substring(0, 2);
-        }
-
-        function getAvatarGradient(id) {
-            // Create a consistent gradient based on user ID
-            const colors = [
-                'linear-gradient(45deg, #3498db, #2ecc71)',
-                'linear-gradient(45deg, #e74c3c, #f39c12)',
-                'linear-gradient(45deg, #9b59b6, #3498db)',
-                'linear-gradient(45deg, #1abc9c, #2ecc71)',
-                'linear-gradient(45deg, #34495e, #7f8c8d)'
-            ];
-            
-            // Simple hash function to get consistent color for user ID
-            let hash = 0;
-            for (let i = 0; i < (id || '').length; i++) {
-                hash = id.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            
-            return colors[Math.abs(hash) % colors.length];
-        }
-
-        function getRoleBadgeClass(role) {
-            switch(role) {
-                case 'admin': return 'bg-danger';
-                case 'moderator': return 'bg-warning';
-                case 'user': return 'bg-primary';
-                case 'customer': return 'bg-info';
-                default: return 'bg-secondary';
+        function editUser(userId) {
+            const user = currentUsers.find(u => u._id === userId);
+            if (user) {
+                showAlert(`Edit user: ${user.name}`, 'info');
             }
         }
 
-        function getStatusBadgeClass(status) {
-            switch(status) {
-                case 'active': return 'bg-success';
-                case 'inactive': return 'bg-secondary';
-                case 'suspended': return 'bg-danger';
-                case 'pending': return 'bg-warning';
-                default: return 'bg-success';
+        function deleteUser(userId) {
+            const user = currentUsers.find(u => u._id === userId);
+            if (user && confirm(`Are you sure you want to delete ${user.name}? This action cannot be undone.`)) {
+                showAlert(`User ${user.name} deleted successfully`, 'success');
+                // In a real app, you would call an API to delete the user
+                loadUsers();
             }
         }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString();
-        }
-
-        function formatTime(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function showLoadingState() {
-            if (viewMode === 'grid') {
-                usersGridView.innerHTML = `
-                    <div class="col-12 text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2 text-muted">Loading users...</p>
-                    </div>
-                `;
-            } else {
-                usersTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center py-4">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <p class="mt-2 text-muted">Loading users...</p>
-                        </td>
-                    </tr>
-                `;
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminAuthToken');
+                window.location.href = 'login.html';
             }
         }
 
-        function showError(message) {
-            // In a real application, you'd use a more sophisticated notification system
-            alert('Error: ' + message);
-        }
+        // Make functions available globally
+        window.viewUserDetails = viewUserDetails;
+        window.editUser = editUser;
+        window.deleteUser = deleteUser;
+        window.openAddUserModal = openAddUserModal;
+        window.refreshUserDetails = refreshUserDetails;
+        window.logout = logout;
     </script>
 </body>
 </html>

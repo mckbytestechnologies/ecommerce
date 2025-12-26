@@ -46,7 +46,7 @@
   </div>
 
   <script>
-    const API_URL = "https://ecommerce-server-fhna.onrender.com/api/auth/login"; // 🔹 Adjust if your backend uses another route
+    const API_URL = "http://localhost:5000/api/auth/login"; // 🔹 Adjust if your backend uses another route
 
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -71,15 +71,20 @@
           localStorage.setItem("token", data.token);
           alertBox.innerHTML = `<div class="alert alert-success">Login successful! Redirecting...</div>`;
           setTimeout(() => {
-            window.location.href = "products.html";
+            window.location.href = "index.html";
           }, 1000);
         } else {
           alertBox.innerHTML = `<div class="alert alert-danger">${data.message || "Invalid credentials"}</div>`;
         }
       } catch (err) {
-        console.error("Login error:", err);
-        alertBox.innerHTML = `<div class="alert alert-danger">Server error. Please try again.</div>`;
-      }
+  console.error("Login error:", err);
+  alertBox.innerHTML = `
+    <div class="alert alert-danger">
+      Cannot connect to server or token missing.
+      Check backend & authorization.
+    </div>`;
+}
+
     });
   </script>
 </body>
