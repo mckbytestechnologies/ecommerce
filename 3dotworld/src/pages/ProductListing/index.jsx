@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import SlideBar from "../../components/SlideBar";
 import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Link from "@mui/material/Link";
-import ProductCard from "../../components/ProductCard";
 import { 
   Button, 
   IconButton, 
@@ -11,33 +10,21 @@ import {
   CircularProgress,
   Alert,
   Typography,
-  Grid,
   Chip,
   Badge,
   Card,
   CardContent,
   CardMedia,
-  CardActions,
   Rating,
   Divider,
   Stack,
-  Avatar,
   Tooltip,
   Fade,
   Zoom,
   Skeleton
 } from "@mui/material";
 import { 
-  IoGrid, 
-  IoMenu,
-  IoFilter,
-  IoOptions,
-  IoCartOutline,
-  IoFlashOutline,
-  IoStar,
-  IoEyeOutline,
-  IoHeartOutline,
-  IoCheckmarkCircleOutline
+  IoEyeOutline
 } from "react-icons/io5";
 import {
   FilterList,
@@ -300,35 +287,40 @@ const ProductListing = () => {
     }).format(price);
   };
 
-  // Loading skeleton for grid view (2 cards per row)
+  // Loading skeleton for grid view
   const GridSkeleton = () => (
-    <Grid container spacing={2}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
       {[...Array(6)].map((_, index) => (
-        <Grid item xs={6} sm={6} md={6} lg={6} key={index}>
-          <Card sx={{ 
-            borderRadius: 3,
-            overflow: 'hidden',
-            height: '100%',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              transform: 'translateY(-8px)',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
-            }
+        <Card key={index} sx={{ 
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          borderRadius: 3,
+          overflow: 'hidden'
+        }}>
+          <Skeleton 
+            variant="rectangular" 
+            height={200}
+            animation="wave" 
+          />
+          <CardContent sx={{ 
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            p: 3
           }}>
-            <Skeleton variant="rectangular" height={250} animation="wave" />
-            <CardContent>
-              <Skeleton variant="text" height={24} width="60%" animation="wave" />
-              <Skeleton variant="text" height={20} width="40%" animation="wave" />
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, my: 1 }}>
-                <Skeleton variant="circular" width={20} height={20} animation="wave" />
-                <Skeleton variant="text" height={20} width="100px" animation="wave" />
-              </Box>
-              <Skeleton variant="text" height={36} width="50%" animation="wave" />
-            </CardContent>
-          </Card>
-        </Grid>
+            <Skeleton variant="text" height={20} width="60%" animation="wave" />
+            <Skeleton variant="text" height={24} width="90%" animation="wave" sx={{ my: 1.5 }} />
+            <Skeleton variant="text" height={20} width="40%" animation="wave" sx={{ mb: 2 }} />
+            <Skeleton variant="text" height={32} width="50%" animation="wave" sx={{ mb: 2 }} />
+            <Skeleton variant="rectangular" height={48} animation="wave" sx={{ 
+              borderRadius: '10px',
+              mt: 'auto'
+            }} />
+          </CardContent>
+        </Card>
       ))}
-    </Grid>
+    </div>
   );
 
   // Loading skeleton for list view
@@ -849,306 +841,318 @@ const ProductListing = () => {
                 </Button>
               </Card>
             ) : view === "grid" ? (
-              // Enhanced Grid View - 2 Cards per row on ALL screens
               <Zoom in={true}>
-                <Grid container spacing={2}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
                   {products.map((product) => (
-                    <Grid item xs={6} sm={6} md={6} lg={6} key={product._id}>
-                      <Card sx={{ 
+                    <Card 
+                      key={product._id}
+                      sx={{ 
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
                         borderRadius: 3,
                         overflow: 'hidden',
-                        height: '100%',
                         position: 'relative',
-                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        transition: 'all 0.3s ease',
                         border: '1px solid #f3f4f6',
-                        width: '100%',
                         '&:hover': {
-                          transform: 'translateY(-8px)',
-                          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
                           borderColor: '#ffcdd2',
                           '& .product-actions': {
                             opacity: 1,
                             transform: 'translateY(0)'
-                          },
-                          '& .product-image': {
-                            transform: 'scale(1.05)'
                           }
                         }
+                      }}
+                    >
+                      {/* Product Image */}
+                      <Box sx={{ 
+                        position: 'relative',
+                        overflow: 'hidden',
+                        height: 200,
+                        backgroundColor: '#f9fafb',
+                        flexShrink: 0
                       }}>
-                        {/* Product Image with Overlay */}
-                        <Box sx={{ 
-                          position: 'relative',
-                          overflow: 'hidden',
-                          height: 280,
-                          backgroundColor: '#f9fafb'
-                        }}>
-                          <CardMedia
-                            component="img"
-                            image={product.images?.[0]?.url || "/placeholder.jpg"}
-                            alt={product.name}
-                            className="product-image"
-                            sx={{ 
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                              transition: 'transform 0.6s ease'
-                            }}
-                          />
+                        <CardMedia
+                          component="img"
+                          image={product.images?.[0]?.url || "/placeholder.jpg"}
+                          alt={product.name}
+                          sx={{ 
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            transition: 'transform 0.6s ease',
+                            '&:hover': {
+                              transform: 'scale(1.05)'
+                            }
+                          }}
+                        />
+                        
+                        {/* Badges */}
+                        <Box sx={{ position: 'absolute', top: 12, left: 12, zIndex: 2 }}>
+                          {product.stock === 0 ? (
+                            <Chip
+                              label="Out of Stock"
+                              size="small"
+                              sx={{
+                                bgcolor: 'rgba(0,0,0,0.8)',
+                                color: 'white',
+                                fontWeight: '700',
+                                fontSize: '0.7rem',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          ) : product.stock < 10 ? (
+                            <Chip
+                              label={`Only ${product.stock} left`}
+                              size="small"
+                              sx={{
+                                bgcolor: '#ff9800',
+                                color: 'white',
+                                fontWeight: '700',
+                                fontSize: '0.7rem',
+                                borderRadius: '4px'
+                              }}
+                            />
+                          ) : null}
                           
-                          {/* Badges */}
-                          <Box sx={{ position: 'absolute', top: 16, left: 16, zIndex: 2 }}>
-                            {product.stock === 0 ? (
-                              <Chip
-                                label="Out of Stock"
-                                size="small"
-                                sx={{
-                                  bgcolor: 'rgba(0,0,0,0.8)',
-                                  color: 'white',
-                                  fontWeight: '700',
-                                  fontSize: '0.7rem',
-                                  borderRadius: '4px'
-                                }}
-                              />
-                            ) : product.stock < 10 ? (
-                              <Chip
-                                label={`Only ${product.stock} left`}
-                                size="small"
-                                sx={{
-                                  bgcolor: '#ff9800',
-                                  color: 'white',
-                                  fontWeight: '700',
-                                  fontSize: '0.7rem',
-                                  borderRadius: '4px'
-                                }}
-                              />
-                            ) : null}
-                            
-                            {product.comparePrice && product.comparePrice > product.price && (
-                              <Chip
-                                label={`${Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}% OFF`}
-                                size="small"
-                                sx={{
-                                  bgcolor: '#D32F2F',
-                                  color: 'white',
-                                  fontWeight: '700',
-                                  fontSize: '0.7rem',
-                                  borderRadius: '4px',
-                                  mt: product.stock <= 10 ? 1 : 0
-                                }}
-                              />
-                            )}
-                          </Box>
+                          {product.comparePrice && product.comparePrice > product.price && (
+                            <Chip
+                              label={`${Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}% OFF`}
+                              size="small"
+                              sx={{
+                                bgcolor: '#D32F2F',
+                                color: 'white',
+                                fontWeight: '700',
+                                fontSize: '0.7rem',
+                                borderRadius: '4px',
+                                mt: product.stock <= 10 ? 1 : 0
+                              }}
+                            />
+                          )}
+                        </Box>
 
-                          {/* Quick Actions Overlay */}
-                          <Box className="product-actions" sx={{
-                            position: 'absolute',
-                            top: 16,
-                            right: 16,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 1,
-                            opacity: 0,
-                            transform: 'translateY(-10px)',
-                            transition: 'all 0.3s ease'
-                          }}>
-                            <Tooltip title={favorites.includes(product._id) ? "Remove from favorites" : "Add to favorites"}>
-                              <IconButton
-                                onClick={() => toggleFavorite(product._id)}
-                                sx={{
-                                  bgcolor: 'white',
-                                  color: favorites.includes(product._id) ? '#D32F2F' : '#9ca3af',
-                                  '&:hover': {
-                                    bgcolor: '#fef2f2',
-                                    color: '#D32F2F'
-                                  },
-                                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                                }}
-                              >
-                                {favorites.includes(product._id) ? <Favorite /> : <FavoriteBorder />}
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Quick View">
-                              <IconButton
-                                onClick={() => setQuickView(product._id)}
-                                sx={{
-                                  bgcolor: 'white',
-                                  color: '#374151',
-                                  '&:hover': {
-                                    bgcolor: '#f3f4f6',
-                                    color: '#D32F2F'
-                                  },
-                                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                                }}
-                              >
-                                <IoEyeOutline />
-                              </IconButton>
-                            </Tooltip>
+                        {/* Quick Actions */}
+                        <Box className="product-actions" sx={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 1,
+                          opacity: 0,
+                          transform: 'translateY(-10px)',
+                          transition: 'all 0.3s ease'
+                        }}>
+                          <Tooltip title={favorites.includes(product._id) ? "Remove from favorites" : "Add to favorites"}>
+                            <IconButton
+                              onClick={() => toggleFavorite(product._id)}
+                              sx={{
+                                bgcolor: 'white',
+                                color: favorites.includes(product._id) ? '#D32F2F' : '#9ca3af',
+                                '&:hover': {
+                                  bgcolor: '#fef2f2',
+                                  color: '#D32F2F'
+                                },
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              {favorites.includes(product._id) ? <Favorite /> : <FavoriteBorder />}
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Quick View">
+                            <IconButton
+                              onClick={() => setQuickView(product._id)}
+                              sx={{
+                                bgcolor: 'white',
+                                color: '#374151',
+                                '&:hover': {
+                                  bgcolor: '#f3f4f6',
+                                  color: '#D32F2F'
+                                },
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              <IoEyeOutline />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      </Box>
+
+                      {/* Card Content */}
+                      <CardContent sx={{ 
+                        flexGrow: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        p: 3
+                      }}>
+                        {/* Category */}
+                        <Typography variant="caption" sx={{ 
+                          color: '#D32F2F',
+                          fontWeight: '600',
+                          letterSpacing: '0.5px',
+                          textTransform: 'uppercase',
+                          mb: 1,
+                          display: 'block'
+                        }}>
+                          {product.category?.name || product.category || "Uncategorized"}
+                        </Typography>
+
+                        {/* Product Title */}
+                        <Typography variant="h6" sx={{ 
+                          fontWeight: '700',
+                          color: '#111827',
+                          mb: 1.5,
+                          lineHeight: 1.3,
+                          height: '44px',
+                          overflow: 'hidden',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>
+                          {product.name}
+                        </Typography>
+
+                        {/* Rating */}
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 1, 
+                          mb: 2,
+                          minHeight: '24px'
+                        }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Rating 
+                              value={product.averageRating || 0} 
+                              readOnly 
+                              precision={0.5}
+                              size="small"
+                              sx={{ color: '#fbbf24' }}
+                            />
+                            <Typography variant="caption" sx={{ ml: 1, color: '#6b7280', fontWeight: '500' }}>
+                              ({product.reviewCount || 0})
+                            </Typography>
+                          </Box>
+                          {product.soldCount > 100 && (
+                            <Chip
+                              label="🔥 Best Seller"
+                              size="small"
+                              sx={{
+                                bgcolor: '#fef3c7',
+                                color: '#92400e',
+                                fontSize: '0.65rem',
+                                fontWeight: '600',
+                                height: 20
+                              }}
+                            />
+                          )}
+                        </Box>
+
+                        {/* Price */}
+                        <Box sx={{ mb: 2, minHeight: '40px' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5, flexWrap: 'wrap' }}>
+                            <Typography variant="h5" sx={{ 
+                              fontWeight: '800',
+                              color: '#111827',
+                              background: 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
+                              WebkitBackgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent'
+                            }}>
+                              ₹{formatPrice(product.price)}
+                            </Typography>
+                            {product.comparePrice && product.comparePrice > product.price && (
+                              <>
+                                <Typography variant="body2" sx={{ 
+                                  color: '#9ca3af',
+                                  textDecoration: 'line-through',
+                                  fontWeight: '500'
+                                }}>
+                                  ₹{formatPrice(product.comparePrice)}
+                                </Typography>
+                                <Typography variant="caption" sx={{ 
+                                  color: '#10b981',
+                                  fontWeight: '700',
+                                  bgcolor: '#d1fae5',
+                                  px: 1,
+                                  py: 0.5,
+                                  borderRadius: '4px'
+                                }}>
+                                  Save ₹{formatPrice(product.comparePrice - product.price)}
+                                </Typography>
+                              </>
+                            )}
                           </Box>
                         </Box>
 
-                        <CardContent sx={{ p: 3 }}>
-                          {/* Category */}
-                          <Typography variant="caption" sx={{ 
-                            color: '#D32F2F',
-                            fontWeight: '600',
-                            letterSpacing: '0.5px',
-                            textTransform: 'uppercase',
-                            mb: 1,
-                            display: 'block'
-                          }}>
-                            {product.category?.name || product.category || "Uncategorized"}
-                          </Typography>
+                        {/* Stock Status */}
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 1, 
+                          mb: 2,
+                          p: 1.5,
+                          bgcolor: product.stock > 0 ? '#f0fdf4' : '#fef2f2',
+                          borderRadius: '8px',
+                          border: `1px solid ${product.stock > 0 ? '#d1fae5' : '#fecaca'}`,
+                          minHeight: '40px'
+                        }}>
+                          {product.stock > 0 ? (
+                            <>
+                              <CheckCircle sx={{ color: '#10b981', fontSize: 18 }} />
+                              <Typography variant="body2" sx={{ color: '#065f46', fontWeight: '500' }}>
+                                {product.stock > 10 ? 'In Stock' : `Only ${product.stock} left`}
+                              </Typography>
+                            </>
+                          ) : (
+                            <>
+                              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ef4444' }} />
+                              <Typography variant="body2" sx={{ color: '#991b1b', fontWeight: '500' }}>
+                                Out of Stock
+                              </Typography>
+                            </>
+                          )}
+                        </Box>
 
-                          {/* Product Title */}
-                          <Typography variant="h6" sx={{ 
+                        {/* Add to Cart Button */}
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          startIcon={<ShoppingCart />}
+                          disabled={product.stock === 0}
+                          sx={{
+                            background: product.stock === 0 
+                              ? '#9ca3af' 
+                              : 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
+                            color: 'white',
+                            borderRadius: '10px',
+                            py: 1.5,
                             fontWeight: '700',
-                            color: '#111827',
-                            mb: 1.5,
-                            lineHeight: 1.3,
-                            height: 44,
-                            overflow: 'hidden',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical'
-                          }}>
-                            {product.name}
-                          </Typography>
-
-                          {/* Rating */}
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Rating 
-                                value={product.averageRating || 0} 
-                                readOnly 
-                                precision={0.5}
-                                size="small"
-                                sx={{ color: '#fbbf24' }}
-                              />
-                              <Typography variant="caption" sx={{ ml: 1, color: '#6b7280', fontWeight: '500' }}>
-                                ({product.reviewCount || 0})
-                              </Typography>
-                            </Box>
-                            {product.soldCount > 100 && (
-                              <Chip
-                                label="🔥 Best Seller"
-                                size="small"
-                                sx={{
-                                  bgcolor: '#fef3c7',
-                                  color: '#92400e',
-                                  fontSize: '0.65rem',
-                                  fontWeight: '600',
-                                  height: 20
-                                }}
-                              />
-                            )}
-                          </Box>
-
-                          {/* Price */}
-                          <Box sx={{ mb: 2 }}>
-                            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
-                              <Typography variant="h5" sx={{ 
-                                fontWeight: '800',
-                                color: '#111827',
-                                background: 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent'
-                              }}>
-                                ₹{formatPrice(product.price)}
-                              </Typography>
-                              {product.comparePrice && product.comparePrice > product.price && (
-                                <>
-                                  <Typography variant="body2" sx={{ 
-                                    color: '#9ca3af',
-                                    textDecoration: 'line-through',
-                                    fontWeight: '500'
-                                  }}>
-                                    ₹{formatPrice(product.comparePrice)}
-                                  </Typography>
-                                  <Typography variant="caption" sx={{ 
-                                    color: '#10b981',
-                                    fontWeight: '700',
-                                    bgcolor: '#d1fae5',
-                                    px: 1,
-                                    py: 0.5,
-                                    borderRadius: '4px'
-                                  }}>
-                                    Save ₹{formatPrice(product.comparePrice - product.price)}
-                                  </Typography>
-                                </>
-                              )}
-                            </Box>
-                          </Box>
-
-                          {/* Stock Status */}
-                          <Box sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 1, 
-                            mb: 2,
-                            p: 1.5,
-                            bgcolor: product.stock > 0 ? '#f0fdf4' : '#fef2f2',
-                            borderRadius: '8px',
-                            border: `1px solid ${product.stock > 0 ? '#d1fae5' : '#fecaca'}`
-                          }}>
-                            {product.stock > 0 ? (
-                              <>
-                                <CheckCircle sx={{ color: '#10b981', fontSize: 18 }} />
-                                <Typography variant="body2" sx={{ color: '#065f46', fontWeight: '500' }}>
-                                  {product.stock > 10 ? 'In Stock' : `Only ${product.stock} left`}
-                                </Typography>
-                              </>
-                            ) : (
-                              <>
-                                <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ef4444' }} />
-                                <Typography variant="body2" sx={{ color: '#991b1b', fontWeight: '500' }}>
-                                  Out of Stock
-                                </Typography>
-                              </>
-                            )}
-                          </Box>
-
-                          {/* Action Buttons */}
-                          <CardActions sx={{ p: 0 }}>
-                            <Button
-                              fullWidth
-                              variant="contained"
-                              startIcon={<ShoppingCart />}
-                              disabled={product.stock === 0}
-                              sx={{
-                                background: product.stock === 0 
-                                  ? '#9ca3af' 
-                                  : 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
-                                color: 'white',
-                                borderRadius: '10px',
-                                py: 1.5,
-                                fontWeight: '700',
-                                fontSize: '0.95rem',
-                                textTransform: 'none',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                  background: product.stock === 0 
-                                    ? '#9ca3af' 
-                                    : 'linear-gradient(135deg, #B71C1C 0%, #D32F2F 100%)',
-                                  transform: 'translateY(-2px)',
-                                  boxShadow: '0 10px 20px rgba(211, 47, 47, 0.3)'
-                                },
-                                '&.Mui-disabled': {
-                                  background: '#9ca3af',
-                                  color: 'white'
-                                }
-                              }}
-                            >
-                              {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                            </Button>
-                          </CardActions>
-                        </CardContent>
-                      </Card>
-                    </Grid>
+                            fontSize: '0.95rem',
+                            textTransform: 'none',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                              background: product.stock === 0 
+                                ? '#9ca3af' 
+                                : 'linear-gradient(135deg, #B71C1C 0%, #D32F2F 100%)',
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 10px 20px rgba(211, 47, 47, 0.3)'
+                            },
+                            '&.Mui-disabled': {
+                              background: '#9ca3af',
+                              color: 'white'
+                            },
+                            mt: 'auto'
+                          }}
+                        >
+                          {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                        </Button>
+                      </CardContent>
+                    </Card>
                   ))}
-                </Grid>
+                </div>
               </Zoom>
             ) : (
-              // Enhanced List View - 1 Card with more details
               <Fade in={true}>
                 <Stack spacing={3}>
                   {products.map((product) => (
@@ -1167,7 +1171,6 @@ const ProductListing = () => {
                       }
                     }}>
                       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' } }}>
-                        {/* Product Image Section */}
                         <Box sx={{ 
                           width: { xs: '100%', lg: 380 },
                           height: { xs: 280, lg: 'auto' },
@@ -1188,7 +1191,6 @@ const ProductListing = () => {
                             }}
                           />
                           
-                          {/* Image Badges */}
                           <Box sx={{ position: 'absolute', top: 16, left: 16 }}>
                             {product.stock === 0 ? (
                               <Chip
@@ -1232,7 +1234,6 @@ const ProductListing = () => {
                             )}
                           </Box>
 
-                          {/* Quick Actions */}
                           <Box sx={{ 
                             position: 'absolute', 
                             top: 16, 
@@ -1260,10 +1261,8 @@ const ProductListing = () => {
                           </Box>
                         </Box>
 
-                        {/* Product Details Section */}
                         <Box sx={{ flex: 1, p: { xs: 3, lg: 4 } }}>
                           <Box sx={{ mb: 3 }}>
-                            {/* Category & Badges */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                               <Chip
                                 label={product.category?.name || product.category || "Uncategorized"}
@@ -1306,7 +1305,6 @@ const ProductListing = () => {
                               )}
                             </Box>
 
-                            {/* Product Title */}
                             <Typography variant="h5" sx={{ 
                               fontWeight: '800',
                               color: '#111827',
@@ -1316,7 +1314,6 @@ const ProductListing = () => {
                               {product.name}
                             </Typography>
 
-                            {/* Rating & Reviews */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2.5 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <Rating 
@@ -1339,7 +1336,6 @@ const ProductListing = () => {
                               )}
                             </Box>
 
-                            {/* Product Description */}
                             <Typography variant="body1" sx={{ 
                               color: '#6b7280',
                               mb: 3,
@@ -1352,7 +1348,6 @@ const ProductListing = () => {
                               {product.description || "Premium quality product with excellent features and durability."}
                             </Typography>
 
-                            {/* Features */}
                             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <LocalShipping sx={{ fontSize: 18, color: '#6b7280' }} />
@@ -1369,140 +1364,136 @@ const ProductListing = () => {
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Replay sx={{ fontSize: 18, color: '#6b7280' }} />
                                 <Typography variant="caption" sx={{ color: '#6b7280' }}>
-                  30-Day Returns
-                </Typography>
-              </Box>
-            </Stack>
-          </Box>
+                                  30-Day Returns
+                                </Typography>
+                              </Box>
+                            </Stack>
+                          </Box>
 
-          <Divider sx={{ my: 3 }} />
+                          <Divider sx={{ my: 3 }} />
 
-          {/* Price & Actions Section */}
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row' },
-            alignItems: { xs: 'stretch', sm: 'center' }, 
-            justifyContent: 'space-between',
-            gap: 3
-          }}>
-            {/* Price Section */}
-            <Box>
-              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 1 }}>
-                <Typography variant="h3" sx={{ 
-                  fontWeight: '900',
-                  color: '#111827',
-                  background: 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>
-                  ₹{formatPrice(product.price)}
-                </Typography>
-                {product.comparePrice && product.comparePrice > product.price && (
-                  <>
-                    <Typography variant="h6" sx={{ 
-                      color: '#9ca3af',
-                      textDecoration: 'line-through',
-                      fontWeight: '500'
-                    }}>
-                      ₹{formatPrice(product.comparePrice)}
-                    </Typography>
-                    <Typography variant="body1" sx={{ 
-                      color: '#10b981',
-                      fontWeight: '700',
-                      bgcolor: '#d1fae5',
-                      px: 1.5,
-                      py: 0.5,
-                      borderRadius: '6px'
-                    }}>
-                      Save ₹{formatPrice(product.comparePrice - product.price)}
-                    </Typography>
-                  </>
-                )}
-              </Box>
-              
-              {/* Stock Status */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {product.stock > 0 ? (
-                  <>
-                    <CheckCircle sx={{ color: '#10b981', fontSize: 18 }} />
-                    <Typography variant="body2" sx={{ color: '#065f46', fontWeight: '600' }}>
-                      {product.stock > 10 ? 'In Stock - Ready to ship' : `Only ${product.stock} left - Order soon!`}
-                    </Typography>
-                  </>
-                ) : (
-                  <>
-                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ef4444' }} />
-                    <Typography variant="body2" sx={{ color: '#991b1b', fontWeight: '600' }}>
-                      Out of Stock - Check back later
-                    </Typography>
-                  </>
-                )}
-              </Box>
-            </Box>
+                          <Box sx={{ 
+                            display: 'flex', 
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            alignItems: { xs: 'stretch', sm: 'center' }, 
+                            justifyContent: 'space-between',
+                            gap: 3
+                          }}>
+                            <Box>
+                              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 1 }}>
+                                <Typography variant="h3" sx={{ 
+                                  fontWeight: '900',
+                                  color: '#111827',
+                                  background: 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
+                                  WebkitBackgroundClip: 'text',
+                                  WebkitTextFillColor: 'transparent'
+                                }}>
+                                  ₹{formatPrice(product.price)}
+                                </Typography>
+                                {product.comparePrice && product.comparePrice > product.price && (
+                                  <>
+                                    <Typography variant="h6" sx={{ 
+                                      color: '#9ca3af',
+                                      textDecoration: 'line-through',
+                                      fontWeight: '500'
+                                    }}>
+                                      ₹{formatPrice(product.comparePrice)}
+                                    </Typography>
+                                    <Typography variant="body1" sx={{ 
+                                      color: '#10b981',
+                                      fontWeight: '700',
+                                      bgcolor: '#d1fae5',
+                                      px: 1.5,
+                                      py: 0.5,
+                                      borderRadius: '6px'
+                                    }}>
+                                      Save ₹{formatPrice(product.comparePrice - product.price)}
+                                    </Typography>
+                                  </>
+                                )}
+                              </Box>
+                              
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                {product.stock > 0 ? (
+                                  <>
+                                    <CheckCircle sx={{ color: '#10b981', fontSize: 18 }} />
+                                    <Typography variant="body2" sx={{ color: '#065f46', fontWeight: '600' }}>
+                                      {product.stock > 10 ? 'In Stock - Ready to ship' : `Only ${product.stock} left - Order soon!`}
+                                    </Typography>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: '#ef4444' }} />
+                                    <Typography variant="body2" sx={{ color: '#991b1b', fontWeight: '600' }}>
+                                      Out of Stock - Check back later
+                                    </Typography>
+                                  </>
+                                )}
+                              </Box>
+                            </Box>
 
-            {/* Action Buttons */}
-            <Stack direction="row" spacing={2} sx={{ 
-              flexShrink: 0,
-              width: { xs: '100%', sm: 'auto' }
-            }}>
-              <Button
-                variant="outlined"
-                startIcon={<IoEyeOutline />}
-                onClick={() => setQuickView(product._id)}
-                sx={{
-                  borderColor: '#e5e7eb',
-                  color: '#374151',
-                  borderRadius: '10px',
-                  px: 3,
-                  py: 1.5,
-                  fontWeight: '600',
-                  textTransform: 'none',
-                  minWidth: 120,
-                  '&:hover': {
-                    borderColor: '#D32F2F',
-                    backgroundColor: '#fef2f2',
-                    color: '#D32F2F'
-                  }
-                }}
-              >
-                Quick View
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<ShoppingCart />}
-                disabled={product.stock === 0}
-                sx={{
-                  background: product.stock === 0 
-                    ? '#9ca3af' 
-                    : 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
-                  color: 'white',
-                  borderRadius: '10px',
-                  px: 4,
-                  py: 1.5,
-                  fontWeight: '700',
-                  textTransform: 'none',
-                  minWidth: 140,
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    background: product.stock === 0 
-                      ? '#9ca3af' 
-                      : 'linear-gradient(135deg, #B71C1C 0%, #D32F2F 100%)',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 10px 25px rgba(211, 47, 47, 0.3)'
-                  }
-                }}
-              >
-                Add to Cart
-              </Button>
-            </Stack>
-          </Box>
-        </Box>
-      </Box>
-    </Card>
-  ))}
-</Stack>
-</Fade>
-)}
+                            <Stack direction="row" spacing={2} sx={{ 
+                              flexShrink: 0,
+                              width: { xs: '100%', sm: 'auto' }
+                            }}>
+                              <Button
+                                variant="outlined"
+                                startIcon={<IoEyeOutline />}
+                                onClick={() => setQuickView(product._id)}
+                                sx={{
+                                  borderColor: '#e5e7eb',
+                                  color: '#374151',
+                                  borderRadius: '10px',
+                                  px: 3,
+                                  py: 1.5,
+                                  fontWeight: '600',
+                                  textTransform: 'none',
+                                  minWidth: 120,
+                                  '&:hover': {
+                                    borderColor: '#D32F2F',
+                                    backgroundColor: '#fef2f2',
+                                    color: '#D32F2F'
+                                  }
+                                }}
+                              >
+                                Quick View
+                              </Button>
+                              <Button
+                                variant="contained"
+                                startIcon={<ShoppingCart />}
+                                disabled={product.stock === 0}
+                                sx={{
+                                  background: product.stock === 0 
+                                    ? '#9ca3af' 
+                                    : 'linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%)',
+                                  color: 'white',
+                                  borderRadius: '10px',
+                                  px: 4,
+                                  py: 1.5,
+                                  fontWeight: '700',
+                                  textTransform: 'none',
+                                  minWidth: 140,
+                                  transition: 'all 0.3s ease',
+                                  '&:hover': {
+                                    background: product.stock === 0 
+                                      ? '#9ca3af' 
+                                      : 'linear-gradient(135deg, #B71C1C 0%, #D32F2F 100%)',
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 10px 25px rgba(211, 47, 47, 0.3)'
+                                  }
+                                }}
+                              >
+                                Add to Cart
+                              </Button>
+                            </Stack>
+                          </Box>
+                        </Box>
+                      </Box>
+                    </Card>
+                  ))}
+                </Stack>
+              </Fade>
+            )}
 
             {/* Pagination */}
             {pagination.totalPages > 1 && (

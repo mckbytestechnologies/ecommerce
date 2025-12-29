@@ -1,4 +1,15 @@
 /* --- Floating Gift Icon - Left Position --- */
+.segment-text.hide {
+  filter: blur(8px);
+  opacity: 0.3;
+}
+.segment-text.show {
+  filter: blur(0);
+  opacity: 1;
+  transition: all 0.4s ease;
+}
+
+
 .gift-box-float {
   position: fixed;
   left: 20px;

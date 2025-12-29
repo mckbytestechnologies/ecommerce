@@ -9,6 +9,9 @@ import {
   forgotPassword,
   resetPassword,
   refreshToken,
+  verifyOTP,
+  resendOTP,
+  checkVerificationStatus
 } from "../controllers/authController.js";
 import { authenticate } from "../middleware/auth.js";
 
@@ -20,6 +23,9 @@ router.post("/login", loginUser);
 router.post("/forgotpassword", forgotPassword);
 router.put("/resetpassword/:resettoken", resetPassword);
 router.post("/refresh", refreshToken);
+router.post("/verify-otp", verifyOTP);
+router.post("/resend-otp", resendOTP);
+router.post("/check-verification", checkVerificationStatus);
 
 // Protected routes
 router.use(authenticate);

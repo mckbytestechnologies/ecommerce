@@ -140,7 +140,10 @@ const GiftBox = () => {
                           style={{ transform: `rotate(${i * 45}deg)` }}
                         >
                           <div className="segment-content">
-                            <span className="segment-text">{seg}</span>
+                            <span className={`segment-text ${showPrize ? "show" : "hide"}`}>
+  {seg}
+</span>
+
                           </div>
                         </div>
                       ))}

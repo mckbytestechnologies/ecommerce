@@ -23,6 +23,9 @@ import { WishlistProvider } from "./contexts/WishlistContext";
 import { CartProvider } from './contexts/CartContext';
 import GiftBox from "./components/GiftBox"; // Import GiftBox
 import Addresses from "./pages/Profile/Addresses";
+import OTPVerificationPage from "./pages/OTPVerificationPage";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -50,6 +53,13 @@ function App() {
              <Route path="/profile/addresses" element={<Addresses/>} />
             {/* Remove the GiftBox route - It's not a page! */}
             {/* <Route path="/GiftBox " element={<GiftBox />} /> */}
+            <Route path="/otp-verify" element={<OTPVerificationPage />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+           <Route path="/forgot-password/:token" element={<ResetPassword />} />
+
+  
+        {/* Alternative route name */}
+            <Route path="/verify-otp" element={<OTPVerificationPage />} />
           </Routes>
           
           <Footer />

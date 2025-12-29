@@ -66,3 +66,38 @@
     margin-bottom: 10px;
     border-radius: 0px;
 }
+
+/* ================================
+   PAGINATION – MODERN STYLE
+================================ */
+.swiper-pagination {
+    bottom: 30px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Default dot */
+.swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.6);
+    opacity: 1;
+    border-radius: 50%;
+    transition: all 0.35s ease;
+}
+
+/* Active dot – modern pill */
+.swiper-pagination-bullet-active {
+    width: 36px;
+    height: 10px;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #ff2a2a, #ff6b6b);
+    box-shadow: 0 4px 12px rgba(255, 42, 42, 0.6);
+}
+
+/* Hover effect */
+.swiper-pagination-bullet:hover {
+    background: rgba(255,255,255,0.9);
+}
