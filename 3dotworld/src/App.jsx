@@ -7,7 +7,7 @@ import ProductListing from "./pages/ProductListing";
 import Footer from "./components/Footer";
 import ProductDetails from "./pages/ProductDetails";
 import AuthPage from "./pages/AuthPage";
-import CartCheckout from "./pages/checkout";
+import CartCheckout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
 import ShippingTracker from "./pages/Shipping";
 import RegisterPage from "./pages/Register";
