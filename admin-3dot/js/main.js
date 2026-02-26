@@ -1,4 +1,4 @@
-const API_BASE = "https://ecommerce-server-ls1m.onrender.com/api";
+const API_BASE = "https://server-kzwj.onrender.com/api";
 
 // Fetch dashboard stats
 document.addEventListener("DOMContentLoaded", async () => {

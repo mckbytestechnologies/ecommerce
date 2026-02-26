@@ -12,7 +12,7 @@ const BlogDetails = () => {
   const [relatedBlogs, setRelatedBlogs] = useState([]);
 
   // API configuration
-  const API_URL = "http://localhost:5000/api/blogs";
+  const API_URL = "https://server-kzwj.onrender.com/api/blogs";
 
   useEffect(() => {
     const fetchBlogDetails = async () => {
@@ -178,7 +178,7 @@ const BlogDetails = () => {
         {blog.image && (
           <div className="mb-12">
             <img
-              src={blog.image.startsWith('http') ? blog.image : `http://localhost:5000${blog.image}`}
+              src={blog.image.startsWith('http') ? blog.image : `https://server-kzwj.onrender.com${blog.image}`}
               alt={blog.title}
               className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-lg"
               onError={(e) => {
@@ -212,7 +212,7 @@ const BlogDetails = () => {
                   {related.image && (
                     <div className="aspect-[4/3] overflow-hidden bg-gray-100 mb-4">
                       <img
-                        src={related.image.startsWith('http') ? related.image : `http://localhost:5000${related.image}`}
+                        src={related.image.startsWith('http') ? related.image : `https://server-kzwj.onrender.com${related.image}`}
                         alt={related.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://server-kzwj.onrender.com";
 
 const PLACEHOLDER =
   "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&h=400&fit=crop";

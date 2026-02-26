@@ -292,7 +292,7 @@ const MyOrders = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/api/users", {
+      const response = await axios.get("https://server-kzwj.onrender.com/api/users", {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -314,7 +314,7 @@ const MyOrders = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/api/orders", {
+      const response = await axios.get("https://server-kzwj.onrender.com/api/orders", {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

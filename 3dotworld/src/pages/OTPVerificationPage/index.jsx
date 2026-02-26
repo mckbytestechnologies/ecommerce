@@ -4,7 +4,7 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 export default function OTPVerificationPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const BACKEND_URL = "http://localhost:5000";
+  const BACKEND_URL = "https://server-kzwj.onrender.com";
 
   // Get email from navigation state or localStorage
   const email = location.state?.email || localStorage.getItem("pendingVerificationEmail") || "";

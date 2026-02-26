@@ -8,7 +8,7 @@ import 'swiper/css/pagination';
 
 import './HomeSlider.css';
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://server-kzwj.onrender.com';
 const HERO_API = `${API_BASE}/api/hero/active`;
 
 const HomeSlider = () => {

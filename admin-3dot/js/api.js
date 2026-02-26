@@ -1,4 +1,4 @@
-export const API_BASE = "https://ecommerce-server-ls1m.onrender.com/api";
+export const API_BASE = "https://server-kzwj.onrender.com/api";
 export const endpoints = {
   products: `${API_BASE}/products`,
   orders: `${API_BASE}/orders`,

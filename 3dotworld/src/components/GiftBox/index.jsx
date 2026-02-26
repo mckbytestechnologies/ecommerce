@@ -24,7 +24,7 @@ const GiftBox = () => {
   const fetchAvailableCoupons = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/coupons/active');
+      const response = await fetch('https://server-kzwj.onrender.com/api/coupons/active');
       
       if (response.ok) {
         const data = await response.json();

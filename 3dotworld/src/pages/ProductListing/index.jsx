@@ -143,7 +143,7 @@ const ProductListing = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/wishlist/check-multiple`,
+        `https://server-kzwj.onrender.com/api/wishlist/check-multiple`,
         { productIds },
         {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -179,7 +179,7 @@ const ProductListing = () => {
 
     try {
       if (favorites[productId]) {
-        const response = await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, {
+        const response = await axios.delete(`https://server-kzwj.onrender.com/api/wishlist/${productId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -189,7 +189,7 @@ const ProductListing = () => {
         }
       } else {
         const response = await axios.post(
-          `http://localhost:5000/api/wishlist`,
+          `https://server-kzwj.onrender.com/api/wishlist`,
           { productId },
           {
             headers: { 
@@ -294,7 +294,7 @@ const ProductListing = () => {
       params.append('order', sortOrder);
       
       const response = await axios.get(
-        `http://localhost:5000/api/products?${params.toString()}`
+        `https://server-kzwj.onrender.com/api/products?${params.toString()}`
       );
       
       if (response.data.success && response.data.data) {
@@ -335,7 +335,7 @@ const ProductListing = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/categories");
+      const response = await axios.get("https://server-kzwj.onrender.com/api/categories");
       if (response.data.success) {
         const categoriesData = response.data.data || [];
         

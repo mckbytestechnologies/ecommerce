@@ -153,7 +153,7 @@ const ReviewForm = ({ productId, open, onClose, onReviewSubmit, editMode, review
       formData.append("image", file);
 
       try {
-        const response = await axios.post("http://localhost:5000/api/upload/review", formData, {
+        const response = await axios.post("https://server-kzwj.onrender.com/api/upload/review", formData, {
           headers: {
             Authorization: `Bearer ${getToken()}`,
             "Content-Type": "multipart/form-data",
@@ -200,8 +200,8 @@ const ReviewForm = ({ productId, open, onClose, onReviewSubmit, editMode, review
     try {
       const token = getToken();
       const endpoint = editMode
-        ? `http://localhost:5000/api/reviews/${reviewToEdit._id}`
-        : "http://localhost:5000/api/reviews";
+        ? `https://server-kzwj.onrender.com/api/reviews/${reviewToEdit._id}`
+        : "https://server-kzwj.onrender.com/api/reviews";
 
       const method = editMode ? "put" : "post";
 
@@ -635,7 +635,7 @@ const ProductDetails = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/wishlist/check/${id}`, {
+      const response = await axios.get(`https://server-kzwj.onrender.com/api/wishlist/check/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -652,7 +652,7 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+        const res = await axios.get(`https://server-kzwj.onrender.com/api/products/${id}`);
         const productData = res.data.data;
         setProduct(productData);
         setSelectedImage(productData.images?.[0]?.url);
@@ -675,7 +675,7 @@ const ProductDetails = () => {
   const fetchReviews = async () => {
     try {
       setReviewsLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/reviews/product/${id}`);
+      const response = await axios.get(`https://server-kzwj.onrender.com/api/reviews/product/${id}`);
       
       if (response.data.success) {
         setReviews(response.data.data);
@@ -697,7 +697,7 @@ const ProductDetails = () => {
       
       try {
         // Fetch user profile
-        const userResponse = await axios.get("http://localhost:5000/api/auth/me", {
+        const userResponse = await axios.get("https://server-kzwj.onrender.com/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -707,7 +707,7 @@ const ProductDetails = () => {
           // Check if user has purchased this product
           try {
             const purchaseResponse = await axios.get(
-              `http://localhost:5000/api/orders/check-purchase/${id}`,
+              `https://server-kzwj.onrender.com/api/orders/check-purchase/${id}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             
@@ -730,7 +730,7 @@ const ProductDetails = () => {
   // Fetch similar products
   const fetchSimilarProducts = async (categoryId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/products?category=${categoryId}&limit=8`);
+      const res = await axios.get(`https://server-kzwj.onrender.com/api/products?category=${categoryId}&limit=8`);
       const filteredProducts = res.data.data?.products?.filter((p) => p._id !== id) || [];
       setSimilarProducts(filteredProducts);
     } catch (error) {
@@ -805,7 +805,7 @@ const handleAddToCart = async () => {
       if (isInWishlist) {
         // ✅ FIXED: Remove from wishlist - DELETE /api/wishlist/:productId
         const response = await axios.delete(
-          `http://localhost:5000/api/wishlist/${id}`,
+          `https://server-kzwj.onrender.com/api/wishlist/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }
@@ -818,7 +818,7 @@ const handleAddToCart = async () => {
       } else {
         // ✅ FIXED: Add to wishlist - POST /api/wishlist
         const response = await axios.post(
-          "http://localhost:5000/api/wishlist",
+          "https://server-kzwj.onrender.com/api/wishlist",
           { productId: id },
           { 
             headers: { 
@@ -879,7 +879,7 @@ const handleAddToCart = async () => {
   const handleReviewSubmit = () => {
     fetchReviews();
     // Refresh product to update review count
-    axios.get(`http://localhost:5000/api/products/${id}`).then((res) => {
+    axios.get(`https://server-kzwj.onrender.com/api/products/${id}`).then((res) => {
       setProduct(res.data.data);
     });
   };
@@ -893,7 +893,7 @@ const handleAddToCart = async () => {
       }
       
       const response = await axios.put(
-        `http://localhost:5000/api/reviews/${reviewId}/like`,
+        `https://server-kzwj.onrender.com/api/reviews/${reviewId}/like`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -911,7 +911,7 @@ const handleAddToCart = async () => {
 
     try {
       const token = getToken();
-      const response = await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, {
+      const response = await axios.delete(`https://server-kzwj.onrender.com/api/reviews/${reviewId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -919,7 +919,7 @@ const handleAddToCart = async () => {
         toast.success("Review deleted successfully!");
         fetchReviews();
         // Refresh product
-        axios.get(`http://localhost:5000/api/products/${id}`).then((res) => {
+        axios.get(`https://server-kzwj.onrender.com/api/products/${id}`).then((res) => {
           setProduct(res.data.data);
         });
       }

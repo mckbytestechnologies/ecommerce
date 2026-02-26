@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://server-kzwj.onrender.com/api';
 
 const getAuthToken = () => {
   return localStorage.getItem('authToken') || sessionStorage.getItem('authToken') || 

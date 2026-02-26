@@ -1517,7 +1517,7 @@
     // ====================
     // CONFIGURATION
     // ====================
-    const API_BASE = "https://ecommerce-server-ls1m.onrender.com/api";
+    const API_BASE = "https://server-kzwj.onrender.com/api";
     const BLOGS_API = `${API_BASE}/blogs`;
     
     // Global Variables
@@ -1843,7 +1843,7 @@
       // Mobile cards HTML
       let mobileHtml = '';
       
-      const SERVER_URL = 'https://ecommerce-server-ls1m.onrender.com';
+      const SERVER_URL = 'https://server-kzwj.onrender.com';
       
       blogs.forEach(blog => {
         // Get image URL
@@ -2109,7 +2109,7 @@
           if (blog.image && blog.image !== 'null') {
             const preview = document.getElementById('previewImage');
             if (preview) {
-              preview.src = blog.image.startsWith('/') ? 'https://ecommerce-server-ls1m.onrender.com' + blog.image : blog.image;
+              preview.src = blog.image.startsWith('/') ? 'https://server-kzwj.onrender.com' + blog.image : blog.image;
               document.getElementById('imagePreview').style.display = 'block';
             }
           }

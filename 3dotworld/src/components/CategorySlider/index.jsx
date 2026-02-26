@@ -10,7 +10,7 @@ const CategorySlider = ({ category }) => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/products?category=${category._id}`)
+      .get(`https://server-kzwj.onrender.com/api/products?category=${category._id}`)
       .then((res) => setProducts(res.data?.data?.products || []))
       .catch(console.error);
   }, [category]);

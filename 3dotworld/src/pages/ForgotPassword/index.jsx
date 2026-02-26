@@ -13,7 +13,7 @@ const ForgotPassword = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
+        "https://server-kzwj.onrender.com/api/auth/forgot-password",
         { email }
       );
 
