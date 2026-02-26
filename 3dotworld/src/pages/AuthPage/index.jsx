@@ -120,7 +120,7 @@ export default function LoginPage() {
       
       // Redirect after delay
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/");
       }, 1500);
 
     } catch (err) {
