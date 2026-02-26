@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from "react";
 import { FaTrash, FaPlus, FaMinus, FaTag, FaShoppingCart, FaTimesCircle, FaAngleRight } from "react-icons/fa";
 import { cartApi } from "../../utils/cartApi";
-import "./CartPage.css"; // Assuming this handles global styles, but Tailwind is primary
+import "./CartPage.css";
 
 // --- Configuration ---
 const BRAND_RED = 'bg-red-700';
@@ -16,7 +15,19 @@ const CartPage = () => {
   const [error, setError] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [couponSuccess, setCouponSuccess] = useState("");
   const [updatingItems, setUpdatingItems] = useState({});
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('authToken') || 
+                  sessionStorage.getItem('authToken') ||
+                  localStorage.getItem('token') || 
+                  localStorage.getItem('adminAuthToken');
+    setIsAuthenticated(!!token);
+  }, []);
 
   // --- API Handlers ---
 
@@ -26,9 +37,14 @@ const CartPage = () => {
       const response = await cartApi.getCart();
       setCart(response.data);
       setError("");
+      setCouponError("");
     } catch (err) {
       console.error("Error fetching cart:", err);
-      setError(err.response?.data?.message || "Failed to load cart");
+      if (err.response?.status === 401) {
+        setError("Please login to view your cart");
+      } else {
+        setError(err.response?.data?.message || "Failed to load cart");
+      }
     } finally {
       setLoading(false);
     }
@@ -50,8 +66,9 @@ const CartPage = () => {
     setUpdatingItems(prev => ({ ...prev, [itemId]: true }));
 
     try {
-      const response = await cartApi.updateItem(itemId, newQuantity);
+      const response = await cartApi.updateCartQuantity(itemId, newQuantity);
       setCart(response.data);
+      setCouponError("");
     } catch (err) {
       console.error("Error updating quantity:", err);
       alert(err.response?.data?.message || "Failed to update quantity");
@@ -64,9 +81,10 @@ const CartPage = () => {
     if (!window.confirm("Remove this item from cart?")) return;
 
     try {
-      const response = await cartApi.removeItem(itemId);
+      const response = await cartApi.removeFromCart(itemId);
       setCart(response.data);
       window.dispatchEvent(new Event('cartUpdated'));
+      setCouponError("");
     } catch (err) {
       console.error("Error removing item:", err);
       alert(err.response?.data?.message || "Failed to remove item");
@@ -75,21 +93,69 @@ const CartPage = () => {
 
   const applyCoupon = async (code = couponCode) => {
     const isRemoving = code === 'REMOVE';
-    const codeToApply = isRemoving ? '' : code.trim();
+    const codeToApply = isRemoving ? '' : code.trim().toUpperCase();
+
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      setCouponError("Please login to apply coupons");
+      setTimeout(() => {
+        window.location.href = '/login?redirect=/cart';
+      }, 2000);
+      return;
+    }
 
     if (!codeToApply && !isRemoving) {
-      alert("Please enter a coupon code");
+      setCouponError("Please enter a coupon code");
       return;
     }
 
     setApplyingCoupon(true);
+    setCouponError("");
+    setCouponSuccess("");
+
     try {
-      const response = await cartApi.applyCoupon(codeToApply);
+      let response;
+      
+      if (isRemoving) {
+        // Remove coupon
+        response = await cartApi.removeCoupon();
+      } else {
+        // Apply coupon
+        response = await cartApi.applyCoupon(codeToApply);
+      }
+      
       setCart(response.data);
       setCouponCode("");
+      
+      if (isRemoving) {
+        setCouponSuccess("Coupon removed successfully!");
+      } else {
+        setCouponSuccess("Coupon applied successfully!");
+      }
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setCouponSuccess(""), 3000);
+      
     } catch (err) {
       console.error("Error applying coupon:", err);
-      alert(err.response?.data?.message || (isRemoving ? "Failed to remove coupon" : "Invalid coupon code"));
+      
+      // Handle specific error messages
+      let errorMessage = err.response?.data?.message || 
+                        err.response?.data?.errors?.[0]?.msg ||
+                        "Invalid coupon code";
+      
+      // Handle authentication errors
+      if (err.response?.status === 401) {
+        errorMessage = "Please login to apply coupons";
+        setTimeout(() => {
+          window.location.href = '/login?redirect=/cart';
+        }, 2000);
+      }
+      
+      setCouponError(errorMessage);
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => setCouponError(""), 5000);
     } finally {
       setApplyingCoupon(false);
     }
@@ -102,6 +168,8 @@ const CartPage = () => {
       const response = await cartApi.clearCart();
       setCart(response.data);
       window.dispatchEvent(new Event('cartUpdated'));
+      setCouponError("");
+      setCouponSuccess("");
     } catch (err) {
       console.error("Error clearing cart:", err);
       alert(err.response?.data?.message || "Failed to clear cart");
@@ -128,14 +196,30 @@ const CartPage = () => {
   const { subtotal, discount, total } = calculateTotals();
   const formatCurrency = (amount) => `₹${amount.toFixed(2)}`;
 
-  // --- Render Logic (Loading, Error, Empty) ---
-
+  // --- Render Logic ---
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
           <div className={`animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 ${BORDER_RED} mx-auto`}></div>
           <p className="mt-6 text-xl text-gray-800 font-medium">Loading your luxury collection...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && error.includes("login")) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center max-w-md p-10 bg-white rounded-xl shadow-2xl border-t-4 border-red-700">
+          <p className="text-red-700 font-bold text-2xl mb-4">Authentication Required</p>
+          <p className="text-gray-700 mb-6">{error}</p>
+          <a 
+            href="/login?redirect=/cart"
+            className={`inline-block px-8 py-3 ${BRAND_RED} text-white font-semibold rounded-lg ${HOVER_RED} transition duration-300 transform hover:scale-[1.02]`}
+          >
+            Login to Continue
+          </a>
         </div>
       </div>
     );
@@ -180,7 +264,6 @@ const CartPage = () => {
   }
 
   // --- Main Cart Render ---
-
   return (
     <div className="min-h-screen bg-gray-50 py-16">
       <div className="container mx-auto px-4 lg:px-8">
@@ -192,6 +275,13 @@ const CartPage = () => {
           <p className="text-gray-600 text-xl font-light">
             Review and finalize your selection of {cart.items.length} exquisite {cart.items.length === 1 ? 'item' : 'items'}
           </p>
+          {!isAuthenticated && (
+            <div className="mt-4 p-3 bg-yellow-100 border border-yellow-400 rounded-lg inline-block">
+              <p className="text-yellow-700">
+                Please <a href="/login?redirect=/cart" className="font-bold underline">login</a> to apply coupons
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12">
@@ -210,9 +300,18 @@ const CartPage = () => {
                     {/* Product Image */}
                     <a href={`/products/${item.product?._id}`} className="w-32 h-32 flex-shrink-0 border border-gray-100 rounded-lg overflow-hidden shadow-lg">
                       <img
-                        src={item.product?.images?.[0] || '/placeholder.jpg'}
-                        alt={item.product?.name}
+                        src={(() => {
+                          if (!item.product) return '/placeholder.jpg';
+                          if (item.product.images?.[0]?.url) return item.product.images[0].url;
+                          if (item.product.images?.[0]) return item.product.images[0];
+                          if (item.product.image) return item.product.image;
+                          return '/placeholder.jpg';
+                        })()}
+                        alt={item.product?.name || 'Product'}
                         className="w-full h-full object-cover transform hover:scale-105 transition duration-500"
+                        onError={(e) => {
+                          e.target.src = '/placeholder.jpg';
+                        }}
                       />
                     </a>
 
@@ -298,36 +397,77 @@ const CartPage = () => {
                   <FaTag className={`mr-2 ${TEXT_RED}`} />
                   <span className="font-semibold text-lg text-gray-800">Promotional Code</span>
                 </div>
+                
+                {/* Authentication Warning */}
+                {!isAuthenticated && (
+                  <div className="mb-3 p-3 bg-yellow-100 border border-yellow-400 rounded-lg">
+                    <p className="text-yellow-700 text-sm">
+                      <a href="/login?redirect=/cart" className="font-bold underline">Login</a> to apply coupons
+                    </p>
+                  </div>
+                )}
+                
+                {/* Error Message Display */}
+                {couponError && (
+                  <div className="mb-3 p-3 bg-red-100 border border-red-400 rounded-lg">
+                    <p className="text-red-700 text-sm font-medium">{couponError}</p>
+                  </div>
+                )}
+                
+                {/* Success Message Display */}
+                {couponSuccess && (
+                  <div className="mb-3 p-3 bg-green-100 border border-green-400 rounded-lg">
+                    <p className="text-green-700 text-sm font-medium">{couponSuccess}</p>
+                  </div>
+                )}
+                
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Apply Code"
-                    className="flex-1 border-2 border-gray-300 rounded-lg px-4 py-3 focus:border-red-500 transition font-medium"
-                    disabled={applyingCoupon || cart.couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Enter coupon code"
+                    className={`flex-1 border-2 rounded-lg px-4 py-3 focus:border-red-500 transition font-medium ${
+                      couponError ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    disabled={applyingCoupon || cart.couponCode || !isAuthenticated}
                   />
                   <button
                     onClick={() => applyCoupon()}
-                    disabled={applyingCoupon || !couponCode.trim() || cart.couponCode}
-                    className={`px-5 py-3 ${BRAND_RED} text-white font-bold rounded-lg ${HOVER_RED} transition duration-300 disabled:opacity-50`}
+                    disabled={applyingCoupon || !couponCode.trim() || cart.couponCode || !isAuthenticated}
+                    className={`px-5 py-3 ${BRAND_RED} text-white font-bold rounded-lg ${HOVER_RED} transition duration-300 disabled:opacity-50 min-w-[80px]`}
                   >
-                    {applyingCoupon ? '...' : 'Apply'}
+                    {applyingCoupon ? (
+                      <span className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></span>
+                    ) : (
+                      'Apply'
+                    )}
                   </button>
                 </div>
+                
                 {cart.couponCode && (
                   <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex justify-between items-center">
                     <span className="text-red-700 text-sm font-medium">
-                      Code **{cart.couponCode}** Active.
+                      <FaTag className="inline mr-1" />
+                      Code <strong>{cart.couponCode}</strong> applied
                     </span>
                     <button
                       onClick={() => applyCoupon('REMOVE')}
-                      className="text-gray-700 hover:text-red-700 text-sm font-semibold ml-2"
+                      className="text-gray-500 hover:text-red-700 text-sm font-semibold ml-2 px-2 py-1 hover:bg-red-100 rounded transition"
+                      title="Remove coupon"
+                      disabled={!isAuthenticated}
                     >
-                      (x)
+                      ✕
                     </button>
                   </div>
                 )}
+                
+                {/* Coupon Help Text */}
+                <p className="text-xs text-gray-500 mt-2">
+                  {isAuthenticated 
+                    ? "Enter coupon code to get exclusive discounts"
+                    : "Please login to apply coupons"}
+                </p>
               </div>
 
               {/* Summary Details */}
@@ -339,7 +479,7 @@ const CartPage = () => {
 
                 {discount > 0 && (
                   <div className="flex justify-between text-xl">
-                    <span className={`${TEXT_RED} font-medium`}>Exclusive Discount</span>
+                    <span className={`${TEXT_RED} font-medium`}>Discount Applied</span>
                     <span className={`${TEXT_RED} font-bold`}>- {formatCurrency(discount)}</span>
                   </div>
                 )}
@@ -353,9 +493,9 @@ const CartPage = () => {
               {/* Checkout Button */}
               <button
                 className={`w-full mt-10 py-5 ${BRAND_RED} text-white text-xl font-extrabold rounded-xl ${HOVER_RED} transition duration-500 shadow-xl shadow-red-500/50 transform hover:scale-[1.02]`}
-                onClick={() => window.location.href = '/checkout'}
+                onClick={() => window.location.href = isAuthenticated ? '/checkout' : '/login?redirect=/checkout'}
               >
-                Proceed to Checkout
+                {isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}
               </button>
             </div>
           </div>

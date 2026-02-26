@@ -25,6 +25,8 @@ import couponRoutes from "./routes/couponRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import heroRoutes from "./routes/heroRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
+import warrantyRoutes from "./routes/warrantyRoutes.js";
+
 
 
 // Initialize environment
@@ -60,7 +62,7 @@ app.use(helmet({
         "https:", 
         "http:", 
         "blob:", 
-        "https://ecommerce-server-fhna.onrender.com",
+        "http://localhost:5000",
         "http://127.0.0.1:5000"],
     },
   },
@@ -83,7 +85,7 @@ app.use(
           "'self'",
           "data:",
           "blob:",
-          "https://ecommerce-server-fhna.onrender.com",
+          "http://localhost:5000",
           "http://127.0.0.1:5000"
         ],
       },
@@ -206,7 +208,8 @@ app.get("/api/health", (req, res) => {
       blogs: "/api/blogs",
       reviews: "/api/reviews",
       wishlist: "/api/wishlist",
-      payments: "/api/payments"
+      payments: "/api/payments",
+      coupons: "/api/coupons"
     }
   });
 });
@@ -233,10 +236,13 @@ app.use("/api/addresses", addressRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/warranty", warrantyRoutes);
+
 
 // NEW: Hero and Blog Routes
 app.use("/api/hero", heroRoutes);
 app.use("/api/blogs", blogRoutes);
+
 
 // Test route for CORS
 app.options("/api/auth/login", (req, res) => {
@@ -292,7 +298,8 @@ app.use((req, res) => {
       "/api/admin/blogs/:id",
       "/api/admin/blogs/:id/status",
       "/api/admin/blogs/bulk-status",
-      "/api/admin/blogs/:id/slider"
+      "/api/admin/blogs/:id/slider",
+      
 
 
     ],

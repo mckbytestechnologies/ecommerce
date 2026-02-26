@@ -13,7 +13,7 @@ const ForgotPassword = () => {
 
     try {
       const { data } = await axios.post(
-        "https://ecommerce-server-fhna.onrender.com/api/auth/forgot-password",
+        "http://localhost:5000/api/auth/forgot-password",
         { email }
       );
 

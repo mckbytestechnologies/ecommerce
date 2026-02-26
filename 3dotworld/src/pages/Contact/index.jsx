@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   FaEnvelope, 
   FaPhone, 
@@ -11,7 +11,8 @@ import {
   FaTwitter,
   FaArrowRight,
   FaCheckCircle,
-  FaBuilding
+  FaBuilding,
+  FaTimesCircle
 } from "react-icons/fa";
 import { MdSupportAgent } from "react-icons/md";
 
@@ -24,34 +25,162 @@ export default function ContactPage() {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showError, setShowError] = useState(false);
+  
+  // Create a ref for the hidden iframe
+  const iframeRef = useRef(null);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (error) setError("");
+  };
+
+  const validateForm = () => {
+    if (!formData.firstName.trim()) return "First name is required";
+    if (!formData.email.trim()) return "Email is required";
+    if (!/\S+@\S+\.\S+/.test(formData.email)) return "Email is invalid";
+    if (!formData.mobile.trim()) return "Mobile number is required";
+    if (!/^\d{10}$/.test(formData.mobile.replace(/[^0-9]/g, ''))) return "Mobile number must be 10 digits";
+    if (!formData.message.trim()) return "Message is required";
+    return null;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setIsSubmitted(false);
+    
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+    setShowError(false);
+
+    // Your Google Apps Script Web App URL
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxzaBcQU__se6MJQImfzHiBaaC9x2wJAcfhKzdJfSAmZPZUuQrYwV-kCB_Xq-GkbRIsyA/exec";
+
+    try {
+      // Create a form element dynamically
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = scriptURL;
+      form.target = 'hidden_iframe'; // Submit to hidden iframe
+      form.style.display = 'none';
+
+      // Add form fields
+      const fields = {
+        firstName: formData.firstName,
+        email: formData.email,
+        mobile: formData.mobile,
+        message: formData.message
+      };
+
+      for (const [key, value] of Object.entries(fields)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      }
+
+      // Add to document, submit, then remove
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+
+      // Show success message (we assume it worked since we can't track response)
+      setIsSubmitted(true);
       setFormData({
         firstName: "",
         email: "",
         mobile: "",
         message: ""
       });
-    }, 3000);
+      
+      setTimeout(() => setIsSubmitted(false), 5000);
+      
+    } catch (err) {
+      console.error("Submission error:", err);
+      setError("Failed to send message. Please try again.");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Alternative method using fetch with no-cors (silent failure, but works)
+  const handleSubmitWithNoCors = async (e) => {
+    e.preventDefault();
+    
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+    setShowError(false);
+
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxzaBcQU__se6MJQImfzHiBaaC9x2wJAcfhKzdJfSAmZPZUuQrYwV-kCB_Xq-GkbRIsyA/exec";
+
+    try {
+      // Using no-cors mode - we can't read response but request will go through
+      await fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors", // This bypasses CORS but we can't read response
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          firstName: formData.firstName,
+          email: formData.email,
+          mobile: formData.mobile,
+          message: formData.message
+        })
+      });
+
+      // Since we use no-cors, we assume success
+      setIsSubmitted(true);
+      setFormData({
+        firstName: "",
+        email: "",
+        mobile: "",
+        message: ""
+      });
+      
+      setTimeout(() => setIsSubmitted(false), 5000);
+      
+    } catch (err) {
+      console.error("Submission error:", err);
+      setError("Failed to send message. Please try again.");
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="font-sans bg-gradient-to-b from-white to-gray-50 text-gray-900">
-
+      {/* Hidden iframe for form submission */}
+      <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }}></iframe>
+      
       {/* HERO SECTION */}
       <section className="relative bg-gradient-to-r from-red-900 via-red-700 to-amber-700 text-white py-24 px-6 text-center overflow-hidden">
-        {/* Animated Background Elements */}
+        {/* ... rest of your hero section remains the same ... */}
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-red-600/20 to-transparent rounded-full -translate-x-1/2 -translate-y-1/2"></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-amber-600/20 to-transparent rounded-full translate-x-1/3 translate-y-1/3"></div>
@@ -82,8 +211,9 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* CONTACT CARDS SECTION */}
+      {/* CONTACT CARDS SECTION - Keep your existing cards */}
       <section className="max-w-7xl mx-auto px-6 py-20 -mt-10 relative z-20">
+        {/* ... your contact cards ... */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Email Card */}
           <div className="bg-white rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 overflow-hidden group">
@@ -255,12 +385,25 @@ export default function ContactPage() {
             <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-200 relative overflow-hidden">
               {/* Success Message */}
               {isSubmitted && (
-                <div className="absolute inset-0 bg-gradient-to-r from-green-500/95 to-emerald-600/95 backdrop-blur-sm z-10 flex items-center justify-center rounded-3xl animate-fadeIn">
+                <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 z-10 flex items-center justify-center rounded-3xl animate-fadeIn">
                   <div className="text-center p-8">
-                    <FaCheckCircle className="text-white text-6xl mx-auto mb-6" />
+                    <FaCheckCircle className="text-white text-6xl mx-auto mb-6 animate-bounce" />
                     <h3 className="text-3xl font-bold text-white mb-4">Message Sent!</h3>
                     <p className="text-white/90 text-lg">Our innovation team will contact you within 24 hours.</p>
                   </div>
+                </div>
+              )}
+
+              {/* Error Message Toast */}
+              {showError && error && (
+                <div className="absolute top-4 left-4 right-4 bg-red-500 text-white p-4 rounded-xl z-20 animate-slideDown flex items-center justify-between">
+                  <div className="flex items-center">
+                    <FaTimesCircle className="text-white mr-3 text-xl" />
+                    <span>{error}</span>
+                  </div>
+                  <button onClick={() => setShowError(false)} className="text-white hover:text-gray-200">
+                    ×
+                  </button>
                 </div>
               )}
 
@@ -275,7 +418,7 @@ export default function ContactPage() {
                 {/* First Name */}
                 <div className="group">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    First Name
+                    First Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors">
@@ -296,7 +439,7 @@ export default function ContactPage() {
                 {/* Email */}
                 <div className="group">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors">
@@ -317,7 +460,7 @@ export default function ContactPage() {
                 {/* Mobile Number */}
                 <div className="group">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Mobile Number
+                    Mobile Number <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors">
@@ -328,7 +471,7 @@ export default function ContactPage() {
                       name="mobile"
                       value={formData.mobile}
                       onChange={handleChange}
-                      placeholder="Enter your mobile number"
+                      placeholder="Enter your 10-digit mobile number"
                       className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300 bg-gray-50/50"
                       required
                     />
@@ -338,7 +481,7 @@ export default function ContactPage() {
                 {/* Message */}
                 <div className="group">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Your Message
+                    Your Message <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-6 text-gray-400 group-focus-within:text-red-500 transition-colors">
@@ -359,11 +502,24 @@ export default function ContactPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-red-600 via-red-500 to-amber-500 text-white py-4 px-8 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center group relative overflow-hidden"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-red-600 via-red-500 to-amber-500 text-white py-4 px-8 rounded-xl text-lg font-bold shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="relative z-10 flex items-center">
-                    Send Message
-                    <FaPaperPlane className="ml-3 group-hover:translate-x-2 transition-transform duration-300" />
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        Send Message
+                        <FaPaperPlane className="ml-3 group-hover:translate-x-2 transition-transform duration-300" />
+                      </>
+                    )}
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-500 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </button>
@@ -377,8 +533,9 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* MAP SECTION */}
+      {/* MAP SECTION - Keep your existing map section */}
       <section className="max-w-6xl mx-auto px-6 py-12">
+        {/* ... your map section ... */}
         <div className="bg-gradient-to-r from-red-50 to-amber-50 rounded-3xl p-8 shadow-xl border border-red-100">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div>
@@ -436,7 +593,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* Add custom styles for animations */}
+      {/* Custom Styles */}
       <style jsx>{`
         .bg-grid-pattern {
           background-image: 
@@ -449,8 +606,36 @@ export default function ContactPage() {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-100%); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-out;
+        }
+        
+        .animate-slideDown {
+          animation: slideDown 0.3s ease-out;
+        }
+        
+        .animate-bounce {
+          animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
     </div>

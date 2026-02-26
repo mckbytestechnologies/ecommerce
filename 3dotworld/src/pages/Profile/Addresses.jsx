@@ -84,11 +84,11 @@ const Addresses = () => {
       const token = getToken();
       
       if (!token) {
-        navigate("/auth");
+        navigate("/login");
         return;
       }
 
-      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/addresses", {
+      const response = await axios.get("http://localhost:5000/api/addresses", {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -102,7 +102,7 @@ const Addresses = () => {
       setError("Failed to load addresses. Please try again.");
       
       if (err.response?.status === 401) {
-        navigate("/auth");
+        navigate("/login");
       }
     } finally {
       setLoading(false);
@@ -205,7 +205,7 @@ const Addresses = () => {
       if (editMode && currentAddress) {
         // Update address
         response = await axios.put(
-          `https://ecommerce-server-fhna.onrender.com/api/addresses/${currentAddress._id}`,
+          `http://localhost:5000/api/addresses/${currentAddress._id}`,
           formData,
           {
             headers: {
@@ -217,7 +217,7 @@ const Addresses = () => {
       } else {
         // Create new address
         response = await axios.post(
-          "https://ecommerce-server-fhna.onrender.com/api/addresses",
+          "http://localhost:5000/api/addresses",
           formData,
           {
             headers: {
@@ -248,7 +248,7 @@ const Addresses = () => {
     try {
       const token = getToken();
       const response = await axios.delete(
-        `https://ecommerce-server-fhna.onrender.com/api/addresses/${addressId}`,
+        `http://localhost:5000/api/addresses/${addressId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -274,7 +274,7 @@ const Addresses = () => {
     try {
       const token = getToken();
       const response = await axios.put(
-        `https://ecommerce-server-fhna.onrender.com/api/addresses/${addressId}/set-default`,
+        `http://localhost:5000/api/addresses/${addressId}/set-default`,
         {},
         {
           headers: {

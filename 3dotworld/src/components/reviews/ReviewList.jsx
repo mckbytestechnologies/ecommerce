@@ -62,7 +62,7 @@ const ReviewList = ({ reviews, productId, user, onReviewUpdate }) => {
       }
 
       const response = await axios.put(
-        `https://ecommerce-server-fhna.onrender.com/api/reviews/${reviewId}/like`,
+        `http://localhost:5000/api/reviews/${reviewId}/like`,
         {},
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
@@ -81,7 +81,7 @@ const ReviewList = ({ reviews, productId, user, onReviewUpdate }) => {
     try {
       const token = getToken();
       const response = await axios.delete(
-        `https://ecommerce-server-fhna.onrender.com/api/reviews/${selectedReview._id}`,
+        `http://localhost:5000/api/reviews/${selectedReview._id}`,
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
 

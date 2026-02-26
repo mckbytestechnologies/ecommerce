@@ -26,6 +26,12 @@ import Addresses from "./pages/Profile/Addresses";
 import OTPVerificationPage from "./pages/OTPVerificationPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import BlogDetails from "./pages/BlogDetails";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/Terms&Conditions";
+import ShippingPolicy from "./pages/Shipping Policy";
+import RefundPolicy from "./pages/Refund Policy";
+
 
 function App() {
   return (
@@ -36,9 +42,10 @@ function App() {
           
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Home />} />
             <Route path="/productlisting" element={<ProductListing />} />
             <Route path="/productdetails/:id" element={<ProductDetails />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/login" element={<AuthPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/checkout" element={<CartCheckout />} />
             <Route path="/my-order" element={<MyOrders />} />
@@ -56,6 +63,17 @@ function App() {
             <Route path="/otp-verify" element={<OTPVerificationPage />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
            <Route path="/forgot-password/:token" element={<ResetPassword />} />
+           <Route path="/blog/:id" element={<BlogDetails />} />
+
+
+           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+           <Route path="/terms-conditions" element={<TermsConditions />} />
+           <Route path="/shipping-policy" element={<ShippingPolicy />} />
+           <Route path="/shipping-policy" element={<ShippingPolicy />} />
+           <Route path="/refund-policy" element={<RefundPolicy />} />
+
+
+
 
   
         {/* Alternative route name */}

@@ -6,12 +6,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Product name is required"],
       trim: true,
-      maxLength: [200, "Product name cannot exceed 200 characters"],
+      maxlength: [200, "Product name cannot exceed 200 characters"],
     },
     description: {
       type: String,
       required: [true, "Product description is required"],
-      maxLength: [2000, "Description cannot exceed 2000 characters"],
+      trim: true,
     },
     price: {
       type: Number,
@@ -20,10 +20,11 @@ const productSchema = new mongoose.Schema(
     },
     comparePrice: {
       type: Number,
+      min: [0, "Compare price cannot be negative"],
       default: null,
     },
     category: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: [true, "Product category is required"],
     },
@@ -40,27 +41,15 @@ const productSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
     },
-    images: [
-      {
-        public_id: {
-          type: String,
-          required: true,
-        },
-        url: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
     stock: {
       type: Number,
-      required: [true, "Product stock is required"],
+      required: [true, "Stock quantity is required"],
       min: [0, "Stock cannot be negative"],
       default: 0,
     },
     weight: {
       type: Number,
-      default: 0,
+      min: [0, "Weight cannot be negative"],
     },
     dimensions: {
       length: Number,
@@ -73,10 +62,12 @@ const productSchema = new mongoose.Schema(
       of: String,
     },
     tags: [String],
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    images: [
+      {
+        public_id: String,
+        url: String,
+      },
+    ],
     isFeatured: {
       type: Boolean,
       default: false,
@@ -85,89 +76,51 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    digitalFile: {
-      url: String,
-      fileName: String,
+    isActive: {
+      type: Boolean,
+      default: true,
     },
-    warranty: {
-      type: String,
-      default: "No warranty",
-    },
-    returnPolicy: {
-      type: String,
-      default: "30 days return policy",
-    },
+    warranty: String,
+    returnPolicy: String,
     seo: {
       title: String,
       description: String,
       keywords: [String],
     },
-    createdBy: {
-      type: mongoose.Schema.ObjectId,
-      ref: "User",
-      required: true,
-    },
     averageRating: {
       type: Number,
+      min: 0,
+      max: 5,
       default: 0,
-      min: [0, "Rating cannot be less than 0"],
-      max: [5, "Rating cannot be more than 5"],
     },
     reviewCount: {
       type: Number,
       default: 0,
     },
-    soldCount: {
-      type: Number,
-      default: 0,
+    reviews: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Review",
+      },
+    ],
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
   }
 );
 
-// Virtual for reviews
-productSchema.virtual("reviews", {
-  ref: "Review",
-  localField: "_id",
-  foreignField: "product",
-});
-
-// Index for better search performance
+// Create indexes for better search performance
 productSchema.index({ name: "text", description: "text", tags: "text" });
-productSchema.index({ category: 1, price: 1 });
-productSchema.index({ isActive: 1, isFeatured: 1 });
-
-// Update average rating when reviews are updated
-productSchema.statics.updateAverageRating = async function (productId) {
-  const result = await this.model("Review").aggregate([
-    {
-      $match: { product: productId },
-    },
-    {
-      $group: {
-        _id: "$product",
-        averageRating: { $avg: "$rating" },
-        reviewCount: { $sum: 1 },
-      },
-    },
-  ]);
-
-  if (result.length > 0) {
-    await this.findByIdAndUpdate(productId, {
-      averageRating: Math.round(result[0].averageRating * 10) / 10,
-      reviewCount: result[0].reviewCount,
-    });
-  } else {
-    await this.findByIdAndUpdate(productId, {
-      averageRating: 0,
-      reviewCount: 0,
-    });
-  }
-};
+productSchema.index({ category: 1 });
+productSchema.index({ price: 1 });
+productSchema.index({ brand: 1 });
+productSchema.index({ isFeatured: 1 });
+productSchema.index({ isActive: 1 });
 
 const ProductModel = mongoose.model("Product", productSchema);
+
 export default ProductModel;

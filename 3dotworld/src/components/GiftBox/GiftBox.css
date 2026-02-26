@@ -1,15 +1,4 @@
 /* --- Floating Gift Icon - Left Position --- */
-.segment-text.hide {
-  filter: blur(8px);
-  opacity: 0.3;
-}
-.segment-text.show {
-  filter: blur(0);
-  opacity: 1;
-  transition: all 0.4s ease;
-}
-
-
 .gift-box-float {
   position: fixed;
   left: 20px;
@@ -57,21 +46,6 @@
   z-index: -1;
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  70% {
-    transform: scale(1.2);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1.2);
-    opacity: 0;
-  }
-}
-
 .gift-badge {
   position: absolute;
   top: -5px;
@@ -88,15 +62,6 @@
   color: #000;
   border: 2px solid white;
   animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
 }
 
 .gift-tooltip {
@@ -199,6 +164,7 @@
   width: 50%;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 40px;
@@ -251,16 +217,6 @@
   border-right: 2px solid rgba(255,255,255,0.3);
 }
 
-/* Segment Colors - Brighter for contrast */
-.segment-0 { background: #FFD700; } /* 10% OFF - Gold */
-.segment-1 { background: #808080; } /* NO LUCK - Gray */
-.segment-2 { background: #FF6B6B; } /* 5% OFF - Red */
-.segment-3 { background: #A0A0A0; } /* NEXT TIME - Light Gray */
-.segment-4 { background: #FFA500; } /* 20% OFF - Orange */
-.segment-5 { background: #FF8C42; } /* ALMOST - Dark Orange */
-.segment-6 { background: #FFD700; } /* 10% OFF - Gold */
-.segment-7 { background: #FF8C42; } /* ALMOST - Dark Orange */
-
 .segment-content {
   position: absolute;
   width: 200px;
@@ -281,6 +237,14 @@
   text-align: center;
   width: 70px;
   letter-spacing: 0.5px;
+}
+
+.winning-segment {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+}
+
+.losing-segment {
+  background: linear-gradient(135deg, #f44336, #d32f2f);
 }
 
 .wheel-center {
@@ -337,6 +301,29 @@
   border-radius: 50%;
 }
 
+/* Available Coupons Indicator */
+.available-coupons-indicator {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 15px;
+  border-radius: 20px;
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  background: #4CAF50;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
 /* --- Right Panel (Form) --- */
 .modal-right-panel {
   width: 50%;
@@ -352,11 +339,6 @@
 .gift-header {
   text-align: center;
   margin-bottom: 40px;
-}
-
-.brand-logo img {
-  height: 40px;
-  margin-bottom: 20px;
 }
 
 .gift-title {
@@ -422,11 +404,6 @@
   animation: shimmer 2s infinite;
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
 /* Terms */
 .gift-terms {
   background: white;
@@ -466,6 +443,39 @@
   font-size: 16px;
 }
 
+/* Coupon Preview */
+.coupon-preview {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.preview-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.preview-badges {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.coupon-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.coupon-badge.more {
+  background: #888;
+}
+
 /* Email Input */
 .email-input-container {
   margin-bottom: 25px;
@@ -497,6 +507,11 @@
   border-color: #ff3366;
   box-shadow: 0 0 0 3px rgba(255, 51, 102, 0.1);
   transform: translateY(-2px);
+}
+
+.email-input:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
 }
 
 .input-hint {
@@ -549,7 +564,6 @@
 .spin-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none !important;
 }
 
 .spinning-text {
@@ -566,10 +580,6 @@
   border-radius: 50%;
   border-top-color: white;
   animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* Skip Options */
@@ -615,7 +625,7 @@
   border-color: #ff3366;
 }
 
-/* Prize Display - Only shows after spin */
+/* --- Prize Display --- */
 .prize-display {
   width: 100%;
   height: 100%;
@@ -636,11 +646,6 @@
     radial-gradient(circle at 80% 80%, #FFA500 2px, transparent 3px);
   animation: confettiFall 10s linear infinite;
   z-index: 1;
-}
-
-@keyframes confettiFall {
-  0% { transform: translateY(-100px) rotate(0deg); }
-  100% { transform: translateY(100vh) rotate(360deg); }
 }
 
 .prize-content {
@@ -671,26 +676,86 @@
   animation: prizePulse 2s infinite;
 }
 
-@keyframes prizePulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+.prize-amount.loser {
+  color: #666;
+  font-size: 32px;
+  animation: none;
 }
 
-.prize-message {
-  color: #555;
-  font-size: 15px;
+/* Coupon Code Display */
+.coupon-code-display {
   margin: 20px 0;
-  line-height: 1.5;
+  text-align: center;
+}
+
+.coupon-label {
+  font-size: 14px;
+  color: #666;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.coupon-code-box {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 15px 25px;
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.coupon-code-box strong {
+  color: white;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.copy-code-btn {
+  background: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #667eea;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.copy-code-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+}
+
+.copy-code-btn.copied {
+  background: #4CAF50;
+  color: white;
+}
+
+.coupon-description {
+  font-size: 14px;
+  color: #666;
+  margin: 10px 0;
+}
+
+.coupon-meta {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  font-size: 13px;
+  color: #888;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.email-note {
+  font-size: 14px;
+  color: #666;
+  margin: 15px 0;
 }
 
 .close-prize-btn {
@@ -712,32 +777,69 @@
   box-shadow: 0 10px 20px rgba(0, 200, 81, 0.3);
 }
 
-/* REMOVE these old classes that were causing the issue */
-.prize-display-left,
-.prize-content-left,
-.prize-icon,
-.prize-title-left,
-.prize-amount-left,
-.prize-message-left,
-.form-section,
-.prize-info-section,
-.discount-details,
-.discount-code-container,
-.discount-code-label,
-.discount-code,
-.code-text,
-.code-copy,
-.code-instructions,
-.email-confirmation,
-.email-icon,
-.email-details,
-.email-address,
-.discount-terms,
-.terms-title,
-.terms-list,
-.claim-button,
-.close-permanently-btn {
-  display: none !important;
+/* Loading Spinner */
+.loading-spinner {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.loading-spinner p {
+  margin-top: 15px;
+  color: #666;
+}
+
+/* --- Animations --- */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-100px) rotate(0deg); }
+  100% { transform: translateY(100vh) rotate(360deg); }
+}
+
+@keyframes prizePulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* --- Responsive Design --- */
@@ -758,7 +860,7 @@
   }
 
   .modal-left-panel {
-    height: 400px;
+    min-height: 400px;
     padding: 20px;
   }
 
@@ -822,6 +924,15 @@
   .skip-options {
     flex-direction: column;
   }
+
+  .coupon-code-box {
+    flex-direction: column;
+    padding: 15px;
+  }
+  
+  .coupon-code-box strong {
+    font-size: 20px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -836,7 +947,7 @@
   }
 
   .modal-left-panel {
-    height: 300px;
+    min-height: 300px;
   }
 
   .wheel-container {
@@ -868,5 +979,14 @@
   
   .prize-amount {
     font-size: 36px;
+  }
+
+  .preview-badges {
+    gap: 5px;
+  }
+  
+  .coupon-badge {
+    padding: 4px 8px;
+    font-size: 10px;
   }
 }

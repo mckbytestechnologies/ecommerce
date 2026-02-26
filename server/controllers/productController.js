@@ -154,6 +154,9 @@ export const getProduct = async (req, res) => {
 // @desc    Create new product
 // @route   POST /api/products
 // @access  Private/Admin
+// @desc    Create new product
+// @route   POST /api/products
+// @access  Private/Admin
 export const createProduct = async (req, res) => {
   try {
     const {
@@ -176,6 +179,7 @@ export const createProduct = async (req, res) => {
       warranty,
       returnPolicy,
       seo,
+      images: existingImages,
     } = req.body;
 
     // Check if category exists
@@ -200,8 +204,15 @@ export const createProduct = async (req, res) => {
       }
     }
 
-    // Handle image upload
+    // Handle image upload - from files or existing URLs
     let images = [];
+
+    // If images are provided in the request body (from frontend JSON)
+    if (existingImages && Array.isArray(existingImages) && existingImages.length > 0) {
+      images = existingImages;
+    }
+
+    // If files are uploaded via multer
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const result = await cloudinaryUpload(file.path, "products");
@@ -212,27 +223,123 @@ export const createProduct = async (req, res) => {
       }
     }
 
+    // Parse tags
+    let parsedTags = [];
+    if (tags) {
+      if (typeof tags === 'string') {
+        try {
+          parsedTags = JSON.parse(tags);
+        } catch (e) {
+          parsedTags = tags.split(',').map(t => t.trim()).filter(t => t);
+        }
+      } else if (Array.isArray(tags)) {
+        parsedTags = tags;
+      }
+    }
+
+    // Parse features
+    let parsedFeatures = [];
+    if (features) {
+      if (typeof features === 'string') {
+        try {
+          parsedFeatures = JSON.parse(features);
+        } catch (e) {
+          parsedFeatures = features.split('\n').map(f => f.trim()).filter(f => f);
+        }
+      } else if (Array.isArray(features)) {
+        parsedFeatures = features;
+      }
+    }
+
+    // Parse specifications - CRITICAL FIX
+    // Parse specifications - FIXED VERSION
+let parsedSpecifications = {};
+if (specifications) {
+  // If it's already an object, use it directly (this is what we want!)
+  if (typeof specifications === 'object' && !Array.isArray(specifications) && specifications !== null) {
+    parsedSpecifications = specifications;
+    console.log('Specifications already object, using as is:', parsedSpecifications);
+  }
+  // If it's a string, try to parse it
+  else if (typeof specifications === 'string') {
+    // Check for the dreaded "[object Object]" error
+    if (specifications === '[object Object]') {
+      console.log('Received [object Object] string, using empty object');
+      parsedSpecifications = {};
+    } else {
+      try {
+        parsedSpecifications = JSON.parse(specifications);
+        console.log('Parsed specifications from string:', parsedSpecifications);
+      } catch (e) {
+        console.error('Error parsing specifications string:', e);
+        // If parsing fails, use empty object
+        parsedSpecifications = {};
+      }
+    }
+  }
+} else {
+  // If no specifications provided, use empty object
+  parsedSpecifications = {};
+}
+    // Parse dimensions
+    let parsedDimensions = null;
+    if (dimensions) {
+      if (typeof dimensions === 'object' && !Array.isArray(dimensions) && dimensions !== null) {
+        parsedDimensions = dimensions;
+      } else if (typeof dimensions === 'string') {
+        try {
+          parsedDimensions = JSON.parse(dimensions);
+        } catch (e) {
+          // Try to parse from format "10x5x3"
+          const dims = dimensions.split('x').map(d => parseFloat(d.trim()));
+          if (dims.length === 3 && dims.every(d => !isNaN(d))) {
+            parsedDimensions = {
+              length: dims[0],
+              width: dims[1],
+              height: dims[2]
+            };
+          }
+        }
+      }
+    }
+
+    // Parse seo
+    let parsedSeo = {};
+    if (seo) {
+      if (typeof seo === 'object' && !Array.isArray(seo) && seo !== null) {
+        parsedSeo = seo;
+      } else if (typeof seo === 'string') {
+        try {
+          parsedSeo = JSON.parse(seo);
+        } catch (e) {
+          console.error('Error parsing seo:', e);
+          parsedSeo = {};
+        }
+      }
+    }
+
     const product = new ProductModel({
       name,
       description,
-      price,
-      comparePrice,
+      price: parseFloat(price),
+      comparePrice: comparePrice ? parseFloat(comparePrice) : null,
       category,
-      subCategory,
-      brand,
-      sku,
-      stock,
-      weight,
-      dimensions,
-      features: features ? JSON.parse(features) : [],
-      specifications: specifications ? JSON.parse(specifications) : {},
-      tags: tags ? JSON.parse(tags) : [],
+      subCategory: subCategory || null,
+      brand: brand || null,
+      sku: sku || null,
+      stock: parseInt(stock) || 0,
+      weight: weight ? parseFloat(weight) : null,
+      dimensions: parsedDimensions,
+      features: parsedFeatures,
+      specifications: parsedSpecifications,
+      tags: parsedTags,
       images,
-      isFeatured,
-      isDigital,
-      warranty,
-      returnPolicy,
-      seo: seo ? JSON.parse(seo) : {},
+      isFeatured: isFeatured === true || isFeatured === 'true',
+      isDigital: isDigital === true || isDigital === 'true',
+      isActive: true,
+      warranty: warranty || null,
+      returnPolicy: returnPolicy || null,
+      seo: parsedSeo,
       createdBy: req.user._id,
     });
 
@@ -259,9 +366,22 @@ export const createProduct = async (req, res) => {
 
 // @desc    Update product
 // @route   PUT /api/products/:id
+// @desc    Update product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
+// @desc    Update product
+// @route   PUT /api/products/:id
 // @access  Private/Admin
 export const updateProduct = async (req, res) => {
   try {
+    // Log the raw request body for debugging
+    console.log('========== UPDATE PRODUCT REQUEST ==========');
+    console.log('Request body type:', typeof req.body);
+    console.log('Request body keys:', Object.keys(req.body));
+    console.log('Specifications in body:', req.body.specifications);
+    console.log('Specifications type:', typeof req.body.specifications);
+    console.log('============================================');
+    
     const product = await ProductModel.findById(req.params.id);
 
     if (!product) {
@@ -297,26 +417,135 @@ export const updateProduct = async (req, res) => {
           url: result.secure_url,
         });
       }
-      req.body.images = [...product.images, ...newImages];
+      
+      // Merge with existing images
+      if (req.body.images && Array.isArray(req.body.images)) {
+        req.body.images = [...req.body.images, ...newImages];
+      } else {
+        req.body.images = [...product.images, ...newImages];
+      }
     }
 
-    // Parse JSON fields if they exist
-    if (req.body.features) {
-      req.body.features = JSON.parse(req.body.features);
+    // Create update data object
+    const updateData = { ...req.body };
+
+    // Parse numeric fields
+    if (updateData.price) updateData.price = parseFloat(updateData.price);
+    if (updateData.comparePrice) updateData.comparePrice = parseFloat(updateData.comparePrice);
+    if (updateData.stock) updateData.stock = parseInt(updateData.stock);
+    if (updateData.weight) updateData.weight = parseFloat(updateData.weight);
+
+    // Parse boolean fields
+    if (updateData.isFeatured !== undefined) {
+      updateData.isFeatured = updateData.isFeatured === true || updateData.isFeatured === 'true';
     }
-    if (req.body.specifications) {
-      req.body.specifications = JSON.parse(req.body.specifications);
+    if (updateData.isDigital !== undefined) {
+      updateData.isDigital = updateData.isDigital === true || updateData.isDigital === 'true';
     }
-    if (req.body.tags) {
-      req.body.tags = JSON.parse(req.body.tags);
+    if (updateData.isActive !== undefined) {
+      updateData.isActive = updateData.isActive === true || updateData.isActive === 'true';
     }
-    if (req.body.seo) {
-      req.body.seo = JSON.parse(req.body.seo);
+
+    // Parse features
+    if (updateData.features) {
+      if (typeof updateData.features === 'string') {
+        try {
+          updateData.features = JSON.parse(updateData.features);
+        } catch (e) {
+          updateData.features = updateData.features.split('\n').map(f => f.trim()).filter(f => f);
+        }
+      }
     }
+
+    // FIXED: Handle specifications properly - DON'T try to parse if it's already an object
+    if (updateData.specifications !== undefined) {
+      // Case 1: It's already an object (good!)
+      if (updateData.specifications && typeof updateData.specifications === 'object' && !Array.isArray(updateData.specifications)) {
+        console.log('Specifications already an object, using as is:', updateData.specifications);
+        // Keep it as is - it's already in the correct format
+      }
+      // Case 2: It's a string that might be "[object Object]" - treat as empty
+      else if (typeof updateData.specifications === 'string') {
+        if (updateData.specifications === '[object Object]') {
+          console.log('Received [object Object] string, using empty object');
+          updateData.specifications = {};
+        } else {
+          try {
+            // Try to parse JSON string
+            updateData.specifications = JSON.parse(updateData.specifications);
+            console.log('Parsed specifications from string:', updateData.specifications);
+          } catch (e) {
+            console.error('Error parsing specifications string:', e);
+            // If parsing fails, use existing specifications or empty object
+            updateData.specifications = product.specifications || {};
+          }
+        }
+      }
+      // Case 3: It's null or undefined - use existing
+      else if (updateData.specifications === null || updateData.specifications === undefined) {
+        updateData.specifications = product.specifications || {};
+      }
+    } else {
+      // If no specifications provided, keep existing ones
+      updateData.specifications = product.specifications || {};
+    }
+
+    // Parse tags
+    if (updateData.tags) {
+      if (typeof updateData.tags === 'string') {
+        try {
+          updateData.tags = JSON.parse(updateData.tags);
+        } catch (e) {
+          updateData.tags = updateData.tags.split(',').map(t => t.trim()).filter(t => t);
+        }
+      }
+    }
+
+    // Parse dimensions
+    if (updateData.dimensions) {
+      if (typeof updateData.dimensions === 'string') {
+        try {
+          updateData.dimensions = JSON.parse(updateData.dimensions);
+        } catch (e) {
+          // Try to parse from format "10x5x3"
+          const dims = updateData.dimensions.split('x').map(d => parseFloat(d.trim()));
+          if (dims.length === 3 && dims.every(d => !isNaN(d))) {
+            updateData.dimensions = {
+              length: dims[0],
+              width: dims[1],
+              height: dims[2]
+            };
+          } else {
+            updateData.dimensions = null;
+          }
+        }
+      }
+    }
+
+    // Parse seo
+    if (updateData.seo) {
+      if (typeof updateData.seo === 'string') {
+        try {
+          updateData.seo = JSON.parse(updateData.seo);
+        } catch (e) {
+          console.error('Error parsing seo:', e);
+          updateData.seo = {};
+        }
+      }
+    }
+
+    // Remove undefined or null values that might cause issues
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] === undefined || updateData[key] === null) {
+        delete updateData[key];
+      }
+    });
+
+    console.log('Final update data:', JSON.stringify(updateData, null, 2));
 
     const updatedProduct = await ProductModel.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     ).populate("category", "name");
 
@@ -352,9 +581,11 @@ export const deleteProduct = async (req, res) => {
     }
 
     // Delete images from Cloudinary
-    if (product.images.length > 0) {
+    if (product.images && product.images.length > 0) {
       for (const image of product.images) {
-        await cloudinaryDelete(image.public_id);
+        if (image.public_id) {
+          await cloudinaryDelete(image.public_id);
+        }
       }
     }
 
@@ -400,7 +631,9 @@ export const deleteProductImage = async (req, res) => {
     }
 
     // Delete from Cloudinary
-    await cloudinaryDelete(image.public_id);
+    if (image.public_id) {
+      await cloudinaryDelete(image.public_id);
+    }
 
     // Remove from array
     product.images.pull({ _id: req.params.imageId });
@@ -483,6 +716,127 @@ export const getRelatedProducts = async (req, res) => {
     });
   } catch (error) {
     console.error("Get related products error:", error);
+    res.status(500).json({
+      message: error.message || "Internal server error",
+      error: true,
+      success: false,
+    });
+  }
+};
+
+// @desc    Get products by category
+// @route   GET /api/products/category/:categoryId
+// @access  Public
+export const getProductsByCategory = async (req, res) => {
+  try {
+    const { categoryId } = req.params;
+    const { page = 1, limit = 10, sort = "createdAt", order = "desc" } = req.query;
+
+    // Check if category exists
+    const category = await CategoryModel.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({
+        message: "Category not found",
+        error: true,
+        success: false,
+      });
+    }
+
+    // Build filter
+    const filter = { 
+      category: categoryId,
+      isActive: true 
+    };
+
+    // Sort options
+    const sortOptions = {};
+    sortOptions[sort] = order === "desc" ? -1 : 1;
+
+    const products = await ProductModel.find(filter)
+      .populate("category", "name")
+      .sort(sortOptions)
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await ProductModel.countDocuments(filter);
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      success: true,
+      error: false,
+      data: {
+        products,
+        category: {
+          id: category._id,
+          name: category.name,
+        },
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(total / limit),
+          totalProducts: total,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get products by category error:", error);
+    res.status(500).json({
+      message: error.message || "Internal server error",
+      error: true,
+      success: false,
+    });
+  }
+};
+
+// @desc    Search products
+// @route   GET /api/products/search
+// @access  Public
+export const searchProducts = async (req, res) => {
+  try {
+    const { q, page = 1, limit = 20 } = req.query;
+
+    if (!q) {
+      return res.status(400).json({
+        message: "Search query is required",
+        error: true,
+        success: false,
+      });
+    }
+
+    const searchRegex = new RegExp(q, "i");
+
+    const filter = {
+      isActive: true,
+      $or: [
+        { name: searchRegex },
+        { description: searchRegex },
+        { brand: searchRegex },
+        { tags: { $in: [searchRegex] } },
+      ],
+    };
+
+    const products = await ProductModel.find(filter)
+      .populate("category", "name")
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .select("name price images brand averageRating");
+
+    const total = await ProductModel.countDocuments(filter);
+
+    res.status(200).json({
+      message: "Search results fetched successfully",
+      success: true,
+      error: false,
+      data: {
+        products,
+        pagination: {
+          currentPage: parseInt(page),
+          totalPages: Math.ceil(total / limit),
+          totalResults: total,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Search products error:", error);
     res.status(500).json({
       message: error.message || "Internal server error",
       error: true,

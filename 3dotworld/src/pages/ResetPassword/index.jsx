@@ -19,7 +19,7 @@ const ResetPassword = () => {
 
     try {
       const { data } = await axios.post(
-        `https://ecommerce-server-fhna.onrender.com/api/auth/reset-password/${token}`,
+        `http://localhost:5000/api/auth/reset-password/${token}`,
         { password }
       );
 

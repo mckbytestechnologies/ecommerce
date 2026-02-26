@@ -44,7 +44,7 @@ const ProductCard = ({
       }
 
       const response = await axios.get(
-        `https://ecommerce-server-fhna.onrender.com/api/wishlist/check/${productId}`,
+        `http://localhost:5000/api/wishlist/check/${productId}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -77,7 +77,7 @@ const ProductCard = ({
       if (isWishlisted) {
         // Remove from wishlist
         const response = await axios.delete(
-          `https://ecommerce-server-fhna.onrender.com/api/wishlist/${productId}`,
+          `http://localhost:5000/api/wishlist/${productId}`,
           {
             headers: { Authorization: `Bearer ${token}` }
           }
@@ -90,7 +90,7 @@ const ProductCard = ({
       } else {
         // Add to wishlist
         const response = await axios.post(
-          `https://ecommerce-server-fhna.onrender.com/api/wishlist`,
+          `http://localhost:5000/api/wishlist`,
           { productId },
           {
             headers: {
@@ -171,7 +171,7 @@ const ProductCard = ({
       group bg-white border border-gray-100 rounded-none
       hover:shadow-lg transition-all duration-300
       h-full flex flex-col relative
-      w-full max-w-full
+      w-[85%] sm:w-full
     "
     >
       {/* ================= IMAGE ================= */}
@@ -259,8 +259,8 @@ const ProductCard = ({
       </div>
 
       {/* ================= INFO ================= */}
-      <div className="p-4 flex flex-col flex-1">
-        <div className="bg-red-600 text-white text-xs font-semibold px-3 py-1 inline-block mb-3 rounded-full self-start">
+      <div className="p-4 flex flex-col">
+        <div className="bg-red-600 text-white text-xs font-semibold px-3 py-1 inline-block mb-3 rounded-full">
           {category}
         </div>
 
@@ -281,7 +281,7 @@ const ProductCard = ({
         </p>
 
         {/* Price Section */}
-        <div className="flex items-center gap-2 mb-1 mt-auto">
+        <div className="flex items-center gap-2 mb-1">
           <span className="text-[22px] font-semibold text-black">
             ₹{newPrice}
           </span>
@@ -313,7 +313,7 @@ const ProductCard = ({
           disabled={cartLoading}
           className="w-full bg-black text-white py-3 text-sm font-semibold 
           tracking-wide rounded-md hover:bg-gray-800 transition
-          disabled:opacity-50 disabled:cursor-not-allowed mt-auto"
+          disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {cartLoading ? "Adding..." : "Buy Now"}
         </button>

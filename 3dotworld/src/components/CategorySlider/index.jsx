@@ -5,13 +5,12 @@ import { Autoplay } from "swiper/modules";
 import axios from "axios";
 import ProductCard from "../ProductCard";
 
-
 const CategorySlider = ({ category }) => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     axios
-      .get(`https://ecommerce-server-fhna.onrender.com/api/products?category=${category._id}`)
+      .get(`http://localhost:5000/api/products?category=${category._id}`)
       .then((res) => setProducts(res.data?.data?.products || []))
       .catch(console.error);
   }, [category]);
@@ -21,19 +20,22 @@ const CategorySlider = ({ category }) => {
   return (
     <section className="bg-white py-10">
       <div className="max-w-7xl mx-auto px-4">
-        <h2 className="text-2xl font-semibold mb-6">
-          {category.name}
-        </h2>
+        <h2 className="text-2xl font-semibold mb-6">{category.name}</h2>
 
         <Swiper
           modules={[Autoplay]}
           autoplay={{ delay: 3000 }}
-          spaceBetween={24}
-          slidesPerView={1}
+          spaceBetween={8}                     // smaller gap on mobile
+          slidesPerView={1.4}                   // 70/30 split (first card 70%, second 30% visible)
           breakpoints={{
-            640: { slidesPerView: 2 },
-            768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
+            768: {
+              slidesPerView: 3,
+              spaceBetween: 24,                 // original tablet spacing
+            },
+            1024: {
+              slidesPerView: 4,
+              spaceBetween: 24,                  // original desktop spacing
+            },
           }}
         >
           {products.map((p) => (

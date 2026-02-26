@@ -66,7 +66,7 @@ const Header = () => {
       const token = getToken();
       if (!token) return;
 
-      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/auth/me", {
+      const response = await axios.get("http://localhost:5000/api/auth/me", {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -87,7 +87,7 @@ const Header = () => {
       if (!token) return;
 
       setLoadingAddresses(true);
-      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/addresses", {
+      const response = await axios.get("http://localhost:5000/api/addresses", {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -115,7 +115,7 @@ const Header = () => {
       if (!token) return;
 
       const response = await axios.put(
-        `https://ecommerce-server-fhna.onrender.com/api/addresses/${addressId}/set-default`,
+        `http://localhost:5000/api/addresses/${addressId}/set-default`,
         {},
         {
           headers: {
@@ -170,7 +170,7 @@ const Header = () => {
         return;
       }
 
-      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/wishlist", {
+      const response = await axios.get("http://localhost:5000/api/wishlist", {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -266,7 +266,7 @@ const Header = () => {
     if (isLoggedIn) {
       navigate("/cart");
     } else {
-      navigate("/auth");
+      navigate("/login");
     }
   };
 
@@ -275,7 +275,7 @@ const Header = () => {
     if (isLoggedIn) {
       navigate("/wishlist");
     } else {
-      navigate("/auth");
+      navigate("/login");
     }
   };
 
@@ -295,7 +295,7 @@ const Header = () => {
     setWishlistCount(0);
     setCartCount(0);
     handleProfileClose();
-    navigate("/auth");
+    navigate("/login");
   };
 
   // Format address for display
@@ -366,7 +366,7 @@ const Header = () => {
             {!isLoggedIn ? (
               <>
                 <Link
-                  to="/auth"
+                  to="/login"
                   className="text-sm text-gray-700 font-medium hover:text-red-600"
                 >
                   Log In
@@ -436,7 +436,7 @@ const Header = () => {
 
                   <MenuItem 
                     onClick={() => {
-                      navigate("/profile/orders");
+                      navigate("/my-order");
                       handleProfileClose();
                     }}
                   >
@@ -556,7 +556,7 @@ const Header = () => {
             {!isLoggedIn ? (
               <>
                 <Link 
-                  to="/auth" 
+                  to="/login" 
                   className="py-2 font-medium hover:text-red-600"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -574,7 +574,7 @@ const Header = () => {
                   My Profile
                 </Link>
                 <Link 
-                  to="/profile/orders" 
+                  to="/my-order" 
                   className="py-2 font-medium hover:text-red-600"
                   onClick={() => setMobileMenuOpen(false)}
                 >

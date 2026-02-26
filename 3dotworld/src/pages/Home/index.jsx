@@ -20,7 +20,7 @@ const Home = () => {
   /* 🔥 FETCH CATEGORIES (DYNAMIC) */
   useEffect(() => {
     axios
-      .get("https://ecommerce-server-fhna.onrender.com/api/categories")
+      .get("http://localhost:5000/api/categories")
       .then((res) => {
         setCategories(res.data?.data || []);
       })
@@ -62,7 +62,7 @@ const Home = () => {
       </section>
 
       {/* ================= OFFER BANNER 1 ================= */}
-      <section className="w-full py-6 px-4">
+      <section className="w-full">
         <div className="bg-gradient-to-r from-[#005c97] to-[#363795] 
                         rounded-2xl flex flex-col md:flex-row items-center 
                         justify-center gap-4 md:gap-8 px-6 py-6 shadow-lg">
@@ -102,7 +102,7 @@ const Home = () => {
       ))}
 
       {/* ================= OFFER BANNER 2 ================= */}
-      <section className="w-full py-6 px-4">
+      <section className="w-full  px-4">
         <div className="bg-gradient-to-r from-[#FF512F] to-[#DD2476] 
                         rounded-2xl flex flex-col md:flex-row items-center 
                         justify-center gap-4 md:gap-8 px-6 py-6 shadow-lg">

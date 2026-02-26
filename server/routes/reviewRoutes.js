@@ -14,12 +14,20 @@ const router = express.Router();
 // Public routes
 router.get("/product/:productId", getProductReviews);
 
-// Protected routes
-router.use(authenticate);
-router.get("/user/my-reviews", getMyReviews);
-router.post("/", createReview);
-router.put("/:id", updateReview);
-router.delete("/:id", deleteReview);
-router.put("/:id/like", toggleLikeReview);
+// Protected routes (with authenticate inside each route)
+router.get("/user/my-reviews", authenticate, getMyReviews);
+router.post("/", authenticate, createReview);
+router.put("/:id", authenticate, updateReview);
+router.delete("/:id", authenticate, deleteReview);
+router.put("/:id/like", authenticate, toggleLikeReview);
+
+// 404 handler for undefined routes
+router.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: true,
+    message: "Route not found. Available endpoints: /product/:productId, /user/my-reviews, / (POST)"
+  });
+});
 
 export default router;

@@ -187,7 +187,7 @@ const Navigation = () => {
               <div className="flex items-center">
                 <p className="flex items-center gap-2 text-sm font-semibold text-gray-700 bg-green-50 px-4 py-2 rounded-lg">
                   <GoRocket className="text-green-600" /> 
-                  <span>Free Delivery</span>
+                  <span>Fast Delivery</span>
                 </p>
               </div>
             </div>
@@ -208,7 +208,7 @@ const Navigation = () => {
                 
                 <p className="flex items-center gap-2 text-xs font-semibold text-gray-700 bg-green-50 px-3 py-2 rounded-lg">
                   <GoRocket className="text-green-600" />
-                  <span>Free Delivery</span>
+                  <span>Fast Delivery</span>
                 </p>
               </div>
 
@@ -281,7 +281,7 @@ const Navigation = () => {
       {/* Drawer */}
       <CategoryPanel open={open} toggleDrawer={toggleDrawer} />
 
-      <style jsx>{`
+      <style>{`
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;

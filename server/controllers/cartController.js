@@ -252,7 +252,7 @@ export const clearCart = async (req, res) => {
   }
 };
 
-// Apply coupon code
+
 export const applyCoupon = async (req, res) => {
   try {
     // Validate request body
@@ -282,21 +282,53 @@ export const applyCoupon = async (req, res) => {
       });
     }
 
-    // Check if coupon is valid
-    const discountRate = COUPONS[couponCode.toUpperCase()];
-    if (!discountRate) {
+    // Find coupon in database
+    const coupon = await Coupon.findOne({ 
+      code: couponCode.toUpperCase(),
+      is_active: true 
+    });
+
+    if (!coupon) {
       return res.status(400).json({
         success: false,
         message: 'Invalid coupon code'
       });
     }
 
-    // Calculate discount
-    const discountAmount = cart.totalAmount * discountRate;
+    // Check if coupon is valid
+    const now = new Date();
+    if (coupon.start_date > now || coupon.end_date < now) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coupon has expired'
+      });
+    }
+
+    // Check usage limit
+    if (coupon.usage_limit && coupon.used_count >= coupon.usage_limit) {
+      return res.status(400).json({
+        success: false,
+        message: 'Coupon usage limit reached'
+      });
+    }
+
+    // Calculate discount based on coupon type
+    let discountAmount = 0;
     
+    if (coupon.discount_type === "percentage") {
+      discountAmount = (cart.totalAmount * coupon.discount_value) / 100;
+      if (coupon.max_discount_amount && discountAmount > coupon.max_discount_amount) {
+        discountAmount = coupon.max_discount_amount;
+      }
+    } else {
+      discountAmount = Math.min(coupon.discount_value, cart.totalAmount);
+    }
+
+    discountAmount = Math.round(discountAmount * 100) / 100;
+
     // Apply coupon
-    cart.couponCode = couponCode.toUpperCase();
-    cart.discountAmount = Math.round(discountAmount * 100) / 100;
+    cart.couponCode = coupon.code;
+    cart.discountAmount = discountAmount;
     await cart.save();
     await cart.populate('items.product', 'name price images stock');
 

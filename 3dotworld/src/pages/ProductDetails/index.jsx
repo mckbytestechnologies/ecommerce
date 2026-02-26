@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Rating from "@mui/material/Rating";
+import { addToCart } from "../../utils/cart"; 
 import {
   FaShoppingBag,
   FaRegHeart,
@@ -152,7 +153,7 @@ const ReviewForm = ({ productId, open, onClose, onReviewSubmit, editMode, review
       formData.append("image", file);
 
       try {
-        const response = await axios.post("https://ecommerce-server-fhna.onrender.com/api/upload/review", formData, {
+        const response = await axios.post("http://localhost:5000/api/upload/review", formData, {
           headers: {
             Authorization: `Bearer ${getToken()}`,
             "Content-Type": "multipart/form-data",
@@ -199,8 +200,8 @@ const ReviewForm = ({ productId, open, onClose, onReviewSubmit, editMode, review
     try {
       const token = getToken();
       const endpoint = editMode
-        ? `https://ecommerce-server-fhna.onrender.com/api/reviews/${reviewToEdit._id}`
-        : "https://ecommerce-server-fhna.onrender.com/api/reviews";
+        ? `http://localhost:5000/api/reviews/${reviewToEdit._id}`
+        : "http://localhost:5000/api/reviews";
 
       const method = editMode ? "put" : "post";
 
@@ -615,6 +616,8 @@ const ProductDetails = () => {
   const [reviewSort, setReviewSort] = useState("recent");
   const [searchQuery, setSearchQuery] = useState("");
   const [editingReview, setEditingReview] = useState(null);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [cartLoading, setCartLoading] = useState(false);
 
   const reviewsPerPage = 5;
 
@@ -623,12 +626,33 @@ const ProductDetails = () => {
     return localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
   };
 
+  // Check if product is in wishlist
+  const checkWishlistStatus = async () => {
+    const token = getToken();
+    if (!token) {
+      setIsInWishlist(false);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:5000/api/wishlist/check/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (response.data.success) {
+        setIsInWishlist(response.data.data.isInWishlist);
+      }
+    } catch (error) {
+      console.error("Error checking wishlist:", error);
+    }
+  };
+
   // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`https://ecommerce-server-fhna.onrender.com/api/products/${id}`);
+        const res = await axios.get(`http://localhost:5000/api/products/${id}`);
         const productData = res.data.data;
         setProduct(productData);
         setSelectedImage(productData.images?.[0]?.url);
@@ -636,6 +660,7 @@ const ProductDetails = () => {
         setSelectedSize(productData.sizes?.[0] || null);
         fetchSimilarProducts(productData.category?._id);
         fetchUserAndPurchaseStatus();
+        checkWishlistStatus(); // Check wishlist status
       } catch (err) {
         console.error(err);
         toast.error("Failed to load product details.");
@@ -650,7 +675,7 @@ const ProductDetails = () => {
   const fetchReviews = async () => {
     try {
       setReviewsLoading(true);
-      const response = await axios.get(`https://ecommerce-server-fhna.onrender.com/api/reviews/product/${id}`);
+      const response = await axios.get(`http://localhost:5000/api/reviews/product/${id}`);
       
       if (response.data.success) {
         setReviews(response.data.data);
@@ -672,7 +697,7 @@ const ProductDetails = () => {
       
       try {
         // Fetch user profile
-        const userResponse = await axios.get("https://ecommerce-server-fhna.onrender.com/api/auth/me", {
+        const userResponse = await axios.get("http://localhost:5000/api/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
         
@@ -682,7 +707,7 @@ const ProductDetails = () => {
           // Check if user has purchased this product
           try {
             const purchaseResponse = await axios.get(
-              `https://ecommerce-server-fhna.onrender.com/api/orders/check-purchase/${id}`,
+              `http://localhost:5000/api/orders/check-purchase/${id}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             
@@ -705,7 +730,7 @@ const ProductDetails = () => {
   // Fetch similar products
   const fetchSimilarProducts = async (categoryId) => {
     try {
-      const res = await axios.get(`https://ecommerce-server-fhna.onrender.com/api/products?category=${categoryId}&limit=8`);
+      const res = await axios.get(`http://localhost:5000/api/products?category=${categoryId}&limit=8`);
       const filteredProducts = res.data.data?.products?.filter((p) => p._id !== id) || [];
       setSimilarProducts(filteredProducts);
     } catch (error) {
@@ -713,30 +738,47 @@ const ProductDetails = () => {
     }
   };
 
-  // Add to cart
-  const handleAddToCart = async () => {
-    try {
-      if (product.stock <= 0) {
-        toast.error("Product is out of stock.");
-        return;
-      }
-      const token = getToken();
-      if (!token) {
-        toast.error("Please login to add items to cart");
-        navigate("/auth");
-        return;
-      }
-      
-      await axios.post(
-        "https://ecommerce-server-fhna.onrender.com/api/cart/add",
-        { productId: id, quantity, color: selectedColor, size: selectedSize },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      toast.success(`${quantity} item(s) added to cart!`);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to add to cart.");
+  // Add to cart - FIXED
+
+const handleAddToCart = async () => {
+  try {
+    if (product.stock <= 0) {
+      toast.error("Product is out of stock.");
+      return;
     }
-  };
+    
+    const token = getToken();
+    if (!token) {
+      toast.error("Please login to add items to cart");
+      navigate("/login");
+      return;
+    }
+    
+    setCartLoading(true);
+    
+    // ✅ Use the imported addToCart function
+    const result = await addToCart(id, quantity);
+    
+    if (result.success) {
+      toast.success(`${quantity} item(s) added to cart!`);
+      // Dispatch cart update event
+      window.dispatchEvent(new Event('cartUpdated'));
+    } else {
+      // Handle specific error cases
+      if (result.requiresAuth || result.status === 401) {
+        toast.error("Session expired. Please login again.");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        toast.error(result.message || "Failed to add to cart");
+      }
+    }
+  } catch (error) {
+    console.error("Add to cart error:", error);
+    toast.error("Error adding to cart. Please try again.");
+  } finally {
+    setCartLoading(false);
+  }
+};
 
   // Buy now
   const handleBuyNow = async () => {
@@ -748,44 +790,61 @@ const ProductDetails = () => {
     }
   };
 
-  // Wishlist toggle
+  // Wishlist toggle - FIXED
   const handleWishlistToggle = async () => {
     try {
       const token = getToken();
       if (!token) {
         toast.error("Please login to use the wishlist.");
-        navigate("/auth");
+        navigate("/login");
         return;
       }
       
-      const endpoint = isInWishlist
-        ? `https://ecommerce-server-fhna.onrender.com/api/wishlist/remove/${id}`
-        : `https://ecommerce-server-fhna.onrender.com/api/wishlist/add`;
+      setWishlistLoading(true);
       
       if (isInWishlist) {
-        await axios.delete(endpoint, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setIsInWishlist(false);
-        toast.info("Removed from wishlist.");
-      } else {
-        await axios.post(
-          endpoint,
-          { productId: id },
-          { headers: { Authorization: `Bearer ${token}` } }
+        // ✅ FIXED: Remove from wishlist - DELETE /api/wishlist/:productId
+        const response = await axios.delete(
+          `http://localhost:5000/api/wishlist/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
         );
-        setIsInWishlist(true);
-        toast.success("Added to wishlist!");
+        
+        if (response.data.success) {
+          setIsInWishlist(false);
+          toast.info("Removed from wishlist.");
+        }
+      } else {
+        // ✅ FIXED: Add to wishlist - POST /api/wishlist
+        const response = await axios.post(
+          "http://localhost:5000/api/wishlist",
+          { productId: id },
+          { 
+            headers: { 
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            } 
+          }
+        );
+        
+        if (response.data.success) {
+          setIsInWishlist(true);
+          toast.success("Added to wishlist!");
+        }
       }
     } catch (error) {
-      toast.error("Failed to update wishlist.");
+      console.error("Wishlist error:", error);
+      toast.error(error.response?.data?.message || "Failed to update wishlist.");
+    } finally {
+      setWishlistLoading(false);
     }
   };
 
   // Share product
   const handleShare = (platform) => {
     const productUrl = window.location.href;
-    const shareText = `Check out this amazing product: ${product.name} on our store!`;
+    const shareText = `Check out this amazing product: ${product?.name} on our store!`;
 
     const shareConfig = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productUrl)}`,
@@ -820,7 +879,7 @@ const ProductDetails = () => {
   const handleReviewSubmit = () => {
     fetchReviews();
     // Refresh product to update review count
-    axios.get(`https://ecommerce-server-fhna.onrender.com/api/products/${id}`).then((res) => {
+    axios.get(`http://localhost:5000/api/products/${id}`).then((res) => {
       setProduct(res.data.data);
     });
   };
@@ -834,7 +893,7 @@ const ProductDetails = () => {
       }
       
       const response = await axios.put(
-        `https://ecommerce-server-fhna.onrender.com/api/reviews/${reviewId}/like`,
+        `http://localhost:5000/api/reviews/${reviewId}/like`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -852,7 +911,7 @@ const ProductDetails = () => {
 
     try {
       const token = getToken();
-      const response = await axios.delete(`https://ecommerce-server-fhna.onrender.com/api/reviews/${reviewId}`, {
+      const response = await axios.delete(`http://localhost:5000/api/reviews/${reviewId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -860,7 +919,7 @@ const ProductDetails = () => {
         toast.success("Review deleted successfully!");
         fetchReviews();
         // Refresh product
-        axios.get(`https://ecommerce-server-fhna.onrender.com/api/products/${id}`).then((res) => {
+        axios.get(`http://localhost:5000/api/products/${id}`).then((res) => {
           setProduct(res.data.data);
         });
       }
@@ -1105,12 +1164,6 @@ const ProductDetails = () => {
                   </span>
                 </div>
               )}
-              <p className="text-sm text-gray-500 mt-2">
-                Pay in 3-12 months with EMI starting at{" "}
-                <span className="font-semibold text-gray-700">
-                  ₹{Math.round(product.price / 12).toLocaleString("en-IN")}/month
-                </span>
-              </p>
             </div>
 
             {/* Short Description/Highlights */}
@@ -1212,15 +1265,21 @@ const ProductDetails = () => {
             <div className="flex flex-col sm:flex-row gap-4 mb-6 pt-4 border-t border-gray-100">
               <button
                 onClick={handleAddToCart}
-                disabled={isOutOfStock}
+                disabled={isOutOfStock || cartLoading}
                 className={`flex-1 flex items-center justify-center gap-3 py-3 px-6 rounded-lg transition font-bold text-lg shadow-lg ${
-                  isOutOfStock
+                  isOutOfStock || cartLoading
                     ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                     : "bg-red-600 text-white hover:bg-red-700"
                 }`}
               >
-                <FaShoppingBag />
-                {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                {cartLoading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  <>
+                    <FaShoppingBag />
+                    {isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                  </>
+                )}
               </button>
               <button
                 onClick={handleBuyNow}
@@ -1235,10 +1294,13 @@ const ProductDetails = () => {
               </button>
               <button
                 onClick={handleWishlistToggle}
-                className="p-3 sm:w-14 sm:h-14 border border-gray-300 rounded-lg hover:bg-red-50 transition flex items-center justify-center"
+                disabled={wishlistLoading}
+                className="p-3 sm:w-14 sm:h-14 border border-gray-300 rounded-lg hover:bg-red-50 transition flex items-center justify-center disabled:opacity-50"
                 aria-label="Add to Wishlist"
               >
-                {isInWishlist ? (
+                {wishlistLoading ? (
+                  <CircularProgress size={24} />
+                ) : isInWishlist ? (
                   <FaHeart className="text-red-600" size={24} />
                 ) : (
                   <FaRegHeart className="text-gray-500 group-hover:text-red-600" size={24} />
@@ -1248,48 +1310,67 @@ const ProductDetails = () => {
 
             {/* Policy Highlights */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 py-4 border-t border-gray-100 mt-4">
-              <PolicyFeature Icon={FaTruck} title="Fast Delivery" subtitle="Across India" />
-              <PolicyFeature Icon={FaUndo} title="Easy Returns" subtitle="30 Days Policy" />
-              <PolicyFeature Icon={FaShieldAlt} title="Brand Warranty" subtitle="2 Year Coverage" />
-              <PolicyFeature Icon={FaCreditCard} title="Secure Payments" subtitle="UPI, Cards, COD" />
+              <PolicyFeature Icon={FaTruck} title="Fast Delivery" />
+              <PolicyFeature Icon={FaUndo} title="Easy Returns"  />
+              <PolicyFeature Icon={FaShieldAlt} title="Brand Warranty"  />
+              <PolicyFeature Icon={FaCreditCard} title="Secure Payments"/>
             </div>
 
             {/* Share Product Section */}
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <FaShareAlt className="text-red-600" /> Share Product
+            <div className="mt-6 relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-50 via-white to-red-50 border border-red-100 shadow-lg p-6">
+
+              {/* Decorative Background Glow */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-red-200 opacity-20 rounded-full blur-3xl"></div>
+
+              <h3 className="relative font-semibold text-gray-900 mb-4 flex items-center gap-3 text-lg">
+                <span className="bg-red-600 text-white p-2 rounded-full shadow-md">
+                  <FaShareAlt size={16} />
+                </span>
+                Share this Product
               </h3>
-              <div className="flex items-center gap-3">
+
+              <div className="relative flex flex-wrap items-center gap-4">
+
                 <SocialShareButton
                   platform="facebook"
                   Icon={FaFacebook}
                   bgColor="#1877F2"
                   onClick={handleShare}
+                  className="share-btn"
                 />
+
                 <SocialShareButton
                   platform="twitter"
                   Icon={FaTwitter}
                   bgColor="#1DA1F2"
                   onClick={handleShare}
+                  className="share-btn"
                 />
+
                 <SocialShareButton
                   platform="pinterest"
                   Icon={FaPinterest}
                   bgColor="#E60023"
                   onClick={handleShare}
+                  className="share-btn"
                 />
+
                 <SocialShareButton
                   platform="whatsapp"
                   Icon={FaWhatsapp}
                   bgColor="#25D366"
                   onClick={handleShare}
+                  className="share-btn"
                 />
+
                 <SocialShareButton
                   platform="copy"
                   Icon={FaLink}
                   bgColor="#6B7280"
                   onClick={handleShare}
+                  className="share-btn"
                 />
+
               </div>
             </div>
           </div>
@@ -1299,7 +1380,7 @@ const ProductDetails = () => {
         <div className="mt-8 bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="border-b border-gray-100">
             <nav className="flex space-x-2 sm:space-x-4 px-4 sm:px-6 lg:px-8">
-              {["description", "specifications", "reviews"].map((tab) => (
+              {["description", "specifications"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -1334,338 +1415,260 @@ const ProductDetails = () => {
 
             {/* Specifications Tab */}
             {activeTab === "specifications" && (
-              <Box>
-                <Typography variant="h6" fontWeight="bold" gutterBottom>
+              <Box sx={{ mt: 2 }}>
+                
+                {/* Section Title */}
+                <Typography
+                  variant="h5"
+                  fontWeight="bold"
+                  sx={{
+                    color: "#d32f2f",
+                    mb: 3,
+                    borderBottom: "3px solid #d32f2f",
+                    display: "inline-block",
+                    pb: 1,
+                  }}
+                >
                   Product Specifications
                 </Typography>
 
-                {product.specifications && product.specifications.length > 0 ? (
-                  <Grid container spacing={2}>
-                    {product.specifications.map((spec, index) => (
+                {/* Specifications Grid */}
+                {product.specifications &&
+                typeof product.specifications === "object" &&
+                !Array.isArray(product.specifications) &&
+                Object.keys(product.specifications).length > 0 ? (
+                  
+                  <Grid container spacing={3}>
+                    {Object.entries(product.specifications).map(([key, value], index) => (
                       <Grid item xs={12} sm={6} key={index}>
                         <Paper
-                          elevation={0}
+                          elevation={3}
                           sx={{
                             p: 2,
-                            bgcolor: index % 2 === 0 ? "background.default" : "grey.50",
-                            borderRadius: 1,
-                            border: "1px solid",
-                            borderColor: "divider",
+                            borderRadius: 2,
+                            background: "#ffffff",
+                            borderLeft: "5px solid #d32f2f",
+                            transition: "0.3s",
+                            "&:hover": {
+                              transform: "translateY(-4px)",
+                              boxShadow: 6,
+                            },
                           }}
                         >
-                          <Grid container spacing={1}>
-                            <Grid item xs={5}>
-                              <Typography
-                                variant="subtitle2"
-                                color="textSecondary"
-                                fontWeight="medium"
-                              >
-                                {spec.key}:
-                              </Typography>
-                            </Grid>
-                            <Grid item xs={7}>
-                              <Typography variant="body2" fontWeight="medium">
-                                {spec.value || "Not specified"}
-                              </Typography>
-                            </Grid>
-                          </Grid>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              borderBottom: "1px solid #f5c6c6",
+                              py: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: 600,
+                                color: "#d32f2f",
+                                minWidth: "40%",
+                              }}
+                            >
+                              {key} :
+                            </Typography>
+
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: "#333",
+                                textAlign: "right",
+                                flex: 1,
+                              }}
+                            >
+                              {value || "Not specified"}
+                            </Typography>
+                          </Box>
                         </Paper>
                       </Grid>
                     ))}
                   </Grid>
+
                 ) : product.features && product.features.length > 0 ? (
-                  <Box sx={{ mt: 2 }}>
-                    <Typography variant="h6" gutterBottom>
+
+                  <Box sx={{ mt: 3 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ color: "#d32f2f", fontWeight: "bold", mb: 2 }}
+                    >
                       Key Features
                     </Typography>
+
                     <List>
                       {product.features.map((feature, index) => (
-                        <ListItem key={index} sx={{ py: 0.5 }}>
-                          <ListItemIcon sx={{ minWidth: 36 }}>
-                            <FaCheck className="text-green-600" />
+                        <ListItem
+                          key={index}
+                          sx={{
+                            bgcolor: "#fff5f5",
+                            mb: 1,
+                            borderRadius: 2,
+                            borderLeft: "4px solid #d32f2f",
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 35 }}>
+                            <FaCheck style={{ color: "#d32f2f" }} />
                           </ListItemIcon>
                           <ListItemText primary={feature} />
                         </ListItem>
                       ))}
                     </List>
                   </Box>
+
                 ) : (
-                  <Alert severity="info" sx={{ mt: 2 }}>
+                  <Alert
+                    severity="info"
+                    sx={{
+                      mt: 2,
+                      borderRadius: 2,
+                    }}
+                  >
                     No detailed specifications available for this product.
                   </Alert>
                 )}
 
                 {/* Additional Information */}
-                <Box mt={4}>
-                  <Typography variant="h6" gutterBottom>
+                <Box mt={5}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      color: "#d32f2f",
+                      fontWeight: "bold",
+                      mb: 2,
+                    }}
+                  >
                     Additional Information
                   </Typography>
+
                   <TableContainer
                     component={Paper}
-                    elevation={0}
-                    variant="outlined"
-                    sx={{ mt: 2 }}
+                    elevation={3}
+                    sx={{
+                      borderRadius: 3,
+                      overflow: "hidden",
+                    }}
                   >
-                    <Table size="small">
+                    <Table>
                       <TableBody>
+
                         {product.brand && (
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                          <TableRow hover>
+                            <TableCell
+                              sx={{
+                                fontWeight: "bold",
+                                bgcolor: "#ffe5e5",
+                                width: "30%",
+                                color: "#d32f2f",
+                              }}
+                            >
                               Brand
                             </TableCell>
-                            <TableCell>{product.brand.name}</TableCell>
+                            <TableCell>
+                              {typeof product.brand === "object"
+                                ? product.brand.name
+                                : product.brand}
+                            </TableCell>
                           </TableRow>
                         )}
+
                         {product.category && (
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                          <TableRow hover>
+                            <TableCell
+                              sx={{
+                                fontWeight: "bold",
+                                bgcolor: "#ffe5e5",
+                                color: "#d32f2f",
+                              }}
+                            >
                               Category
                             </TableCell>
-                            <TableCell>{product.category.name}</TableCell>
+                            <TableCell>
+                              {typeof product.category === "object"
+                                ? product.category.name
+                                : product.category}
+                            </TableCell>
                           </TableRow>
                         )}
+
                         {product.model && (
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                          <TableRow hover>
+                            <TableCell
+                              sx={{
+                                fontWeight: "bold",
+                                bgcolor: "#ffe5e5",
+                                color: "#d32f2f",
+                              }}
+                            >
                               Model
                             </TableCell>
                             <TableCell>{product.model}</TableCell>
                           </TableRow>
                         )}
+
                         {product.warranty && (
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                          <TableRow hover>
+                            <TableCell
+                              sx={{
+                                fontWeight: "bold",
+                                bgcolor: "#ffe5e5",
+                                color: "#d32f2f",
+                              }}
+                            >
                               Warranty
                             </TableCell>
                             <TableCell>{product.warranty}</TableCell>
                           </TableRow>
                         )}
+
                         {product.dimensions && (
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                          <TableRow hover>
+                            <TableCell
+                              sx={{
+                                fontWeight: "bold",
+                                bgcolor: "#ffe5e5",
+                                color: "#d32f2f",
+                              }}
+                            >
                               Dimensions
                             </TableCell>
-                            <TableCell>{product.dimensions}</TableCell>
+                            <TableCell>
+                              {typeof product.dimensions === "object"
+                                ? `${product.dimensions.length || ""} x ${
+                                    product.dimensions.width || ""
+                                  } x ${product.dimensions.height || ""}`
+                                : product.dimensions}
+                            </TableCell>
                           </TableRow>
                         )}
+
                         {product.weight && (
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: "bold", bgcolor: "grey.50" }}>
+                          <TableRow hover>
+                            <TableCell
+                              sx={{
+                                fontWeight: "bold",
+                                bgcolor: "#ffe5e5",
+                                color: "#d32f2f",
+                              }}
+                            >
                               Weight
                             </TableCell>
-                            <TableCell>{product.weight}</TableCell>
+                            <TableCell>
+                              {product.weight} {product.weightUnit || "kg"}
+                            </TableCell>
                           </TableRow>
                         )}
+
                       </TableBody>
                     </Table>
                   </TableContainer>
                 </Box>
-              </Box>
-            )}
 
-            {/* Reviews Tab */}
-            {activeTab === "reviews" && (
-              <Box>
-                {/* Reviews Header */}
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-                  <Box>
-                    <Typography variant="h5" fontWeight="bold" display="flex" alignItems="center" gap={1}>
-                      <FaStar className="text-red-600" />
-                      Customer Reviews ({product.reviewCount || reviews.length})
-                    </Typography>
-                    <Box display="flex" alignItems="center" gap={1} mt={1}>
-                      <Rating value={parseFloat(averageRating)} readOnly precision={0.1} />
-                      <Typography variant="body1" fontWeight="bold">
-                        {averageRating} out of 5
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* Write Review Button */}
-                  <Button
-                    variant="contained"
-                    color="error"
-                    startIcon={<FaStar />}
-                    onClick={() => {
-                      setEditingReview(null);
-                      setReviewModalOpen(true);
-                    }}
-                    disabled={!isLoggedIn || !hasPurchasedProduct}
-                  >
-                    Write a Review
-                  </Button>
-                </Box>
-
-                {/* Check Login Status */}
-                {!isLoggedIn && (
-                  <Alert severity="info" sx={{ mb: 3 }}>
-                    Please{" "}
-                    <Link to="/auth" style={{ color: "#d32f2f", fontWeight: "bold" }}>
-                      login
-                    </Link>{" "}
-                    to write a review.
-                  </Alert>
-                )}
-
-                {/* Check Purchase Status */}
-                {isLoggedIn && !hasPurchasedProduct && (
-                  <Alert severity="warning" sx={{ mb: 3 }}>
-                    <FaExclamationTriangle style={{ marginRight: 8 }} />
-                    You need to purchase this product before writing a review.
-                  </Alert>
-                )}
-
-                {/* Rating Distribution */}
-                <Paper elevation={0} sx={{ p: 3, mb: 3, bgcolor: "background.default" }}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={4}>
-                      <Box textAlign="center">
-                        <Typography variant="h2" fontWeight="bold" color="primary">
-                          {averageRating}
-                        </Typography>
-                        <Rating value={parseFloat(averageRating)} readOnly precision={0.1} />
-                        <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                          Based on {reviews.length} review{reviews.length !== 1 ? "s" : ""}
-                        </Typography>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12} md={8}>
-                      {[5, 4, 3, 2, 1].map((rating) => {
-                        const count = ratingDistribution[rating];
-                        const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-
-                        return (
-                          <Box key={rating} display="flex" alignItems="center" mb={1}>
-                            <Typography variant="body2" sx={{ minWidth: 40 }}>
-                              {rating} star{rating !== 1 ? "s" : ""}
-                            </Typography>
-                            <Box flex={1} ml={2} mr={2}>
-                              <Box
-                                sx={{
-                                  height: 8,
-                                  backgroundColor: "grey.200",
-                                  borderRadius: 4,
-                                  overflow: "hidden",
-                                }}
-                              >
-                                <Box
-                                  sx={{
-                                    width: `${percentage}%`,
-                                    height: "100%",
-                                    backgroundColor:
-                                      rating >= 4
-                                        ? "success.main"
-                                        : rating >= 3
-                                        ? "warning.main"
-                                        : "error.main",
-                                    borderRadius: 4,
-                                  }}
-                                />
-                              </Box>
-                            </Box>
-                            <Typography variant="body2" color="textSecondary" sx={{ minWidth: 40 }}>
-                              {count}
-                            </Typography>
-                          </Box>
-                        );
-                      })}
-                    </Grid>
-                  </Grid>
-                </Paper>
-
-                {/* Reviews Filters and Search */}
-                <Box display="flex" flexWrap="wrap" gap={2} mb={3} alignItems="center">
-                  <TextField
-                    size="small"
-                    placeholder="Search reviews..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{ flex: 1, minWidth: 200 }}
-                  />
-
-                  <FormControl size="small" sx={{ minWidth: 120 }}>
-                    <InputLabel>Filter</InputLabel>
-                    <Select
-                      value={reviewFilter}
-                      onChange={(e) => setReviewFilter(e.target.value)}
-                      label="Filter"
-                      startAdornment={<FilterListIcon sx={{ mr: 1 }} />}
-                    >
-                      <MenuItem value="all">All Reviews</MenuItem>
-                      <MenuItem value="5">5 Stars</MenuItem>
-                      <MenuItem value="4">4 Stars</MenuItem>
-                      <MenuItem value="3">3 Stars</MenuItem>
-                      <MenuItem value="2">2 Stars</MenuItem>
-                      <MenuItem value="1">1 Star</MenuItem>
-                      <MenuItem value="with-images">With Images</MenuItem>
-                    </Select>
-                  </FormControl>
-
-                  <FormControl size="small" sx={{ minWidth: 120 }}>
-                    <InputLabel>Sort By</InputLabel>
-                    <Select value={reviewSort} onChange={(e) => setReviewSort(e.target.value)} label="Sort By">
-                      <MenuItem value="recent">Most Recent</MenuItem>
-                      <MenuItem value="helpful">Most Helpful</MenuItem>
-                      <MenuItem value="rating-high">Highest Rating</MenuItem>
-                      <MenuItem value="rating-low">Lowest Rating</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-
-                {/* Reviews Loading */}
-                {reviewsLoading ? (
-                  <Box display="flex" justifyContent="center" p={4}>
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <>
-                    {/* Reviews List */}
-                    {paginatedReviews.length > 0 ? (
-                      <>
-                        {paginatedReviews.map((review) => (
-                          <ReviewItem
-                            key={review._id}
-                            review={review}
-                            currentUser={currentUser}
-                            onLike={handleLikeReview}
-                            onEdit={handleEditReview}
-                            onDelete={handleDeleteReview}
-                          />
-                        ))}
-
-                        {/* Pagination */}
-                        {totalReviewPages > 1 && (
-                          <Box display="flex" justifyContent="center" mt={3}>
-                            <Pagination
-                              count={totalReviewPages}
-                              page={reviewPage}
-                              onChange={(_, value) => setReviewPage(value)}
-                              color="primary"
-                            />
-                          </Box>
-                        )}
-                      </>
-                    ) : (
-                      <Paper elevation={0} sx={{ p: 4, textAlign: "center", bgcolor: "background.default" }}>
-                        <Typography variant="h6" color="textSecondary" gutterBottom>
-                          No reviews found
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary">
-                          {searchQuery || reviewFilter !== "all"
-                            ? "Try changing your search or filter criteria"
-                            : "Be the first to share your thoughts about this product!"}
-                        </Typography>
-                      </Paper>
-                    )}
-                  </>
-                )}
               </Box>
             )}
           </div>
@@ -1701,7 +1704,7 @@ const ProductDetails = () => {
               {similarProducts.slice(0, 8).map((item, idx) => (
                 <SwiperSlide key={idx}>
                   <ElectronicsItem
-                    id={item._id}
+                    productId={item._id}
                     imageFront={item.images?.[0]?.url}
                     imageBack={item.images?.[1]?.url || item.images?.[0]?.url}
                     category={item.category?.name}
@@ -1737,10 +1740,13 @@ const ProductDetails = () => {
           <div className="flex gap-3">
             <button
               onClick={handleWishlistToggle}
-              className="p-3 border border-gray-300 rounded-lg hover:bg-red-50 transition flex items-center justify-center"
+              disabled={wishlistLoading}
+              className="p-3 border border-gray-300 rounded-lg hover:bg-red-50 transition flex items-center justify-center disabled:opacity-50"
               aria-label="Add to Wishlist"
             >
-              {isInWishlist ? (
+              {wishlistLoading ? (
+                <CircularProgress size={20} />
+              ) : isInWishlist ? (
                 <FaHeart className="text-red-600" size={20} />
               ) : (
                 <FaRegHeart size={20} />
@@ -1748,14 +1754,20 @@ const ProductDetails = () => {
             </button>
             <button
               onClick={handleAddToCart}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || cartLoading}
               className={`flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition ${
-                isOutOfStock
+                isOutOfStock || cartLoading
                   ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                   : "bg-red-600 text-white hover:bg-red-700"
               }`}
             >
-              <FaShoppingBag /> Add to Cart
+              {cartLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : (
+                <>
+                  <FaShoppingBag /> Add to Cart
+                </>
+              )}
             </button>
           </div>
         </div>

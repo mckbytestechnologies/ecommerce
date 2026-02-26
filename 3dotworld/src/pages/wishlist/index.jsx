@@ -5,7 +5,7 @@ import ProductCard from "../../components/ProductCard";
 import { useWishlist } from "../../contexts/WishlistContext";
 
 // Replace this with your actual backend URL
-const BACKEND_URL = "https://ecommerce-server-fhna.onrender.com";
+const BACKEND_URL = "http://localhost:5000";
 
 // Utility function to get full image URL
 const getImageUrl = (img) => {

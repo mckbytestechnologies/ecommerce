@@ -41,9 +41,10 @@ const orderSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Address",
     },
+    // models/Order.js - Update the payment_method enum
     payment_method: {
       type: String,
-      enum: ["card", "upi", "netbanking", "cod", "wallet"],
+      enum: ["card", "upi", "netbanking", "cod", "wallet", "razorpay"], // Added "razorpay"
       required: true,
     },
     payment_status: {

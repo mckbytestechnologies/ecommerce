@@ -6,6 +6,7 @@ import "swiper/css/autoplay";
 import "./swiper.css";
 import { Pagination, Autoplay } from "swiper/modules";
 import Bannerbox from "../BannerBox";
+import { Link } from "react-router-dom";
 
 const AdsBannerSlider = ({ items = 3 }) => {
   const [blogs, setBlogs] = useState([]);
@@ -13,7 +14,7 @@ const AdsBannerSlider = ({ items = 3 }) => {
   const [error, setError] = useState(null);
 
   // API configuration
-  const API_URL = "https://ecommerce-server-fhna.onrender.com/api/blogs";
+  const API_URL = "http://localhost:5000/api/blogs";
 
   // Fetch blogs from API
   useEffect(() => {
@@ -24,8 +25,11 @@ const AdsBannerSlider = ({ items = 3 }) => {
         const data = await response.json();
         
         if (data.success) {
-          // Filter blogs that have images
-          const blogsWithImages = data.data.filter(blog => blog.image);
+          // Filter blogs that have images and are published
+          const blogsWithImages = data.data.filter(blog => 
+            blog.image && blog.status === 'published'
+          );
+          console.log("Fetched blogs:", blogsWithImages);
           setBlogs(blogsWithImages);
         } else {
           setError(data.message || "Failed to load blogs");
@@ -35,14 +39,14 @@ const AdsBannerSlider = ({ items = 3 }) => {
         setError("Error loading blogs: " + err.message);
         // Fallback to static banners if API fails
         setBlogs([
-          { _id: 1, title: "Fashion Trends 2024", image: "/ad_banner/banner1.jpg", category: "Fashion" },
-          { _id: 2, title: "Tech Innovations", image: "/ad_banner/banner2.jpg", category: "Technology" },
-          { _id: 3, title: "Healthy Lifestyle", image: "/ad_banner/banner3.jpg", category: "Health" },
-          { _id: 4, title: "Business Insights", image: "/ad_banner/banner4.jpg", category: "Business" },
-          { _id: 5, title: "Modern Design", image: "/ad_banner/banner5.jpg", category: "Lifestyle" },
-          { _id: 6, title: "Creative Arts", image: "/ad_banner/banner6.jpg", category: "Other" },
-          { _id: 7, title: "Travel Guide", image: "/ad_banner/banner7.jpg", category: "Lifestyle" },
-          { _id: 8, title: "Food & Recipes", image: "/ad_banner/banner8.jpg", category: "Health" },
+          { _id: "1", title: "Fashion Trends 2024", image: "/ad_banner/banner1.jpg", category: "Fashion" },
+          { _id: "2", title: "Tech Innovations", image: "/ad_banner/banner2.jpg", category: "Technology" },
+          { _id: "3", title: "Healthy Lifestyle", image: "/ad_banner/banner3.jpg", category: "Health" },
+          { _id: "4", title: "Business Insights", image: "/ad_banner/banner4.jpg", category: "Business" },
+          { _id: "5", title: "Modern Design", image: "/ad_banner/banner5.jpg", category: "Lifestyle" },
+          { _id: "6", title: "Creative Arts", image: "/ad_banner/banner6.jpg", category: "Other" },
+          { _id: "7", title: "Travel Guide", image: "/ad_banner/banner7.jpg", category: "Lifestyle" },
+          { _id: "8", title: "Food & Recipes", image: "/ad_banner/banner8.jpg", category: "Health" },
         ]);
       } finally {
         setLoading(false);
@@ -158,41 +162,44 @@ const AdsBannerSlider = ({ items = 3 }) => {
             }}
             speed={800}
             loop={true}
-            grabCursor={false}
+            grabCursor={true}
             centeredSlides={false}
             slideToClickedSlide={false}
           >
             {displayItems.map((item) => (
               <SwiperSlide key={item._id}>
-                <div className="h-full flex">
-                  <div className="w-full aspect-[4/3] bg-gray-100 overflow-hidden rounded-none shadow-sm hover:shadow-md transition-all duration-500 group relative">
-                    {/* Blog Image */}
-                    <Bannerbox 
-                      img={item.image} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    
-                    {/* Blog Info Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                    
-                    {/* Category Badge */}
-                    {item.category && (
-                      <div className="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-800 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        {item.category}
+                <Link 
+                  to={`/blog/${item._id}`} // Using ID instead of slug
+                  className="block h-full cursor-pointer"
+                  onClick={() => window.scrollTo(0, 0)}
+                >
+                  <div className="h-full flex">
+                    <div className="w-full aspect-[4/3] bg-gray-100 overflow-hidden rounded-none shadow-sm hover:shadow-md transition-all duration-500 group relative">
+                      {/* Blog Image */}
+                      <Bannerbox 
+                        img={item.image} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      />
+                      
+                      {/* Blog Info Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                      
+                      
+                      
+                      
+                      
+                      {/* Read More Indicator */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="px-4 py-2 bg-white/90 backdrop-blur-sm text-gray-900 text-sm font-medium rounded-sm transform -translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                          Read More →
+                        </span>
                       </div>
-                    )}
-                    
-                    {/* Blog Title */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent">
-                      <h3 className="text-white font-medium text-sm lg:text-base line-clamp-2">
-                        {item.title}
-                      </h3>
+                      
+                      {/* Subtle overlay on hover */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 pointer-events-none" />
                     </div>
-                    
-                    {/* Subtle overlay on hover */}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 pointer-events-none" />
                   </div>
-                </div>
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -204,7 +211,7 @@ const AdsBannerSlider = ({ items = 3 }) => {
         {/* Progress Indicator */}
         <div className="flex justify-center mt-6 lg:mt-8">
           <div className="flex items-center gap-2 text-xs text-gray-500">
-            <span>{blogs.length > 0 ? "Explore featured blogs" : "Scroll to explore"}</span>
+            <span>{blogs.length > 0 ? "Click on any blog to read more" : "Click to explore collections"}</span>
             <div className="w-12 h-px bg-gray-300 relative overflow-hidden">
               <div className="absolute top-0 left-0 w-3 h-px bg-gray-500 animate-pulse"></div>
             </div>

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from "react-router-dom";
 // Importing social media icons
 import { FaShippingFast, FaTwitter, FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa"; 
 
@@ -49,23 +50,55 @@ const Footer = () => {
             <div>
                 <h4 className="text-md font-bold text-red-600 mb-4">Quick Links</h4>
                 <ul className="space-y-3 text-gray-400 text-sm">
-                    <li className="hover:text-white cursor-pointer transition duration-200">Home</li>
-                    <li className="hover:text-white cursor-pointer transition duration-200">Shop</li>
-                    <li className="hover:text-white cursor-pointer transition duration-200">About</li>
-                    <li className="hover:text-white cursor-pointer transition duration-200">Contact</li>
+                    <li>
+                    <Link to="/dashboard" className="hover:text-white transition duration-200">
+                        Home
+                    </Link>
+                    </li>
+                    <li>
+                    <Link to="/productlisting" className="hover:text-white transition duration-200">
+                        Shop
+                    </Link>
+                    </li>
+                    <li>
+                    <Link to="/about" className="hover:text-white transition duration-200">
+                        About
+                    </Link>
+                    </li>
+                    <li>
+                    <Link to="/contact" className="hover:text-white transition duration-200">
+                        Contact
+                    </Link>
+                    </li>
                 </ul>
-            </div>
+                </div>
 
             {/* Legal Links */}
             <div>
                 <h4 className="text-md font-bold text-red-600 mb-4">Legal</h4>
                 <ul className="space-y-3 text-gray-400 text-sm">
-                    <li className="hover:text-white cursor-pointer transition duration-200">Privacy Policy</li>
-                    <li className="hover:text-white cursor-pointer transition duration-200">Terms & Conditions</li>
-                    <li className="hover:text-white cursor-pointer transition duration-200">Shipping Policy</li>
-                    <li className="hover:text-white cursor-pointer transition duration-200">Refund Policy</li>
+                    <li>
+                    <Link to="/privacy-policy" className="hover:text-white transition duration-200">
+                        Privacy Policy
+                    </Link>
+                    </li>
+                    <li>
+                    <Link to="/terms-conditions" className="hover:text-white transition duration-200">
+                        Terms & Conditions
+                    </Link>
+                    </li>
+                    <li>
+                    <Link to="/shipping-policy" className="hover:text-white transition duration-200">
+                        Shipping Policy
+                    </Link>
+                    </li>
+                    <li>
+                    <Link to="/refund-policy" className="hover:text-white transition duration-200">
+                        Refund Policy
+                    </Link>
+                    </li>
                 </ul>
-            </div>
+                </div>
 
             {/* Follow Us */}
             <div>

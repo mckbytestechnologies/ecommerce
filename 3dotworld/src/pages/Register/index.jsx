@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const BACKEND_URL = "https://ecommerce-server-fhna.onrender.com";
+  const BACKEND_URL = "http://localhost:5000";
 
   const [formData, setFormData] = useState({
     name: "",

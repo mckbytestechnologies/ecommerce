@@ -44,19 +44,21 @@ import {
   TrendingUp,
   CheckCircle
 } from "@mui/icons-material";
-
+import { toast } from "react-hot-toast";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Grow from "@mui/material/Grow";
 import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
-
 import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import axios from "axios";
+
+// Import cart utility
+import { addToCart } from "../../utils/cart";
 
 const ProductListing = () => {
   const navigate = useNavigate();
@@ -69,13 +71,16 @@ const ProductListing = () => {
   const [view, setView] = useState("grid");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [quickView, setQuickView] = useState(null);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState({});
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [cartLoading, setCartLoading] = useState({});
   const anchorRef = React.useRef(null);
 
   // Products state
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [categoryMap, setCategoryMap] = useState({});
+  const [categoryNameMap, setCategoryNameMap] = useState({});
   
   // Filter and sort states
   const [filters, setFilters] = useState({
@@ -110,6 +115,14 @@ const ProductListing = () => {
     { value: 'sales-desc', label: 'Best Selling', sort: 'sales', order: 'desc' },
   ];
 
+  // Helper to check if a string is a valid MongoDB ObjectId
+  const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
+
+  // Get auth token
+  const getToken = () => {
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+  };
+
   // Get current sort option label
   const getCurrentSortLabel = () => {
     const option = sortOptions.find(opt => 
@@ -123,6 +136,130 @@ const ProductListing = () => {
     return Object.values(filters).filter(val => val && val !== '').length;
   };
 
+  // Check wishlist status for all products
+  const checkWishlistStatus = async (productIds) => {
+    const token = getToken();
+    if (!token || !productIds.length) return;
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5000/api/wishlist/check-multiple`,
+        { productIds },
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (response.data.success) {
+        const wishlistMap = response.data.data.reduce((acc, item) => {
+          acc[item.productId] = item.isInWishlist;
+          return acc;
+        }, {});
+        setFavorites(wishlistMap);
+      }
+    } catch (error) {
+      // Silently fail - don't show error to user
+      console.error("Wishlist check error:", error);
+    }
+  };
+
+  // Handle wishlist toggle
+  const handleWishlistClick = async (e, productId) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Please login to add to wishlist");
+      navigate("/login");
+      return;
+    }
+
+    setWishlistLoading(true);
+
+    try {
+      if (favorites[productId]) {
+        const response = await axios.delete(`http://localhost:5000/api/wishlist/${productId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.data.success) {
+          setFavorites(prev => ({ ...prev, [productId]: false }));
+          toast.success("Removed from wishlist");
+        }
+      } else {
+        const response = await axios.post(
+          `http://localhost:5000/api/wishlist`,
+          { productId },
+          {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.success) {
+          setFavorites(prev => ({ ...prev, [productId]: true }));
+          toast.success("Added to wishlist!");
+        }
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || "Failed to update wishlist";
+      toast.error(message);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
+
+  // Handle add to cart - FIXED
+  const handleAddToCart = async (e, productId, stock) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (stock === 0) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
+    const token = getToken();
+    if (!token) {
+      toast.error("Please login to add items to cart");
+      setTimeout(() => navigate("/login"), 1500);
+      return;
+    }
+
+    // Set loading state for this specific product
+    setCartLoading(prev => ({ ...prev, [productId]: true }));
+
+    try {
+      // Use the imported addToCart utility
+      const result = await addToCart(productId, 1);
+      
+      if (result.success) {
+        toast.success("Added to cart successfully!");
+        window.dispatchEvent(new Event('cartUpdated'));
+      } else {
+        if (result.requiresAuth || result.status === 401) {
+          toast.error("Session expired. Please login again.");
+          setTimeout(() => navigate("/login"), 1500);
+        } else {
+          toast.error(result.message || "Failed to add to cart");
+        }
+      }
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      toast.error("Error adding to cart");
+    } finally {
+      setCartLoading(prev => ({ ...prev, [productId]: false }));
+    }
+  };
+
+  // Handle quick view
+  const handleQuickView = (productId) => {
+    navigate(`/productdetails/${productId}`);
+  };
+
   // Fetch products from API
   const fetchProducts = async () => {
     try {
@@ -134,7 +271,19 @@ const ProductListing = () => {
       params.append('page', pagination.currentPage);
       params.append('limit', pagination.limit);
       
-      if (filters.category) params.append('category', filters.category);
+      // Handle category filter - only send ID if it's valid
+      if (filters.category) {
+        if (isValidObjectId(filters.category)) {
+          params.append('category', filters.category);
+        } else {
+          const categoryId = categoryMap[filters.category.toLowerCase()];
+          if (categoryId) {
+            params.append('category', categoryId);
+            setFilters(prev => ({ ...prev, category: categoryId }));
+          }
+        }
+      }
+      
       if (filters.minPrice) params.append('minPrice', filters.minPrice);
       if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
       if (filters.search) params.append('search', filters.search);
@@ -145,7 +294,7 @@ const ProductListing = () => {
       params.append('order', sortOrder);
       
       const response = await axios.get(
-        `https://ecommerce-server-fhna.onrender.com/api/products?${params.toString()}`
+        `http://localhost:5000/api/products?${params.toString()}`
       );
       
       if (response.data.success && response.data.data) {
@@ -160,30 +309,66 @@ const ProductListing = () => {
           totalProducts: paginationData.totalProducts || 0,
         }));
         
-        const uniqueCategories = [...new Set(productsData
-          .map(p => p.category?.name || p.category)
-          .filter(Boolean)
-        )];
-        setCategories(uniqueCategories);
-        
+        // Check wishlist status for fetched products
+        if (productsData.length > 0) {
+          const productIds = productsData.map(p => p._id);
+          await checkWishlistStatus(productIds);
+        }
       } else {
         setProducts([]);
-        setError(response.data.message || "No products found");
       }
     } catch (err) {
       console.error("Error fetching products:", err);
-      setError(err.response?.data?.message || err.message || "Failed to load products");
+      
+      if (err.response?.status === 400) {
+        setError(err.response.data.message || "Invalid request parameters");
+      } else {
+        setError(err.response?.data?.message || err.message || "Failed to load products");
+      }
+      
       setProducts([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await axios.get("https://ecommerce-server-fhna.onrender.com/api/categories");
+      const response = await axios.get("http://localhost:5000/api/categories");
       if (response.data.success) {
-        setCategories(response.data.data || []);
+        const categoriesData = response.data.data || [];
+        
+        // Create simple array of category names
+        const categoryNames = categoriesData.map(cat => cat.name).filter(Boolean);
+        setCategories(categoryNames);
+        
+        // Create maps for ID <-> name conversion
+        const nameToIdMap = {};
+        const idToNameMap = {};
+        
+        categoriesData.forEach(cat => {
+          if (cat.name && cat._id) {
+            nameToIdMap[cat.name.toLowerCase()] = cat._id;
+            idToNameMap[cat._id] = cat.name;
+          }
+        });
+        
+        setCategoryMap(nameToIdMap);
+        setCategoryNameMap(idToNameMap);
+        
+        // Handle initial category from URL
+        const urlCategory = queryParams.get('category');
+        if (urlCategory) {
+          if (isValidObjectId(urlCategory)) {
+            setFilters(prev => ({ ...prev, category: urlCategory }));
+          } else {
+            const categoryId = nameToIdMap[urlCategory.toLowerCase()];
+            if (categoryId) {
+              setFilters(prev => ({ ...prev, category: categoryId }));
+            }
+          }
+        }
       }
     } catch (err) {
       console.error("Error fetching categories:", err);
@@ -191,10 +376,18 @@ const ProductListing = () => {
   };
 
   const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }));
+    if (filterType === 'category') {
+      const categoryId = categoryMap[value.toLowerCase()];
+      setFilters(prev => ({
+        ...prev,
+        category: categoryId || ''
+      }));
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        [filterType]: value
+      }));
+    }
     setPagination(prev => ({ ...prev, currentPage: 1 }));
   };
 
@@ -207,6 +400,7 @@ const ProductListing = () => {
 
   const handlePageChange = (event, page) => {
     setPagination(prev => ({ ...prev, currentPage: page }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const resetFilters = () => {
@@ -228,35 +422,42 @@ const ProductListing = () => {
     });
   };
 
-  const toggleFavorite = (productId) => {
-    setFavorites(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
-
+  // Update URL query params
   useEffect(() => {
     const params = new URLSearchParams();
     
-    params.set('page', pagination.currentPage);
+    if (pagination.currentPage > 1) {
+      params.set('page', pagination.currentPage);
+    }
     
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) params.set(key, value);
-    });
+    if (filters.category && isValidObjectId(filters.category)) {
+      const categoryName = categoryNameMap[filters.category];
+      if (categoryName) {
+        params.set('category', categoryName);
+      }
+    }
+    
+    if (filters.minPrice) params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice) params.set('maxPrice', filters.maxPrice);
+    if (filters.search) params.set('search', filters.search);
+    if (filters.inStock) params.set('inStock', filters.inStock);
+    if (filters.brand) params.set('brand', filters.brand);
     
     if (sortBy !== 'createdAt' || sortOrder !== 'desc') {
       params.set('sort', sortBy);
       params.set('order', sortOrder);
     }
     
-    navigate(`?${params.toString()}`, { replace: true });
-  }, [filters, sortBy, sortOrder, pagination.currentPage, navigate]);
+    const queryString = params.toString();
+    navigate(queryString ? `?${queryString}` : '', { replace: true });
+  }, [filters, sortBy, sortOrder, pagination.currentPage, categoryNameMap, navigate]);
 
+  // Fetch products when filters, sort, or page change
   useEffect(() => {
     fetchProducts();
   }, [filters, sortBy, sortOrder, pagination.currentPage]);
 
+  // Fetch categories on mount
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -287,6 +488,26 @@ const ProductListing = () => {
     }).format(price);
   };
 
+  // Get category name from ID
+  const getCategoryName = (categoryId) => {
+    if (!categoryId) return "Uncategorized";
+    
+    if (isValidObjectId(categoryId) && categoryNameMap[categoryId]) {
+      return categoryNameMap[categoryId];
+    }
+    
+    return "Category";
+  };
+
+  // Get display category for filters
+  const getDisplayCategory = () => {
+    if (!filters.category) return '';
+    if (isValidObjectId(filters.category)) {
+      return categoryNameMap[filters.category] || '';
+    }
+    return filters.category;
+  };
+
   // Loading skeleton for grid view
   const GridSkeleton = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
@@ -298,25 +519,13 @@ const ProductListing = () => {
           borderRadius: 3,
           overflow: 'hidden'
         }}>
-          <Skeleton 
-            variant="rectangular" 
-            height={200}
-            animation="wave" 
-          />
-          <CardContent sx={{ 
-            flexGrow: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            p: 3
-          }}>
+          <Skeleton variant="rectangular" height={200} animation="wave" />
+          <CardContent sx={{ p: 3 }}>
             <Skeleton variant="text" height={20} width="60%" animation="wave" />
             <Skeleton variant="text" height={24} width="90%" animation="wave" sx={{ my: 1.5 }} />
             <Skeleton variant="text" height={20} width="40%" animation="wave" sx={{ mb: 2 }} />
             <Skeleton variant="text" height={32} width="50%" animation="wave" sx={{ mb: 2 }} />
-            <Skeleton variant="rectangular" height={48} animation="wave" sx={{ 
-              borderRadius: '10px',
-              mt: 'auto'
-            }} />
+            <Skeleton variant="rectangular" height={48} animation="wave" sx={{ borderRadius: '10px' }} />
           </CardContent>
         </Card>
       ))}
@@ -424,7 +633,7 @@ const ProductListing = () => {
               Categories
             </Link>
             <Typography className="text-red-600 font-bold">
-              {filters.category ? filters.category : 'All Products'}
+              {filters.category ? getCategoryName(filters.category) : 'All Products'}
             </Typography>
           </Breadcrumbs>
           
@@ -432,49 +641,12 @@ const ProductListing = () => {
           <Box className="mt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <Box>
               <Typography variant="h4" className="font-bold text-gray-900 mb-2">
-                {filters.category ? filters.category : 'All Products'}
+                {filters.category ? getCategoryName(filters.category) : 'All Products'}
               </Typography>
               <Typography variant="body1" className="text-gray-600">
                 Discover our premium collection of products
               </Typography>
             </Box>
-            
-            {/* Active Filters Badge */}
-            {getActiveFilterCount() > 0 && (
-              <Badge 
-                badgeContent={getActiveFilterCount()} 
-                color="error"
-                sx={{
-                  '& .MuiBadge-badge': {
-                    fontSize: '0.75rem',
-                    height: '20px',
-                    minWidth: '20px',
-                    top: -5,
-                    right: -5,
-                  }
-                }}
-              >
-                <Button
-                  variant="outlined"
-                  startIcon={<Tune />}
-                  onClick={() => setSidebarOpen(true)}
-                  sx={{
-                    borderColor: '#D32F2F',
-                    color: '#D32F2F',
-                    '&:hover': {
-                      borderColor: '#B71C1C',
-                      backgroundColor: '#FFF5F5'
-                    },
-                    borderRadius: '10px',
-                    fontWeight: '600',
-                    px: 3,
-                    py: 1
-                  }}
-                >
-                  Active Filters
-                </Button>
-              </Badge>
-            )}
           </Box>
         </Box>
 
@@ -484,7 +656,10 @@ const ProductListing = () => {
           {/* Sidebar */}
           <Box className="hidden lg:block w-80 flex-shrink-0">
             <SlideBar 
-              filters={filters}
+              filters={{
+                ...filters,
+                category: getDisplayCategory()
+              }}
               onFilterChange={handleFilterChange}
               categories={categories}
               onResetFilters={resetFilters}
@@ -505,7 +680,10 @@ const ProductListing = () => {
                     </IconButton>
                   </Box>
                   <SlideBar 
-                    filters={filters}
+                    filters={{
+                      ...filters,
+                      category: getDisplayCategory()
+                    }}
                     onFilterChange={handleFilterChange}
                     categories={categories}
                     onResetFilters={resetFilters}
@@ -577,11 +755,6 @@ const ProductListing = () => {
                         Showing <span className="text-red-600">{products.length}</span> of{' '}
                         <span className="font-bold text-gray-900">{pagination.totalProducts}</span> products
                       </Typography>
-                      {getActiveFilterCount() > 0 && (
-                        <Typography variant="caption" className="text-red-600 font-medium">
-                          ({getActiveFilterCount()} active filter{getActiveFilterCount() !== 1 ? 's' : ''})
-                        </Typography>
-                      )}
                     </Box>
                   </Box>
 
@@ -701,88 +874,6 @@ const ProductListing = () => {
                     </Box>
                   </Box>
                 </Box>
-
-                {/* Active Filters */}
-                {getActiveFilterCount() > 0 && (
-                  <Box className="mt-4 pt-4 border-t border-gray-100">
-                    <Typography variant="subtitle2" className="text-gray-600 mb-2 font-medium">
-                      Active Filters:
-                    </Typography>
-                    <Stack direction="row" flexWrap="wrap" gap={1}>
-                      {filters.category && (
-                        <Chip
-                          label={`Category: ${filters.category}`}
-                          onDelete={() => handleFilterChange('category', '')}
-                          size="small"
-                          deleteIcon={<Replay fontSize="small" />}
-                          sx={{
-                            bgcolor: '#fef2f2',
-                            color: '#D32F2F',
-                            fontWeight: '500',
-                            borderRadius: '6px',
-                            '& .MuiChip-deleteIcon': {
-                              color: '#D32F2F',
-                              '&:hover': { color: '#B71C1C' }
-                            }
-                          }}
-                        />
-                      )}
-                      {(filters.minPrice || filters.maxPrice) && (
-                        <Chip
-                          label={`Price: ${filters.minPrice ? `₹${filters.minPrice}` : ''}${filters.minPrice && filters.maxPrice ? ' - ' : ''}${filters.maxPrice ? `₹${filters.maxPrice}` : ''}`}
-                          onDelete={() => {
-                            handleFilterChange('minPrice', '');
-                            handleFilterChange('maxPrice', '');
-                          }}
-                          size="small"
-                          deleteIcon={<Replay fontSize="small" />}
-                          sx={{
-                            bgcolor: '#fef2f2',
-                            color: '#D32F2F',
-                            fontWeight: '500',
-                            borderRadius: '6px',
-                            '& .MuiChip-deleteIcon': {
-                              color: '#D32F2F',
-                              '&:hover': { color: '#B71C1C' }
-                            }
-                          }}
-                        />
-                      )}
-                      {filters.inStock && (
-                        <Chip
-                          label="In Stock Only"
-                          onDelete={() => handleFilterChange('inStock', '')}
-                          size="small"
-                          deleteIcon={<Replay fontSize="small" />}
-                          sx={{
-                            bgcolor: '#fef2f2',
-                            color: '#D32F2F',
-                            fontWeight: '500',
-                            borderRadius: '6px',
-                            '& .MuiChip-deleteIcon': {
-                              color: '#D32F2F',
-                              '&:hover': { color: '#B71C1C' }
-                            }
-                          }}
-                        />
-                      )}
-                      <Button
-                        size="small"
-                        onClick={resetFilters}
-                        startIcon={<Replay fontSize="small" />}
-                        sx={{
-                          ml: 'auto',
-                          color: '#666',
-                          fontSize: '0.75rem',
-                          textTransform: 'none',
-                          fontWeight: '500'
-                        }}
-                      >
-                        Clear All
-                      </Button>
-                    </Stack>
-                  </Box>
-                )}
               </CardContent>
             </Card>
 
@@ -855,6 +946,7 @@ const ProductListing = () => {
                         position: 'relative',
                         transition: 'all 0.3s ease',
                         border: '1px solid #f3f4f6',
+                        cursor: 'pointer',
                         '&:hover': {
                           transform: 'translateY(-4px)',
                           boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
@@ -865,6 +957,7 @@ const ProductListing = () => {
                           }
                         }
                       }}
+                      onClick={() => navigate(`/productdetails/${product._id}`)}
                     >
                       {/* Product Image */}
                       <Box sx={{ 
@@ -945,12 +1038,16 @@ const ProductListing = () => {
                           transform: 'translateY(-10px)',
                           transition: 'all 0.3s ease'
                         }}>
-                          <Tooltip title={favorites.includes(product._id) ? "Remove from favorites" : "Add to favorites"}>
+                          <Tooltip title={favorites[product._id] ? "Remove from favorites" : "Add to favorites"}>
                             <IconButton
-                              onClick={() => toggleFavorite(product._id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleWishlistClick(e, product._id);
+                              }}
+                              disabled={wishlistLoading}
                               sx={{
                                 bgcolor: 'white',
-                                color: favorites.includes(product._id) ? '#D32F2F' : '#9ca3af',
+                                color: favorites[product._id] ? '#D32F2F' : '#9ca3af',
                                 '&:hover': {
                                   bgcolor: '#fef2f2',
                                   color: '#D32F2F'
@@ -958,12 +1055,15 @@ const ProductListing = () => {
                                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                               }}
                             >
-                              {favorites.includes(product._id) ? <Favorite /> : <FavoriteBorder />}
+                              {favorites[product._id] ? <Favorite /> : <FavoriteBorder />}
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Quick View">
                             <IconButton
-                              onClick={() => setQuickView(product._id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuickView(product._id);
+                              }}
                               sx={{
                                 bgcolor: 'white',
                                 color: '#374151',
@@ -996,7 +1096,7 @@ const ProductListing = () => {
                           mb: 1,
                           display: 'block'
                         }}>
-                          {product.category?.name || product.category || "Uncategorized"}
+                          {getCategoryName(product.category)}
                         </Typography>
 
                         {/* Product Title */}
@@ -1118,8 +1218,12 @@ const ProductListing = () => {
                         <Button
                           fullWidth
                           variant="contained"
-                          startIcon={<ShoppingCart />}
-                          disabled={product.stock === 0}
+                          startIcon={cartLoading[product._id] ? <CircularProgress size={20} color="inherit" /> : <ShoppingCart />}
+                          disabled={product.stock === 0 || cartLoading[product._id]}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(e, product._id, product.stock);
+                          }}
                           sx={{
                             background: product.stock === 0 
                               ? '#9ca3af' 
@@ -1145,7 +1249,7 @@ const ProductListing = () => {
                             mt: 'auto'
                           }}
                         >
-                          {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                          {cartLoading[product._id] ? 'Adding...' : (product.stock === 0 ? 'Out of Stock' : 'Add to Cart')}
                         </Button>
                       </CardContent>
                     </Card>
@@ -1156,20 +1260,25 @@ const ProductListing = () => {
               <Fade in={true}>
                 <Stack spacing={3}>
                   {products.map((product) => (
-                    <Card key={product._id} sx={{ 
-                      borderRadius: 3,
-                      overflow: 'hidden',
-                      border: '1px solid #f3f4f6',
-                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                      '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                        borderColor: '#ffcdd2',
-                        '& .list-product-image': {
-                          transform: 'scale(1.05)'
+                    <Card 
+                      key={product._id} 
+                      sx={{ 
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        border: '1px solid #f3f4f6',
+                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          transform: 'translateY(-4px)',
+                          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                          borderColor: '#ffcdd2',
+                          '& .list-product-image': {
+                            transform: 'scale(1.05)'
+                          }
                         }
-                      }
-                    }}>
+                      }}
+                      onClick={() => navigate(`/productdetails/${product._id}`)}
+                    >
                       <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' } }}>
                         <Box sx={{ 
                           width: { xs: '100%', lg: 380 },
@@ -1242,12 +1351,16 @@ const ProductListing = () => {
                             flexDirection: 'column',
                             gap: 1
                           }}>
-                            <Tooltip title={favorites.includes(product._id) ? "Remove from favorites" : "Add to favorites"}>
+                            <Tooltip title={favorites[product._id] ? "Remove from favorites" : "Add to favorites"}>
                               <IconButton
-                                onClick={() => toggleFavorite(product._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleWishlistClick(e, product._id);
+                                }}
+                                disabled={wishlistLoading}
                                 sx={{
                                   bgcolor: 'white',
-                                  color: favorites.includes(product._id) ? '#D32F2F' : '#374151',
+                                  color: favorites[product._id] ? '#D32F2F' : '#374151',
                                   '&:hover': {
                                     bgcolor: '#fef2f2',
                                     color: '#D32F2F'
@@ -1255,7 +1368,7 @@ const ProductListing = () => {
                                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                 }}
                               >
-                                {favorites.includes(product._id) ? <Favorite /> : <FavoriteBorder />}
+                                {favorites[product._id] ? <Favorite /> : <FavoriteBorder />}
                               </IconButton>
                             </Tooltip>
                           </Box>
@@ -1265,7 +1378,7 @@ const ProductListing = () => {
                           <Box sx={{ mb: 3 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                               <Chip
-                                label={product.category?.name || product.category || "Uncategorized"}
+                                label={getCategoryName(product.category)}
                                 size="small"
                                 sx={{
                                   bgcolor: '#fef2f2',
@@ -1439,7 +1552,10 @@ const ProductListing = () => {
                               <Button
                                 variant="outlined"
                                 startIcon={<IoEyeOutline />}
-                                onClick={() => setQuickView(product._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuickView(product._id);
+                                }}
                                 sx={{
                                   borderColor: '#e5e7eb',
                                   color: '#374151',
@@ -1460,8 +1576,12 @@ const ProductListing = () => {
                               </Button>
                               <Button
                                 variant="contained"
-                                startIcon={<ShoppingCart />}
-                                disabled={product.stock === 0}
+                                startIcon={cartLoading[product._id] ? <CircularProgress size={20} color="inherit" /> : <ShoppingCart />}
+                                disabled={product.stock === 0 || cartLoading[product._id]}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(e, product._id, product.stock);
+                                }}
                                 sx={{
                                   background: product.stock === 0 
                                     ? '#9ca3af' 
@@ -1483,7 +1603,7 @@ const ProductListing = () => {
                                   }
                                 }}
                               >
-                                Add to Cart
+                                {cartLoading[product._id] ? 'Adding...' : 'Add to Cart'}
                               </Button>
                             </Stack>
                           </Box>
