@@ -108,16 +108,16 @@ const Footer = () => {
                 </p>
                 <div className="flex gap-4">
                     {/* Social Media Icons */}
-                    <a href="#" className="text-gray-400 hover:text-red-600 transition duration-300">
+                    {/* <a href="#" className="text-gray-400 hover:text-red-600 transition duration-300">
                         <FaTwitter className="text-xl" />
-                    </a>
-                    <a href="#" className="text-gray-400 hover:text-red-600 transition duration-300">
+                    </a> */}
+                    <a href="https://www.facebook.com/people/3-DOT/61575227430782/?rdid=5qJshKhByYoVllnm&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1BiFq6s1rj" className="text-gray-400 hover:text-red-600 transition duration-300">
                         <FaFacebookF className="text-xl" />
                     </a>
-                    <a href="#" className="text-gray-400 hover:text-red-600 transition duration-300">
+                    <a href="https://www.instagram.com/3dot_india" className="text-gray-400 hover:text-red-600 transition duration-300">
                         <FaInstagram className="text-xl" />
                     </a>
-                    <a href="#" className="text-gray-400 hover:text-red-600 transition duration-300">
+                    <a href="https://www.youtube.com/@3dotworld_" className="text-gray-400 hover:text-red-600 transition duration-300">
                         <FaLinkedinIn className="text-xl" />
                     </a>
                 </div>

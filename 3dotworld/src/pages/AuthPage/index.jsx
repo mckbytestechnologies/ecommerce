@@ -184,14 +184,14 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-4">
-            <div className="text-2xl font-bold text-gray-900">YourStore</div>
+            <div className="text-2xl font-bold text-gray-900">3dotworld</div>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your account</p>
         </div>
 
         {/* API Status Indicator */}
-        <div className={`mb-6 p-3 rounded-lg text-center text-sm font-medium ${
+        {/* <div className={`mb-6 p-3 rounded-lg text-center text-sm font-medium ${
           apiStatus === "online" 
             ? "bg-green-50 text-green-700 border border-green-200"
             : apiStatus === "offline"
@@ -201,7 +201,7 @@ export default function LoginPage() {
           {apiStatus === "online" && "✅ Backend server is online"}
           {apiStatus === "offline" && "❌ Backend server is offline"}
           {apiStatus === "checking" && "🔄 Checking server status..."}
-        </div>
+        </div> */}
 
         {/* Login Form */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
@@ -266,14 +266,14 @@ export default function LoginPage() {
                   Remember me
                 </label>
               </div>
-              <button
+              {/* <button
                 type="button"
                 onClick={handleForgotPassword}
                 className="text-sm text-blue-600 hover:text-blue-800"
                 disabled={loading}
               >
                 Forgot password?
-              </button>
+              </button> */}
             </div>
 
             {/* Error Message */}
@@ -372,14 +372,8 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Debug Info (remove in production) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-            <p className="text-xs text-gray-600">
-              <strong>Debug Info:</strong> API: {apiStatus} | Email: {formData.email}
-            </p>
-          </div>
-        )}
+     
+        
       </div>
     </div>
   );

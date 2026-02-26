@@ -172,14 +172,14 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block mb-4">
-            <div className="text-2xl font-bold text-gray-900">YourStore</div>
+            <div className="text-2xl font-bold text-gray-900">3dotworld</div>
           </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
           <p className="text-gray-600">Join our community today</p>
         </div>
 
         {/* API Status Indicator */}
-        <div className={`mb-6 p-3 rounded-lg text-center text-sm font-medium ${
+        {/* <div className={`mb-6 p-3 rounded-lg text-center text-sm font-medium ${
           apiStatus === "online" 
             ? "bg-green-50 text-green-700 border border-green-200"
             : apiStatus === "offline"
@@ -189,7 +189,7 @@ export default function RegisterPage() {
           {apiStatus === "online" && "✅ Backend server is online"}
           {apiStatus === "offline" && "❌ Backend server is offline"}
           {apiStatus === "checking" && "🔄 Checking server status..."}
-        </div>
+        </div> */}
 
         {/* Registration Form */}
         <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
@@ -386,13 +386,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Debug Info (remove in production) */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-4 p-3 bg-gray-100 rounded-lg">
-            <p className="text-xs text-gray-600">
-              <strong>Debug Info:</strong> API: {apiStatus} | Email: {formData.email}
-            </p>
-          </div>
-        )}
+        
       </div>
     </div>
   );
