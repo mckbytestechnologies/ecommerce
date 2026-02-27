@@ -1,3 +1,6 @@
+console.log("✅ Checkout page loaded!");
+
+// ... rest of your code
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -58,80 +61,7 @@ import { styled } from "@mui/material/styles";
 import axios from "axios";
 
 // Styled Components
-const RedButton = styled(Button)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #D32F2F 30%, #B71C1C 90%)',
-  color: 'white',
-  fontWeight: 'bold',
-  padding: '12px 32px',
-  borderRadius: '10px',
-  boxShadow: '0 4px 15px rgba(211, 47, 47, 0.3)',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    background: 'linear-gradient(45deg, #B71C1C 30%, #D32F2F 90%)',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 20px rgba(211, 47, 47, 0.4)',
-  },
-  '&:disabled': {
-    background: '#e0e0e0',
-    color: '#9e9e9e',
-  },
-}));
 
-const WhiteCard = styled(Card)(({ theme }) => ({
-  background: 'white',
-  borderRadius: '16px',
-  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
-  border: '1px solid #f0f0f0',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.12)',
-  },
-}));
-
-const StepIconRed = styled(StepIcon)(({ theme, ownerState }) => ({
-  color: ownerState.completed || ownerState.active ? '#D32F2F' : '#e0e0e0',
-  '& .MuiStepIcon-text': {
-    fill: 'white',
-    fontWeight: 'bold',
-  },
-}));
-
-const AddressCard = styled(Paper)(({ theme, selected }) => ({
-  padding: '20px',
-  borderRadius: '12px',
-  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
-  background: selected ? '#FFF5F5' : 'white',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    borderColor: '#D32F2F',
-    transform: 'translateY(-2px)',
-  },
-}));
-
-const PaymentCard = styled(Paper)(({ theme, selected, available }) => ({
-  padding: '20px',
-  borderRadius: '12px',
-  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
-  background: selected ? '#FFF5F5' : 'white',
-  cursor: available ? 'pointer' : 'default',
-  opacity: available ? 1 : 0.6,
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    borderColor: available ? '#D32F2F' : '#e0e0e0',
-    transform: available ? 'translateY(-2px)' : 'none',
-  },
-}));
-
-const DiscountChip = styled(Chip)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #4CAF50 30%, #388E3C 90%)',
-  color: 'white',
-  fontWeight: 'bold',
-  '& .MuiChip-icon': {
-    color: 'white',
-  },
-}));
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -1328,5 +1258,81 @@ const CheckoutPage = () => {
     </Container>
   );
 };
+
+
+const RedButton = styled(Button)(({ theme }) => ({
+  background: 'linear-gradient(45deg, #D32F2F 30%, #B71C1C 90%)',
+  color: 'white',
+  fontWeight: 'bold',
+  padding: '12px 32px',
+  borderRadius: '10px',
+  boxShadow: '0 4px 15px rgba(211, 47, 47, 0.3)',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    background: 'linear-gradient(45deg, #B71C1C 30%, #D32F2F 90%)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 20px rgba(211, 47, 47, 0.4)',
+  },
+  '&:disabled': {
+    background: '#e0e0e0',
+    color: '#9e9e9e',
+  },
+}));
+
+const WhiteCard = styled(Card)(({ theme }) => ({
+  background: 'white',
+  borderRadius: '16px',
+  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+  border: '1px solid #f0f0f0',
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.12)',
+  },
+}));
+
+const StepIconRed = styled(StepIcon)(({ theme, ownerState }) => ({
+  color: ownerState.completed || ownerState.active ? '#D32F2F' : '#e0e0e0',
+  '& .MuiStepIcon-text': {
+    fill: 'white',
+    fontWeight: 'bold',
+  },
+}));
+
+const AddressCard = styled(Paper)(({ theme, selected }) => ({
+  padding: '20px',
+  borderRadius: '12px',
+  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
+  background: selected ? '#FFF5F5' : 'white',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    borderColor: '#D32F2F',
+    transform: 'translateY(-2px)',
+  },
+}));
+
+const PaymentCard = styled(Paper)(({ theme, selected, available }) => ({
+  padding: '20px',
+  borderRadius: '12px',
+  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
+  background: selected ? '#FFF5F5' : 'white',
+  cursor: available ? 'pointer' : 'default',
+  opacity: available ? 1 : 0.6,
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    borderColor: available ? '#D32F2F' : '#e0e0e0',
+    transform: available ? 'translateY(-2px)' : 'none',
+  },
+}));
+
+const DiscountChip = styled(Chip)(({ theme }) => ({
+  background: 'linear-gradient(45deg, #4CAF50 30%, #388E3C 90%)',
+  color: 'white',
+  fontWeight: 'bold',
+  '& .MuiChip-icon': {
+    color: 'white',
+  },
+}));
 
 export default CheckoutPage;
