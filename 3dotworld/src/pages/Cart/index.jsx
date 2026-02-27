@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaTrash, FaPlus, FaMinus, FaTag, FaShoppingCart, FaTimesCircle, FaAngleRight } from "react-icons/fa";
 import { cartApi } from "../../utils/cartApi";
 import "./CartPage.css";
+import { useNavigate } from "react-router-dom";
 
 // --- Configuration ---
 const BRAND_RED = 'bg-red-700';
@@ -10,6 +11,7 @@ const TEXT_RED = 'text-red-700';
 const BORDER_RED = 'border-red-700';
 
 const CartPage = () => {
+  const navigate = useNavigate();
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -19,14 +21,64 @@ const CartPage = () => {
   const [couponSuccess, setCouponSuccess] = useState("");
   const [updatingItems, setUpdatingItems] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Get token from multiple possible locations
+  const getToken = () => {
+    return localStorage.getItem('authToken') || 
+           sessionStorage.getItem('authToken') ||
+           localStorage.getItem('token') || 
+           localStorage.getItem('adminAuthToken');
+  };
+
+  // Check if token is expired
+  const isTokenExpired = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      const now = Date.now() / 1000;
+      return payload.exp < now;
+    } catch (e) {
+      return true; // If can't decode, treat as expired
+    }
+  };
+
+  // Clear all auth data
+  const clearAuthData = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('adminAuthToken');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('token');
+    setIsAuthenticated(false);
+  };
 
   // Check authentication status
   useEffect(() => {
-    const token = localStorage.getItem('authToken') || 
-                  sessionStorage.getItem('authToken') ||
-                  localStorage.getItem('token') || 
-                  localStorage.getItem('adminAuthToken');
-    setIsAuthenticated(!!token);
+    const checkAuth = () => {
+      const token = getToken();
+      
+      if (!token) {
+        setIsAuthenticated(false);
+        setAuthChecked(true);
+        return;
+      }
+
+      if (isTokenExpired(token)) {
+        clearAuthData();
+        setError("Session expired. Please login again.");
+        setIsAuthenticated(false);
+      } else {
+        setIsAuthenticated(true);
+      }
+      
+      setAuthChecked(true);
+    };
+
+    checkAuth();
   }, []);
 
   // --- API Handlers ---
@@ -34,14 +86,32 @@ const CartPage = () => {
   const fetchCart = async () => {
     try {
       setLoading(true);
+      
+      const token = getToken();
+      if (!token || isTokenExpired(token)) {
+        if (!token) {
+          setError("Please login to view your cart");
+        } else {
+          clearAuthData();
+          setError("Session expired. Please login again.");
+        }
+        setLoading(false);
+        return;
+      }
+
       const response = await cartApi.getCart();
-      setCart(response.data);
+      
+      // Handle different response structures
+      const cartData = response.data?.data || response.data || { items: [] };
+      setCart(cartData);
       setError("");
       setCouponError("");
     } catch (err) {
       console.error("Error fetching cart:", err);
+      
       if (err.response?.status === 401) {
-        setError("Please login to view your cart");
+        clearAuthData();
+        setError("Session expired. Please login again.");
       } else {
         setError(err.response?.data?.message || "Failed to load cart");
       }
@@ -51,27 +121,49 @@ const CartPage = () => {
   };
 
   useEffect(() => {
-    fetchCart();
-    const handleCartUpdate = () => {
+    if (authChecked && isAuthenticated) {
       fetchCart();
+    }
+    
+    const handleCartUpdate = () => {
+      if (isAuthenticated) {
+        fetchCart();
+      }
     };
+    
     window.addEventListener('cartUpdated', handleCartUpdate);
     return () => {
       window.removeEventListener('cartUpdated', handleCartUpdate);
     };
-  }, []);
+  }, [authChecked, isAuthenticated]);
 
   const updateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
+    
+    const token = getToken();
+    if (!token || isTokenExpired(token)) {
+      setError("Session expired. Please login again.");
+      setTimeout(() => navigate("/login"), 2000);
+      return;
+    }
+    
     setUpdatingItems(prev => ({ ...prev, [itemId]: true }));
 
     try {
       const response = await cartApi.updateCartQuantity(itemId, newQuantity);
-      setCart(response.data);
+      const cartData = response.data?.data || response.data;
+      setCart(cartData);
       setCouponError("");
     } catch (err) {
       console.error("Error updating quantity:", err);
-      alert(err.response?.data?.message || "Failed to update quantity");
+      
+      if (err.response?.status === 401) {
+        clearAuthData();
+        setError("Session expired. Please login again.");
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        alert(err.response?.data?.message || "Failed to update quantity");
+      }
     } finally {
       setUpdatingItems(prev => ({ ...prev, [itemId]: false }));
     }
@@ -80,14 +172,29 @@ const CartPage = () => {
   const removeItem = async (itemId) => {
     if (!window.confirm("Remove this item from cart?")) return;
 
+    const token = getToken();
+    if (!token || isTokenExpired(token)) {
+      setError("Session expired. Please login again.");
+      setTimeout(() => navigate("/login"), 2000);
+      return;
+    }
+
     try {
       const response = await cartApi.removeFromCart(itemId);
-      setCart(response.data);
+      const cartData = response.data?.data || response.data;
+      setCart(cartData);
       window.dispatchEvent(new Event('cartUpdated'));
       setCouponError("");
     } catch (err) {
       console.error("Error removing item:", err);
-      alert(err.response?.data?.message || "Failed to remove item");
+      
+      if (err.response?.status === 401) {
+        clearAuthData();
+        setError("Session expired. Please login again.");
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        alert(err.response?.data?.message || "Failed to remove item");
+      }
     }
   };
 
@@ -96,10 +203,11 @@ const CartPage = () => {
     const codeToApply = isRemoving ? '' : code.trim().toUpperCase();
 
     // Check if user is authenticated
-    if (!isAuthenticated) {
+    const token = getToken();
+    if (!token || isTokenExpired(token)) {
       setCouponError("Please login to apply coupons");
       setTimeout(() => {
-        window.location.href = '/login?redirect=/cart';
+        navigate('/login?redirect=/cart');
       }, 2000);
       return;
     }
@@ -124,7 +232,8 @@ const CartPage = () => {
         response = await cartApi.applyCoupon(codeToApply);
       }
       
-      setCart(response.data);
+      const cartData = response.data?.data || response.data;
+      setCart(cartData);
       setCouponCode("");
       
       if (isRemoving) {
@@ -146,9 +255,10 @@ const CartPage = () => {
       
       // Handle authentication errors
       if (err.response?.status === 401) {
-        errorMessage = "Please login to apply coupons";
+        clearAuthData();
+        errorMessage = "Session expired. Please login again.";
         setTimeout(() => {
-          window.location.href = '/login?redirect=/cart';
+          navigate('/login?redirect=/cart');
         }, 2000);
       }
       
@@ -164,15 +274,30 @@ const CartPage = () => {
   const handleClearCart = async () => {
     if (!window.confirm("Clear all items from cart?")) return;
 
+    const token = getToken();
+    if (!token || isTokenExpired(token)) {
+      setError("Session expired. Please login again.");
+      setTimeout(() => navigate("/login"), 2000);
+      return;
+    }
+
     try {
       const response = await cartApi.clearCart();
-      setCart(response.data);
+      const cartData = response.data?.data || response.data;
+      setCart(cartData);
       window.dispatchEvent(new Event('cartUpdated'));
       setCouponError("");
       setCouponSuccess("");
     } catch (err) {
       console.error("Error clearing cart:", err);
-      alert(err.response?.data?.message || "Failed to clear cart");
+      
+      if (err.response?.status === 401) {
+        clearAuthData();
+        setError("Session expired. Please login again.");
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        alert(err.response?.data?.message || "Failed to clear cart");
+      }
     }
   };
 
@@ -197,7 +322,7 @@ const CartPage = () => {
   const formatCurrency = (amount) => `₹${amount.toFixed(2)}`;
 
   // --- Render Logic ---
-  if (loading) {
+  if (loading && authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
@@ -208,18 +333,29 @@ const CartPage = () => {
     );
   }
 
-  if (error && error.includes("login")) {
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <div className={`animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 ${BORDER_RED} mx-auto`}></div>
+          <p className="mt-6 text-xl text-gray-800 font-medium">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && (error.includes("login") || error.includes("Session expired"))) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center max-w-md p-10 bg-white rounded-xl shadow-2xl border-t-4 border-red-700">
           <p className="text-red-700 font-bold text-2xl mb-4">Authentication Required</p>
           <p className="text-gray-700 mb-6">{error}</p>
-          <a 
-            href="/login?redirect=/cart"
+          <button
+            onClick={() => navigate('/login?redirect=/cart')}
             className={`inline-block px-8 py-3 ${BRAND_RED} text-white font-semibold rounded-lg ${HOVER_RED} transition duration-300 transform hover:scale-[1.02]`}
           >
             Login to Continue
-          </a>
+          </button>
         </div>
       </div>
     );
@@ -251,13 +387,13 @@ const CartPage = () => {
           </div>
           <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Your Cart Is Empty</h1>
           <p className="text-gray-600 mb-10 text-lg">It's time to find your next essential. Browse our premium selection.</p>
-          <a 
-            href="/productlisting"
+          <button
+            onClick={() => navigate("/productlisting")}
             className={`inline-block px-10 py-4 ${BRAND_RED} text-white text-lg font-bold rounded-full ${HOVER_RED} transition duration-500 shadow-xl shadow-red-300/50 transform hover:scale-[1.05]`}
           >
             Shop The Collection
             <FaAngleRight className="inline ml-2" />
-          </a>
+          </button>
         </div>
       </div>
     );
@@ -278,7 +414,7 @@ const CartPage = () => {
           {!isAuthenticated && (
             <div className="mt-4 p-3 bg-yellow-100 border border-yellow-400 rounded-lg inline-block">
               <p className="text-yellow-700">
-                Please <a href="/login?redirect=/cart" className="font-bold underline">login</a> to apply coupons
+                Please <button onClick={() => navigate('/login?redirect=/cart')} className="font-bold underline">login</button> to apply coupons
               </p>
             </div>
           )}
@@ -298,7 +434,10 @@ const CartPage = () => {
                   <div key={item._id} className="p-4 sm:p-6 flex flex-col md:flex-row items-start md:items-center gap-6 transition duration-300 hover:bg-red-50/50 rounded-xl">
                     
                     {/* Product Image */}
-                    <a href={`/products/${item.product?._id}`} className="w-32 h-32 flex-shrink-0 border border-gray-100 rounded-lg overflow-hidden shadow-lg">
+                    <button 
+                      onClick={() => navigate(`/productdetails/${item.product?._id}`)}
+                      className="w-32 h-32 flex-shrink-0 border border-gray-100 rounded-lg overflow-hidden shadow-lg"
+                    >
                       <img
                         src={(() => {
                           if (!item.product) return '/placeholder.jpg';
@@ -313,13 +452,16 @@ const CartPage = () => {
                           e.target.src = '/placeholder.jpg';
                         }}
                       />
-                    </a>
+                    </button>
 
                     {/* Product Details */}
                     <div className="flex-1 min-w-0">
-                      <a href={`/products/${item.product?._id}`} className="font-bold text-2xl text-gray-900 hover:text-red-700 transition truncate block">
+                      <button 
+                        onClick={() => navigate(`/productdetails/${item.product?._id}`)}
+                        className="font-bold text-2xl text-gray-900 hover:text-red-700 transition truncate block text-left"
+                      >
                         {item.product?.name}
-                      </a>
+                      </button>
                       <p className="text-sm mt-1 text-gray-500">
                         {item.product?.stock > 0 ? `Stock: ${item.product?.stock} units` : 'Out of Stock'}
                       </p>
@@ -372,9 +514,12 @@ const CartPage = () => {
 
               {/* Clear Cart Button */}
               <div className="p-6 sm:p-8 bg-gray-50/50 rounded-b-3xl flex justify-between items-center">
-                <a href="/products" className="text-gray-700 font-medium hover:text-gray-900 flex items-center transition">
+                <button 
+                  onClick={() => navigate("/productlisting")}
+                  className="text-gray-700 font-medium hover:text-gray-900 flex items-center transition"
+                >
                     <FaAngleRight className="inline rotate-180 mr-1" /> Continue Shopping
-                </a>
+                </button>
                 <button
                   onClick={handleClearCart}
                   className="px-4 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-100 flex items-center transition font-semibold"
@@ -402,7 +547,7 @@ const CartPage = () => {
                 {!isAuthenticated && (
                   <div className="mb-3 p-3 bg-yellow-100 border border-yellow-400 rounded-lg">
                     <p className="text-yellow-700 text-sm">
-                      <a href="/login?redirect=/cart" className="font-bold underline">Login</a> to apply coupons
+                      <button onClick={() => navigate('/login?redirect=/cart')} className="font-bold underline">Login</button> to apply coupons
                     </p>
                   </div>
                 )}
@@ -493,7 +638,7 @@ const CartPage = () => {
               {/* Checkout Button */}
               <button
                 className={`w-full mt-10 py-5 ${BRAND_RED} text-white text-xl font-extrabold rounded-xl ${HOVER_RED} transition duration-500 shadow-xl shadow-red-500/50 transform hover:scale-[1.02]`}
-                onClick={() => window.location.href = isAuthenticated ? '/Checkout' : '/login?redirect=/Checkout'}
+                onClick={() => isAuthenticated ? navigate('/Checkout') : navigate('/login?redirect=/Checkout')}
               >
                 {isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}
               </button>
