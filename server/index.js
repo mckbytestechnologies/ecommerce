@@ -119,8 +119,9 @@ const allowedOrigins = [
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'https://threedotworld.onrender.com',
+  'https://3dotworld.mckbytes.in/',
   'https://admin-c26e.onrender.com',
+  
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
