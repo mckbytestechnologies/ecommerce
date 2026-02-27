@@ -493,7 +493,7 @@ const CartPage = () => {
               {/* Checkout Button */}
               <button
                 className={`w-full mt-10 py-5 ${BRAND_RED} text-white text-xl font-extrabold rounded-xl ${HOVER_RED} transition duration-500 shadow-xl shadow-red-500/50 transform hover:scale-[1.02]`}
-                onClick={() => window.location.href = isAuthenticated ? '/checkout' : '/login?redirect=/checkout'}
+                onClick={() => window.location.href = isAuthenticated ? '/Checkout' : '/login?redirect=/Checkout'}
               >
                 {isAuthenticated ? 'Proceed to Checkout' : 'Login to Checkout'}
               </button>

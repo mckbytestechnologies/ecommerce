@@ -784,7 +784,7 @@ const handleAddToCart = async () => {
   const handleBuyNow = async () => {
     try {
       await handleAddToCart();
-      navigate("/checkout");
+      navigate("/Checkout");
     } catch (error) {
       toast.error("Failed to proceed to checkout.");
     }

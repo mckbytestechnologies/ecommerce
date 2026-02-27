@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -10,6 +9,7 @@ import compression from "compression";
 import path from "path";
 import { fileURLToPath } from 'url';
 import connectDb from "./config/connectDb.js";
+import mongoose from 'mongoose';
 
 // Route imports
 import authRoutes from "./routes/authRoutes.js";
@@ -27,8 +27,6 @@ import heroRoutes from "./routes/heroRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import warrantyRoutes from "./routes/warrantyRoutes.js";
 
-
-
 // Initialize environment
 dotenv.config();
 
@@ -38,138 +36,135 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Debug middleware to log all requests (only in development)
-if (process.env.NODE_ENV === "development") {
-  app.use((req, res, next) => {
-    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-    next();
-  });
+// ==================== PRODUCTION OPTIMIZATIONS ====================
+
+// 1. Connection pooling and keep-alive
+mongoose.set('bufferCommands', false);
+mongoose.set('bufferTimeoutMS', 30000);
+
+// 2. Trust proxy (important for Render)
+app.set('trust proxy', 1);
+
+// 3. Disable in production logs
+if (process.env.NODE_ENV === 'production') {
+  console.log = function() {}; // Disable console.log in production
+  console.debug = function() {};
 }
 
-/*
-// Security middleware
+// 4. Optimize JSON parsing
+app.use(express.json({ 
+  limit: "5mb", // Reduced from 10mb
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+
+// 5. Cookie parser with secure settings
+app.use(cookieParser(process.env.COOKIE_SECRET));
+
+// 6. Compression with optimal settings
+app.use(compression({
+  level: 6, // Balanced compression
+  threshold: 1024, // Compress responses > 1kb
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) return false;
+    return compression.filter(req, res);
+  }
+}));
+
+// 7. Security middleware
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: [
-        "'self'", 
-        "data:", 
-        "https:", 
-        "http:", 
-        "blob:", 
-        "http://localhost:5000",
-        "http://127.0.0.1:5000"],
+      imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
     },
   },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
 }));
-*/
 
-app.use(
-  helmet({
-    crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: {
-      policy: "cross-origin"
-    },
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: [
-          "'self'",
-          "data:",
-          "blob:",
-          "http://localhost:5000",
-          "http://127.0.0.1:5000"
-        ],
-      },
-    },
-  })
-);
-
-
-// Rate limiting
+// 8. Production-ready rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000,
+  max: process.env.NODE_ENV === 'production' ? 200 : 1000, // Stricter in production
   message: {
+    success: false,
     error: true,
-    message: "Too many requests from this IP, please try again later.",
+    message: "Too many requests, please try again later.",
   },
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === '/api/health' || req.path === '/';
+  }
 });
 
+// Apply rate limiting to API routes only
 app.use("/api", limiter);
 
-// Body parsing middleware
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use(cookieParser());
-
-// Compression
-app.use(compression());
-
-// CORS Configuration
+// 9. CORS Configuration
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-  'http://127.0.0.1:5500',
-  'http://localhost:5500',
-  'http://127.0.0.1:5501',   // ✅ ADD THIS
-  'http://localhost:5501',
-  'https://threedotworld.onrender.com',  
-  'https://admin-c26e.onrender.com', // ✅ ADD THIS
+  'https://threedotworld.onrender.com',
+  'https://admin-c26e.onrender.com',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
-
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+    if (!origin || process.env.NODE_ENV !== 'production') return callback(null, true);
     
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
-  exposedHeaders: ["Set-Cookie", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  exposedHeaders: ["Set-Cookie"],
+  maxAge: 600 // Cache preflight requests for 10 minutes
 }));
 
-// Handle preflight requests
-app.options('*', cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
+// Handle preflight requests efficiently
+app.options('*', cors());
 
-// Logging
-app.use(morgan("dev"));
+// 10. Conditional logging
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan("dev"));
+} else {
+  app.use(morgan("combined", {
+    skip: (req, res) => res.statusCode < 400 // Log only errors in production
+  }));
+}
 
-// Serve static files from multiple directories
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/hero-images", express.static(path.join(__dirname, "hero-images")));
-app.use("/blog-images", express.static(path.join(__dirname, "blog-images")));
+// ==================== STATIC FILES ====================
+
+// Serve static files with caching
+const staticOptions = {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+  etag: false,
+  lastModified: true
+};
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), staticOptions));
+app.use("/hero-images", express.static(path.join(__dirname, "hero-images"), staticOptions));
+app.use("/blog-images", express.static(path.join(__dirname, "blog-images"), staticOptions));
 
 // Ensure directories exist
 import fs from 'fs';
@@ -178,41 +173,28 @@ directories.forEach(dir => {
   const dirPath = path.join(__dirname, dir);
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
-    console.log(`✅ Created directory: ${dir}`);
   }
 });
 
-// Health check route
+// ==================== HEALTH CHECK ENDPOINTS ====================
+
+// Lightweight health check for Render
+app.get("/health", (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.get("/api/health", (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = ['disconnected', 'connected', 'connecting', 'disconnecting'][dbState] || 'unknown';
+  
   res.status(200).json({
     success: true,
-    message: "E-commerce API is running 🚀",
+    message: "API is running",
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || "development",
-    version: "2.0.0",
-    features: [
-      "Authentication & Authorization",
-      "Product Management",
-      "Order Processing",
-      "Hero Section Management",
-      "Blog Management",
-      "Image Uploads",
-      "Payment Integration"
-    ],
-    endpoints: {
-      auth: "/api/auth",
-      users: "/api/users",
-      products: "/api/products",
-      categories: "/api/categories",
-      orders: "/api/orders",
-      cart: "/api/cart",
-      hero: "/api/hero",
-      blogs: "/api/blogs",
-      reviews: "/api/reviews",
-      wishlist: "/api/wishlist",
-      payments: "/api/payments",
-      coupons: "/api/coupons"
-    }
+    environment: process.env.NODE_ENV,
+    database: dbStatus,
+    uptime: process.uptime(),
+    memory: process.memoryUsage()
   });
 });
 
@@ -220,13 +202,14 @@ app.get("/api/health", (req, res) => {
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "Welcome to E-commerce API with Hero & Blog Management",
-    documentation: "Check /api/health for available endpoints",
-    version: "2.0.0"
+    message: "E-commerce API",
+    version: "2.0.0",
+    status: "operational"
   });
 });
 
-// API Routes
+// ==================== API ROUTES ====================
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
@@ -239,80 +222,26 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/coupons", couponRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/warranty", warrantyRoutes);
-
-
-// NEW: Hero and Blog Routes
 app.use("/api/hero", heroRoutes);
 app.use("/api/blogs", blogRoutes);
 
+// ==================== 404 HANDLER ====================
 
-// Test route for CORS
-app.options("/api/auth/login", (req, res) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin);
-  res.header("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, Origin");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.status(200).send();
-});
-
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     error: true,
     message: `Route ${req.originalUrl} not found`,
-    availableEndpoints: [
-      "/api/health",
-      "/api/auth/register",
-      "/api/auth/login", 
-      "/api/auth/logout",
-      "/api/auth/me",
-      "/api/products",
-      "/api/products/:id",
-      "/api/categories",
-      "/api/users",
-      "/api/users/profile",
-      "/api/orders",
-      "/api/orders/myorders",
-      "/api/cart",
-      "/api/cart/my-cart",
-      "/api/reviews",
-      "/api/reviews/product/:productId",
-      "/api/addresses",
-      "/api/addresses/my-addresses",
-      "/api/wishlist",
-      "/api/wishlist/my-wishlist",
-      "/api/coupons",
-      "/api/coupons/validate",
-      "/api/payments",
-      "/api/payments/create-intent",
-      "/api/hero",
-      "/api/hero/active",
-      "/api/hero/:id",
-      "/api/blogs",
-      "/api/blogs/slider",
-      "/api/blogs/:slug",
-      "/api/blogs/categories",
-      "/api/blogs/tags/popular",
-      // Blogs (Admin) ✅ ADD THESE
-      "/api/admin/blogs",
-      "/api/admin/blogs/stats",
-      "/api/admin/blogs/:id",
-      "/api/admin/blogs/:id/status",
-      "/api/admin/blogs/bulk-status",
-      "/api/admin/blogs/:id/slider",
-      
-
-
-    ],
-    note: "Use GET /api/health for complete endpoint documentation"
   });
 });
 
-// Global error handler
+// ==================== GLOBAL ERROR HANDLER ====================
+
 app.use((error, req, res, next) => {
-  console.error("❌ Error:", error.message);
-  console.error("Stack:", error.stack);
+  // Log only in development or if it's a server error
+  if (process.env.NODE_ENV === 'development' || error.statusCode >= 500) {
+    console.error("❌ Error:", error.message);
+  }
 
   // Mongoose validation error
   if (error.name === "ValidationError") {
@@ -328,68 +257,20 @@ app.use((error, req, res, next) => {
   // Mongoose duplicate key error
   if (error.code === 11000) {
     const field = Object.keys(error.keyValue)[0];
-    const value = error.keyValue[field];
     return res.status(400).json({
       success: false,
       error: true,
-      message: `Duplicate field value: ${field} '${value}' already exists`,
-      field: field,
-      value: value
+      message: `${field} already exists`,
     });
   }
 
   // JWT errors
-  if (error.name === "JsonWebTokenError") {
+  if (error.name === "JsonWebTokenError" || error.name === "TokenExpiredError") {
     return res.status(401).json({
       success: false,
       error: true,
-      message: "Invalid token. Please log in again.",
+      message: "Authentication failed. Please login again.",
     });
-  }
-
-  if (error.name === "TokenExpiredError") {
-    return res.status(401).json({
-      success: false,
-      error: true,
-      message: "Token expired. Please log in again.",
-    });
-  }
-
-  // CORS errors
-  if (error.message && error.message.includes('CORS')) {
-    return res.status(403).json({
-      success: false,
-      error: true,
-      message: "CORS Error: " + error.message,
-      allowedOrigins: allowedOrigins
-    });
-  }
-
-  // File upload errors
-  if (error.message && error.message.includes('File')) {
-    return res.status(400).json({
-      success: false,
-      error: true,
-      message: error.message,
-    });
-  }
-
-  // Multer errors
-  if (error.name === 'MulterError') {
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        success: false,
-        error: true,
-        message: 'File too large. Maximum size is 10MB.',
-      });
-    }
-    if (error.code === 'LIMIT_FILE_TYPE') {
-      return res.status(400).json({
-        success: false,
-        error: true,
-        message: 'Invalid file type. Only images are allowed.',
-      });
-    }
   }
 
   // Default error
@@ -399,80 +280,67 @@ app.use((error, req, res, next) => {
   res.status(statusCode).json({
     success: false,
     error: true,
-    message: message,
-    ...(process.env.NODE_ENV === "development" && { 
-      stack: error.stack,
-      fullError: error.toString() 
-    }),
+    message: process.env.NODE_ENV === 'production' && statusCode === 500 
+      ? "Internal Server Error" 
+      : message,
   });
 });
 
-// Database connection and server start
+// ==================== SERVER START ====================
+
 const startServer = async () => {
   try {
+    // Connect to database with optimized settings
     await connectDb();
+    
     const PORT = process.env.PORT || 5000;
     const server = app.listen(PORT, () => {
-      console.log( );
-      
-      console.log(`🌐 Allowed Origins:`);
-      allowedOrigins.forEach(origin => console.log(`   • ${origin}`));
-      
-      console.log(`
-📋 API Endpoints Overview:
-   • GET    /api/hero/active      - Get active hero sections
-   • GET    /api/blogs/slider     - Get blogs for slider
-   • POST   /api/hero             - Create hero section (Admin)
-   • POST   /api/blogs            - Create blog (Admin)
-      `);
+      console.log(`✅ Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
     });
 
-    // Handle graceful shutdown
-    const gracefulShutdown = (signal) => {
+    // Handle server errors
+    server.on('error', (error) => {
+      console.error('Server error:', error);
+    });
+
+    // Graceful shutdown
+    const gracefulShutdown = async (signal) => {
       console.log(`\n${signal} received. Starting graceful shutdown...`);
+      
       server.close(() => {
-        console.log('💤 Server shut down gracefully.');
+        console.log('HTTP server closed.');
+      });
+
+      try {
+        await mongoose.connection.close();
+        console.log('MongoDB connection closed.');
         process.exit(0);
-      });
-
-      // Force shutdown after 10 seconds
-      setTimeout(() => {
-        console.error('⚠️ Could not close connections in time, forcefully shutting down');
+      } catch (err) {
+        console.error('Error during shutdown:', err);
         process.exit(1);
-      }, 10000);
-    };
-
-    // Handle unhandled promise rejections
-    process.on("unhandledRejection", (err, promise) => {
-      console.error("❌ Unhandled Rejection at:", promise, "reason:", err);
-      // Don't exit in production, just log
-      if (process.env.NODE_ENV === "production") {
-        console.error("Continuing in production despite unhandled rejection");
-      } else {
-        server.close(() => {
-          process.exit(1);
-        });
       }
-    });
-
-    // Handle uncaught exceptions
-    process.on("uncaughtException", (err) => {
-      console.error("❌ Uncaught Exception:", err);
-      server.close(() => {
-        process.exit(1);
-      });
-    });
+    };
 
     // Handle termination signals
     process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
     process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+    // Handle uncaught errors
+    process.on("unhandledRejection", (err) => {
+      console.error("Unhandled Rejection:", err);
+      // Don't exit, just log
+    });
+
+    process.on("uncaughtException", (err) => {
+      console.error("Uncaught Exception:", err);
+      // Don't exit, just log
+    });
 
   } catch (error) {
     console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 };
-
 
 // Start the server
 startServer();
