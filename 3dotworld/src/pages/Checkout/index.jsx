@@ -1,6 +1,4 @@
-console.log("✅ Checkout page loaded!");
-
-// ... rest of your code
+// D:\Bharath\ecommerce\3dotworld\src\pages\Checkout\index.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -35,8 +33,6 @@ import {
   DialogContentText,
   DialogActions,
   Radio,
-  RadioGroup,
-  FormControlLabel,
 } from "@mui/material";
 import {
   ShoppingCart,
@@ -50,7 +46,6 @@ import {
   CreditCard,
   Security,
   Timer,
-  VerifiedUser,
   MonetizationOn,
   QrCode,
   Phone,
@@ -61,7 +56,71 @@ import { styled } from "@mui/material/styles";
 import axios from "axios";
 
 // Styled Components
+const RedButton = styled(Button)(({ theme }) => ({
+  background: 'linear-gradient(45deg, #D32F2F 30%, #B71C1C 90%)',
+  color: 'white',
+  fontWeight: 'bold',
+  padding: '12px 32px',
+  borderRadius: '10px',
+  boxShadow: '0 4px 15px rgba(211, 47, 47, 0.3)',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    background: 'linear-gradient(45deg, #B71C1C 30%, #D32F2F 90%)',
+    transform: 'translateY(-2px)',
+    boxShadow: '0 6px 20px rgba(211, 47, 47, 0.4)',
+  },
+  '&:disabled': {
+    background: '#e0e0e0',
+    color: '#9e9e9e',
+  },
+}));
 
+const WhiteCard = styled(Card)(({ theme }) => ({
+  background: 'white',
+  borderRadius: '16px',
+  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+  border: '1px solid #f0f0f0',
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.12)',
+  },
+}));
+
+const StepIconRed = styled(StepIcon)(({ theme, ownerState }) => ({
+  color: ownerState.completed || ownerState.active ? '#D32F2F' : '#e0e0e0',
+  '& .MuiStepIcon-text': {
+    fill: 'white',
+    fontWeight: 'bold',
+  },
+}));
+
+const AddressCard = styled(Paper)(({ theme, selected }) => ({
+  padding: '20px',
+  borderRadius: '12px',
+  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
+  background: selected ? '#FFF5F5' : 'white',
+  cursor: 'pointer',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    borderColor: '#D32F2F',
+    transform: 'translateY(-2px)',
+  },
+}));
+
+const PaymentCard = styled(Paper)(({ theme, selected, available }) => ({
+  padding: '20px',
+  borderRadius: '12px',
+  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
+  background: selected ? '#FFF5F5' : 'white',
+  cursor: available ? 'pointer' : 'default',
+  opacity: available ? 1 : 0.6,
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    borderColor: available ? '#D32F2F' : '#e0e0e0',
+    transform: available ? 'translateY(-2px)' : 'none',
+  },
+}));
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -83,6 +142,7 @@ const CheckoutPage = () => {
     type: "",
     data: null,
   });
+  const [authChecked, setAuthChecked] = useState(false);
 
   const steps = [
     { label: "Review Cart", icon: <ShoppingCart /> },
@@ -132,27 +192,50 @@ const CheckoutPage = () => {
 
   const API_BASE_URL = "https://server-kzwj.onrender.com/api";
 
-  const getToken = () =>
-    localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
+  // Get token from multiple possible locations
+  const getToken = () => {
+    return localStorage.getItem('authToken') || 
+           sessionStorage.getItem('authToken') ||
+           localStorage.getItem('token');
+  };
 
-  // Get user details from token or localStorage
+  // Check if token is expired
+  const isTokenExpired = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      const now = Date.now() / 1000;
+      return payload.exp < now;
+    } catch (e) {
+      return true; // If can't decode, treat as expired
+    }
+  };
+
+  // Clear all auth data
+  const clearAuthData = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    sessionStorage.removeItem('authToken');
+  };
+
+  // Get user details from token
   const getUserFromToken = () => {
     const token = getToken();
     if (!token) return null;
     
     try {
       const base64Url = token.split('.')[1];
-      if (base64Url) {
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-      }
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
     } catch (error) {
       console.error("Error decoding token:", error);
+      return null;
     }
-    return null;
   };
 
   // Load cart and addresses
@@ -160,10 +243,26 @@ const CheckoutPage = () => {
     const loadData = async () => {
       try {
         setLoading(true);
+        
+        // Get token
         const token = getToken();
         
+        // Check if token exists
         if (!token) {
-          navigate("/login");
+          setError("Please login to view checkout");
+          setTimeout(() => navigate("/login"), 2000);
+          setLoading(false);
+          setAuthChecked(true);
+          return;
+        }
+
+        // Check if token is expired
+        if (isTokenExpired(token)) {
+          clearAuthData();
+          setError("Session expired. Please login again.");
+          setTimeout(() => navigate("/login"), 2000);
+          setLoading(false);
+          setAuthChecked(true);
           return;
         }
 
@@ -171,31 +270,57 @@ const CheckoutPage = () => {
         const userFromToken = getUserFromToken();
         setUserDetails(userFromToken);
 
-        // Load cart data - Fix: Access the cart data correctly
-        const cartRes = await axios.get(`${API_BASE_URL}/cart`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error("Cart API error:", err);
-          return { data: { data: { items: [], total: 0, discountAmount: 0, couponCode: null } } };
-        });
+        // Load cart data
+        try {
+          const cartRes = await axios.get(`${API_BASE_URL}/cart`, {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const cartData = cartRes.data?.data || cartRes.data || { 
+            items: [], 
+            total: 0, 
+            discountAmount: 0, 
+            couponCode: null 
+          };
+          setCart(cartData);
+          
+        } catch (cartErr) {
+          console.error("Cart API error:", cartErr.response?.status, cartErr.response?.data);
+          
+          if (cartErr.response?.status === 401) {
+            clearAuthData();
+            setError("Session expired. Please login again.");
+            setTimeout(() => navigate("/login"), 2000);
+            setLoading(false);
+            setAuthChecked(true);
+            return;
+          }
+          
+          // Set empty cart as fallback
+          setCart({ items: [], total: 0, discountAmount: 0, couponCode: null });
+        }
 
         // Load addresses
-        const addrRes = await axios.get(`${API_BASE_URL}/addresses`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(err => {
-          console.error("Addresses API error:", err);
-          return { data: { data: [] } };
-        });
-
-        // Handle different response structures
-        const cartData = cartRes.data?.data || cartRes.data || { items: [], total: 0, discountAmount: 0, couponCode: null };
+        try {
+          const addrRes = await axios.get(`${API_BASE_URL}/addresses`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          
+          const addressesData = addrRes.data?.data || [];
+          setAddresses(addressesData);
+          
+          const defaultAddr = addressesData.find((a) => a.is_default);
+          if (defaultAddr) setSelectedAddress(defaultAddr._id);
+          
+        } catch (addrErr) {
+          console.error("Addresses API error:", addrErr);
+          setAddresses([]);
+        }
         
-        console.log("Cart data loaded:", cartData); // Debug log
-        setCart(cartData);
-        setAddresses(addrRes.data?.data || []);
-
-        const defaultAddr = addrRes.data?.data?.find((a) => a.is_default);
-        if (defaultAddr) setSelectedAddress(defaultAddr._id);
+        setAuthChecked(true);
         
       } catch (err) {
         console.error("Load data error:", err);
@@ -239,8 +364,6 @@ const CheckoutPage = () => {
         couponCode: cart?.couponCode || "",
       };
 
-      console.log("Placing COD order:", orderData);
-
       const res = await axios.post(
         `${API_BASE_URL}/orders`,
         orderData,
@@ -269,7 +392,6 @@ const CheckoutPage = () => {
   const createRazorpayOrder = async (orderId, paymentMethod) => {
     try {
       const token = getToken();
-      console.log("Creating Razorpay order with:", { orderId, paymentMethod });
       
       const response = await axios.post(
         `${API_BASE_URL}/payments/create-razorpay-order`,
@@ -282,18 +404,11 @@ const CheckoutPage = () => {
         }
       );
       
-      console.log("Razorpay order response:", response.data);
       return response.data;
     } catch (error) {
-      console.error("Create Razorpay order error:", {
-        status: error.response?.status,
-        data: error.response?.data,
-        message: error.message,
-      });
-      
+      console.error("Create Razorpay order error:", error);
       const errorMessage = error.response?.data?.message || error.message || "Failed to create payment order";
-      const errorDetails = error.response?.data?.details || "";
-      throw new Error(`${errorMessage} ${errorDetails}`.trim());
+      throw new Error(errorMessage);
     }
   };
 
@@ -328,8 +443,6 @@ const CheckoutPage = () => {
         couponCode: cart?.couponCode || "",
       };
 
-      console.log("Creating order:", orderData);
-
       const orderRes = await axios.post(
         `${API_BASE_URL}/orders`,
         orderData,
@@ -357,7 +470,7 @@ const CheckoutPage = () => {
         key: paymentData.data.key,
         amount: paymentData.data.amount,
         currency: paymentData.data.currency,
-        name: "Your Store Name",
+        name: "3dotworld",
         description: `Payment for Order #${order.order_id}`,
         order_id: paymentData.data.id,
         prefill: {
@@ -479,9 +592,7 @@ const CheckoutPage = () => {
     const subtotal = cart.items.reduce((sum, item) => 
       sum + (item.product?.price || 0) * item.quantity, 0);
     
-    // Get discount from cart (applied coupon)
     const discount = cart.discountAmount || 0;
-    
     const shipping = subtotal > 499 ? 0 : 49;
     const total = subtotal + shipping - discount;
     
@@ -515,6 +626,12 @@ const CheckoutPage = () => {
     }
   };
 
+  // Format currency
+  const formatCurrency = (amount) => {
+    return `₹${amount.toFixed(2)}`;
+  };
+
+  // Loading state
   if (loading) {
     return (
       <Box 
@@ -528,6 +645,31 @@ const CheckoutPage = () => {
         <Typography variant="h6" color="textSecondary">
           Loading your cart...
         </Typography>
+      </Box>
+    );
+  }
+
+  // Auth error state
+  if (!authChecked || error?.includes("login") || error?.includes("Session expired")) {
+    return (
+      <Box 
+        display="flex" 
+        flexDirection="column" 
+        alignItems="center" 
+        justifyContent="center" 
+        minHeight="70vh"
+      >
+        <Alert 
+          severity="error" 
+          sx={{ mb: 2, maxWidth: 400 }}
+          action={
+            <Button color="inherit" size="small" onClick={() => navigate("/login")}>
+              Login
+            </Button>
+          }
+        >
+          {error || "Please login to continue"}
+        </Alert>
       </Box>
     );
   }
@@ -736,6 +878,13 @@ const CheckoutPage = () => {
                             <Typography variant="body1" color="textSecondary" paragraph>
                               No addresses found. Please add an address to continue.
                             </Typography>
+                            <Button
+                              variant="contained"
+                              onClick={() => navigate("/profile/addresses")}
+                              sx={{ bgcolor: '#D32F2F', '&:hover': { bgcolor: '#B71C1C' } }}
+                            >
+                              Add Address
+                            </Button>
                           </Paper>
                         </Grid>
                       )}
@@ -1258,81 +1407,5 @@ const CheckoutPage = () => {
     </Container>
   );
 };
-
-
-const RedButton = styled(Button)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #D32F2F 30%, #B71C1C 90%)',
-  color: 'white',
-  fontWeight: 'bold',
-  padding: '12px 32px',
-  borderRadius: '10px',
-  boxShadow: '0 4px 15px rgba(211, 47, 47, 0.3)',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    background: 'linear-gradient(45deg, #B71C1C 30%, #D32F2F 90%)',
-    transform: 'translateY(-2px)',
-    boxShadow: '0 6px 20px rgba(211, 47, 47, 0.4)',
-  },
-  '&:disabled': {
-    background: '#e0e0e0',
-    color: '#9e9e9e',
-  },
-}));
-
-const WhiteCard = styled(Card)(({ theme }) => ({
-  background: 'white',
-  borderRadius: '16px',
-  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
-  border: '1px solid #f0f0f0',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 15px 35px rgba(0, 0, 0, 0.12)',
-  },
-}));
-
-const StepIconRed = styled(StepIcon)(({ theme, ownerState }) => ({
-  color: ownerState.completed || ownerState.active ? '#D32F2F' : '#e0e0e0',
-  '& .MuiStepIcon-text': {
-    fill: 'white',
-    fontWeight: 'bold',
-  },
-}));
-
-const AddressCard = styled(Paper)(({ theme, selected }) => ({
-  padding: '20px',
-  borderRadius: '12px',
-  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
-  background: selected ? '#FFF5F5' : 'white',
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    borderColor: '#D32F2F',
-    transform: 'translateY(-2px)',
-  },
-}));
-
-const PaymentCard = styled(Paper)(({ theme, selected, available }) => ({
-  padding: '20px',
-  borderRadius: '12px',
-  border: selected ? '2px solid #D32F2F' : '1px solid #e0e0e0',
-  background: selected ? '#FFF5F5' : 'white',
-  cursor: available ? 'pointer' : 'default',
-  opacity: available ? 1 : 0.6,
-  transition: 'all 0.3s ease',
-  '&:hover': {
-    borderColor: available ? '#D32F2F' : '#e0e0e0',
-    transform: available ? 'translateY(-2px)' : 'none',
-  },
-}));
-
-const DiscountChip = styled(Chip)(({ theme }) => ({
-  background: 'linear-gradient(45deg, #4CAF50 30%, #388E3C 90%)',
-  color: 'white',
-  fontWeight: 'bold',
-  '& .MuiChip-icon': {
-    color: 'white',
-  },
-}));
 
 export default CheckoutPage;
